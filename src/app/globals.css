@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@100..900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  @theme {
+    --radius: 0.5rem;
+    --color-purple-light:#E0B0FF;
+    --color-purple-button:#CF9FFF;
+    --color-purple-bright:#BF40BF;
+    --color-pink-light:#F699CD;
+    /* Custom Design Tokens */
+    --border: 220 14% 96%;
+    --input: 220 14% 96%;
+    --ring: 220 14% 96%;
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --primary: 24 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+  }
+
+  :root {
+    color-scheme: light;
+  }
+
+  .dark {
+    --background: 222.2 47.4% 11.2%;
+    --foreground: 210 20% 98%;
+    --primary: 24 100% 60%;
+    --primary-foreground: 0 0% 100%;
+  }
+}
+html {
+ font-family: "Roboto Slab", serif;
+}
+
+
+
+/* styles/globals.css or styles/tailwind.css */
+.scrollbar-hide {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
