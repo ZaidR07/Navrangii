@@ -1,0 +1,76 @@
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Home, Heart, User, ShoppingCart, Menu } from "lucide-react";
+import Link from "next/link";
+import CategoriesModal from "./CategoriesModal";
+
+interface BottomNavItem {
+  id: string;
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+}
+
+const navItems: BottomNavItem[] = [
+  { id: "home", icon: <Home className="h-6 w-6" />, label: "Home", href: "/" },
+  { id: "categories", icon: <Menu className="h-6 w-6" />, label: "Categories", href: "#" },
+  { id: "wishlist", icon: <Heart className="h-6 w-6" />, label: "Wishlist", href: "/wishlist" },
+  { id: "cart", icon: <ShoppingCart className="h-6 w-6" />, label: "Cart", href: "/cart" },
+  { id: "profile", icon: <User className="h-6 w-6" />, label: "Profile", href: "/profile" },
+];
+
+export default function MobileBottomNav() {
+  const [activeItem, setActiveItem] = useState("home");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleCategoryClick = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  return (
+    <>
+      {/* Mobile Bottom Navigation */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+        <div className="flex justify-around items-center py-3 px-2">
+          {navItems.map((item) => (
+            <motion.div
+              key={item.id}
+              whileTap={{ scale: 0.9 }}
+              className={`flex flex-col items-center justify-center w-16 py-1 rounded-lg ${
+                activeItem === item.id
+                  ? "text-purple-600 bg-purple-50"
+                  : "text-gray-600 hover:text-purple-600"
+              }`}
+              onClick={() => {
+                setActiveItem(item.id);
+                if (item.id === "categories") {
+                  handleCategoryClick();
+                }
+              }}
+            >
+              <div className="relative">
+                {item.icon}
+                {item.id === "cart" && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    3
+                  </span>
+                )}
+                {item.id === "wishlist" && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    5
+                  </span>
+                )}
+              </div>
+              <span className="text-xs mt-1 font-medium">{item.label}</span>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Categories Modal */}
+      <CategoriesModal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+    </>
+  );
+}
