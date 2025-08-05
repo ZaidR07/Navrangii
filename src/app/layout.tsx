@@ -4,6 +4,8 @@ import "./globals.css";
 import QueryProvider from "@/components/query-provider";
 import { ToastContainer } from 'react-toastify';
 import { Theme } from "@/components/theme";
+import { WishlistProvider } from "@/context/WishlistContext";
+import { AuthProvider } from "@/context/UserContext";
 
 
 
@@ -23,10 +25,14 @@ export default function RootLayout({
         className={`antialiased dark:text-white`}
       >
         <QueryProvider>
-          <Theme>
-            <ToastContainer />
-            {children}
-          </Theme>
+          <AuthProvider>
+            <WishlistProvider>
+              <Theme>
+                <ToastContainer />
+                {children}
+              </Theme>
+            </WishlistProvider>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

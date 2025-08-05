@@ -21,25 +21,25 @@ const notices: Notice[] = [
   {
     id: 2,
     text: "💕 New Couple Collection - Perfect Matching Outfits for Him & Her",
-    bgColor: "bg-pink-500",
+    bgColor: "bg-purple-600",
     textColor: "text-white"
   },
   {
     id: 3,
     text: "⭐ Get 50% OFF on All Fashion Items - Awesome August Sale!",
-    bgColor: "bg-violet-600",
+    bgColor: "bg-purple-600",
     textColor: "text-white"
   },
   {
     id: 4,
     text: "🚚 Easy Returns & Exchange - 30 Day Return Policy",
-    bgColor: "bg-indigo-600",
+    bgColor: "bg-purple-600",
     textColor: "text-white"
   },
   {
     id: 5,
     text: "💎 Premium Jewelry Collection - Handcrafted with Love",
-    bgColor: "bg-purple-700",
+    bgColor: "bg-purple-600",
     textColor: "text-white"
   }
 ];

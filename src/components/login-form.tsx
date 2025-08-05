@@ -21,8 +21,8 @@ export default function LoginForm() {
   const form = useForm<AdminLoginInput>({
     resolver: zodResolver(adminLoginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: "zaidrahman342@gmail.com",
+      password: "123456",
     },
   });
 function getErrorMessage(error: AxiosError): string {
@@ -34,7 +34,7 @@ function getErrorMessage(error: AxiosError): string {
   mutate(values, {
     onSuccess: (message:string) => {
       toast.success(message || "Successfully logged in");
-      router.push("/dashboard");
+      router.push("/admin/dashboard");
     },
     onError: (error: AxiosError) => {
       toast.error(getErrorMessage(error));

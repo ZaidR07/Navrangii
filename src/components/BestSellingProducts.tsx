@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Star, ShoppingBag } from "lucide-react";
+import Link from "next/link";
+import WishlistToggle from '@/components/wishlist/WishlistToggle';
 
 interface Product {
   name: string;
@@ -64,80 +66,95 @@ const bestSellingProducts: Product[] = [
 ];
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6, delay: index * 0.1 }}
-    whileHover={{ scale: 1.05 }}
-    className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300"
-  >
-    <div className="relative h-80 overflow-hidden">
-      <img
-        src={product.image}
-        alt={product.name}
-        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-      />
-      <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <ShoppingBag className="h-5 w-5 text-gray-600 hover:text-purple-600 transition-colors" />
-      </div>
-    </div>
-    <div className="p-6">
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
-      <div className="flex items-center mb-3">
-        {[...Array(5)].map((_, i) => (
-          <Star 
-            key={i} 
-            className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+  <Link href={`/product/sample-${index}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      whileHover={{ scale: 1.05 }}
+      className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col"
+    >
+      <div className="relative h-80 overflow-hidden">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          style={{ aspectRatio: '3/4', objectFit: 'cover' }}
+        />
+        <div className="absolute top-4 right-4">
+          <WishlistToggle 
+            product={product as any} 
+            className="bg-white/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+            iconClassName="h-5 w-5" 
           />
-        ))}
-        <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
-      </div>
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-2xl font-bold text-purple-600">{product.price}</span>
-          <span className="text-lg text-gray-500 line-through ml-2">{product.originalPrice}</span>
         </div>
-        <button className="bg-purple-600 text-white p-2 rounded-full hover:bg-purple-700 transition-colors">
-          <ShoppingBag className="h-5 w-5" />
+      </div>
+      <div className="p-5 flex-grow flex flex-col">
+        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">{product.name}</h3>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+            ))}
+            <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
+          </div>
+          <div className="flex items-baseline">
+            <span className="text-xl font-bold text-purple-600 mr-2">{product.price}</span>
+            <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
+          </div>
+        </div>
+        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center group-hover:shadow-lg mt-auto">
+          <span>View Product</span>
+          <ShoppingBag className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
-    </div>
-  </motion.div>
+    </motion.div>
+  </Link>
 );
 
 const MobileProductCard = ({ product, index }: { product: Product; index: number }) => (
-  <motion.div
-    initial={{ opacity: 0, x: 50 }}
-    whileInView={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.6, delay: index * 0.1 }}
-    className="flex-shrink-0 w-64 bg-white rounded-2xl overflow-hidden shadow-xl"
-  >
-    <div className="relative h-80 overflow-hidden">
-      <img
-        src={product.image}
-        alt={product.name}
-        className="w-full h-full object-cover"
-      />
-    </div>
-    <div className="p-4">
-      <h3 className="text-lg font-bold text-gray-900 mb-2 truncate">{product.name}</h3>
-      <div className="flex items-center mb-2">
-        {[...Array(5)].map((_, i) => (
-          <Star 
-            key={i} 
-            className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+  <Link href={`/product/sample-${index}`}>
+    <motion.div
+      initial={{ opacity: 0, x: 50 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden shadow-xl cursor-pointer"
+    >
+      <div className="relative h-80 overflow-hidden">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="w-full h-full object-cover"
+          style={{ aspectRatio: '3/4', objectFit: 'cover' }}
+        />
+        <div className="absolute top-4 right-4">
+          <WishlistToggle 
+            product={product as any} 
+            className="bg-white/80 backdrop-blur-sm p-2 rounded-full" 
+            iconClassName="h-5 w-5" 
           />
-        ))}
-        <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
-      </div>
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-xl font-bold text-purple-600">{product.price}</span>
-          <span className="text-sm text-gray-500 line-through ml-2">{product.originalPrice}</span>
         </div>
       </div>
-    </div>
-  </motion.div>
+      <div className="p-4">
+        <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+            ))}
+            <span className="text-xs text-gray-600 ml-1">({product.reviews})</span>
+          </div>
+          <div className="flex items-baseline">
+            <span className="text-lg font-bold text-purple-600 mr-1">{product.price}</span>
+            <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
+          </div>
+        </div>
+        <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-1.5 rounded-md text-sm font-semibold transition-colors">
+          View Product
+        </button>
+      </div>
+    </motion.div>
+  </Link>
 );
 
 export default function BestSellingProducts() {
@@ -169,11 +186,24 @@ export default function BestSellingProducts() {
 
         {/* Desktop Grid */}
         <div className="hidden lg:block">
-          <div className="grid lg:grid-cols-3 gap-8">
-            {bestSellingProducts.map((product, index) => (
+          <div className="grid lg:grid-cols-4 gap-8">
+            {bestSellingProducts.slice(0, 8).map((product, index) => (
               <ProductCard key={index} product={product} index={index} />
             ))}
           </div>
+          
+          {/* View More Button */}
+          {bestSellingProducts.length > 8 && (
+            <div className="text-center mt-8">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white text-purple-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg border-2 border-white hover:border-purple-200"
+              >
+                View All Best Sellers
+              </motion.button>
+            </div>
+          )}
         </div>
       </div>
     </section>

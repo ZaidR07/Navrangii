@@ -1,8 +1,8 @@
 "use client";
 
 import { useGetVariable } from "@/hooks/variable/useGetVariable";
-import PageLoading from "./page-loading";
-import PageError from "./page-error";
+import { toast } from "react-toastify";
+import LoaderSpinner from "./loader-spinner";
 import {
   Card,
   CardContent,
@@ -31,7 +31,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { toast } from "react-toastify";
 import { Variables } from "@/lib/types/variablesType";
 import { useDeleteVariableOption } from "@/hooks/variable/useDeleteVariableOption";
 
@@ -54,20 +53,30 @@ export default function ListOfVariables() {
 
   const handleDeleteOption = async (field: string, value: string) => {
     try {
-        console.log(field,value);
-        
+      console.log(field, value);
+
       await deleteOption({ field, value });
       toast.success(`Deleted "${value}" from ${field}`);
       refetch();
     } catch (error) {
-        console.log(error);
-        
+      console.log(error);
+
       toast.error("Failed to delete option.");
     }
   };
 
-  if (isLoading) return <PageLoading />;
-  if (isError || !variableData) return <PageError />;
+  if (isLoading) return <LoaderSpinner message="Loading variables..." />;
+
+  if (isError || !variableData) {
+    toast.error("Failed to load variables. Please try again later.");
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="font-medium text-red-700 dark:text-red-300">
+          Failed to load variables
+        </p>
+      </div>
+    );
+  }
 
   const getTotalItems = () => categoryConfig.reduce((total, { key }) => total + (variableData[key as keyof Variables]?.length || 0), 0);
   return (

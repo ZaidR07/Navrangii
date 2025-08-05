@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useDebounce } from "use-debounce";
 import { useGetAllUsers } from "@/hooks/users/useGetAllUser";
 import type { ExtendedUser } from "@/lib/types/userType";
-import PageLoading from "@/components/page-loading";
-import PageError from "@/components/page-error";
+import { toast } from "react-toastify";
+import LoaderSpinner from "@/components/loader-spinner";
 import { Filters } from "@/components/customer-filter";
 import { CustomersTable } from "@/components/customers-table";
 import {
@@ -33,8 +33,18 @@ export default function CustomersPage() {
     return matchesSearch && isNotAdmin;
   });
 
-  if (isLoading) return <PageLoading />;
-  if (isError) return <PageError />;
+  if (isLoading) return <LoaderSpinner message="Loading customers..." />;
+
+  if (isError) {
+    toast.error("Failed to load customers. Please try again later.");
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="font-medium text-red-700 dark:text-red-300">
+          Failed to load customers
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-muted/40 p-4 sm:p-6 lg:p-8">

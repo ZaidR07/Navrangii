@@ -6,11 +6,15 @@ import axios from "axios";
 
 
 async function createProduct(product: Product): Promise<Product> {
-
   const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/product/create`, product, {
     withCredentials: true,
   });
-  return response.data.data as Product;
+  
+  if (!response.data.success) {
+    throw new Error(response.data.message || 'Failed to create product');
+  }
+  
+  return response.data.product as Product;
 }
 
 // 👇 Accept mutation options here

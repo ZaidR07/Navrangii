@@ -10,6 +10,8 @@ export  interface User {
   isAdmin: boolean;
   createdAt?: string
   orders?: Order[];
+  otp?: string;
+  otpExpires?: string;
 }
 
 export interface ExtendedUser extends Omit<User, "orders"> {

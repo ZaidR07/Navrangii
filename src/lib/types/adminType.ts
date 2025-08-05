@@ -1,4 +1,5 @@
  export interface Admin {
-    id:number
-    name:string;
- }
+    _id: string;
+    email: string;
+    isAdmin: boolean;
+}

@@ -2,15 +2,25 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Menu, X, Sparkles, ChevronDown } from "lucide-react";
+import { Heart, ShoppingBag, Menu, X, Sparkles, ChevronDown, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CategoriesModal from "./CategoriesModal";
+import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/UserContext';
+import LoginModal from '@/components/LoginModal';
+import Cookies from 'js-cookie';
 
 export default function NavigationHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const { wishlistCount } = useWishlist();
+  const { user, logout } = useAuth();
   const pathname = usePathname();
+  
+  // Check if user is logged in by checking for email cookie
+  const isUserLoggedIn = !!Cookies.get('userEmail');
 
   const isActive = (path: string) => pathname === path;
   const isCategoryActive = (category: string) => pathname.includes(`/category/${category}`);
@@ -27,6 +37,11 @@ export default function NavigationHeader() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
+            {/* Mobile menu button - Removed as per request */}
+            <div className="lg:hidden w-6">
+              {/* Empty div for spacing */}
+            </div>
+            
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -40,7 +55,7 @@ export default function NavigationHeader() {
             </motion.div>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
+            <div className="hidden lg:flex items-center justify-between flex-1">
               <nav className="flex space-x-8">
                 {categories.map((category) => (
                   <Link
@@ -78,6 +93,58 @@ export default function NavigationHeader() {
                   Sale
                 </Link>
               </nav>
+              
+              {/* Right Side Icons - Moved inside the flex container */}
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="flex items-center space-x-4"
+              >
+                {/* Wishlist */}
+                <Link 
+                  href="/wishlist" 
+                  className="relative p-2 text-gray-600 hover:text-purple-500"
+                  aria-label="Wishlist"
+                >
+                  <Heart className="h-6 w-6" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
+                
+                {/* Cart */}
+                <Link 
+                  href="/cart" 
+                  className="relative p-2 text-gray-600 hover:text-purple-500"
+                  aria-label="Shopping Cart"
+                >
+                  <ShoppingBag className="h-6 w-6" />
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    3
+                  </span>
+                </Link>
+                
+                {/* Profile/Login Button */}
+                {isUserLoggedIn ? (
+                  <button 
+                    onClick={() => window.location.href = '/profile'}
+                    className="p-2 text-gray-600 hover:text-purple-500"
+                    aria-label="Profile"
+                  >
+                    <User className="h-6 w-6" />
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setIsLoginModalOpen(true)}
+                    className="px-4 py-2 text-sm font-medium text-purple-600 border border-purple-600 rounded-md hover:bg-purple-50"
+                    aria-label="Login"
+                  >
+                    Login
+                  </button>
+                )}
+              </motion.div>
             </div>
 
             {/* Mobile menu button - Removed */}
@@ -85,26 +152,29 @@ export default function NavigationHeader() {
               {/* Empty div for spacing */}
             </div>
 
-            {/* Right Side Icons */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center space-x-4"
-            >
-              {/* Icons hidden on mobile/tablet, only show on desktop */}
-              <Link href="/wishlist" className="hidden lg:block relative p-2 text-gray-600 hover:text-purple-500">
-                <Heart className="h-6 w-6" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  5
-                </span>
-              </Link>
-              <Link href="/cart" className="hidden lg:block relative p-2 text-gray-600 hover:text-purple-500">
-                <ShoppingBag className="h-6 w-6" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  3
-                </span>
-              </Link>
-            </motion.div>
+            {/* Mobile Right Side Icons */}
+            <div className="lg:hidden flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                {/* Mobile Profile/Login Button */}
+                {isUserLoggedIn ? (
+                  <button 
+                    onClick={() => window.location.href = '/profile'}
+                    className="p-2 text-gray-600 hover:text-purple-500"
+                    aria-label="Profile"
+                  >
+                    <User className="h-6 w-6" />
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setIsLoginModalOpen(true)}
+                    className="px-3 py-1 text-sm font-medium text-purple-600 border border-purple-600 rounded-md hover:bg-purple-50"
+                    aria-label="Login"
+                  >
+                    Login
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -151,6 +221,12 @@ export default function NavigationHeader() {
 
       {/* Categories Modal */}
       <CategoriesModal isOpen={isCategoriesOpen} onClose={() => setIsCategoriesOpen(false)} />
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </>
   );
 }

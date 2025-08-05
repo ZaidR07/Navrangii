@@ -2,39 +2,12 @@
 
 import LoginForm from "@/components/login-form";
 import ModeToggle from "@/components/mode-toggle";
-import axios from "axios";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
 
 export default function AdminLoginPage() {
 
 
-  useEffect(() => {
-    const keepServerAlive = () => {
-      // Array of endpoints to ping
-      const endpoints = ["/keep-alive", "/keep-alive2"];
-    
-      // Random interval between 4-5 minutes (avoiding exact 5-minute intervals)
-      const getRandomInterval = () => 4 * 60 * 1000 + Math.random() * (60 * 1000);
-    
-      // Ping random endpoint
-      const pingServer = () => {
-        const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
-        const serverUrl = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
-    
-        axios.get(`${serverUrl}${endpoint}`).catch((error) => {
-          console.log(`Keep-alive request to ${endpoint} failed:`, error.message);
-        });
-    
-        // Schedule next ping with random interval
-        setTimeout(pingServer, getRandomInterval());
-      };
-    
-      // Start the first ping
-      pingServer();
-    };
-    keepServerAlive();
-  }, []);
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-white dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-950 transition-all px-4 py-8 overflow-hidden text-gray-900 dark:text-gray-100">
       

@@ -1,0 +1,137 @@
+"use client";
+
+import React, { useEffect, useState } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { ChevronLeft, ChevronRight, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useGetProductById } from '@/hooks/product/useGetProduct';
+import { useGetSimilarProducts } from '@/hooks/product/useGetProduct';
+import ProductImageGallery from '@/components/product/ProductImageGallery';
+import ProductInfo from '@/components/product/ProductInfo';
+import SimilarProductsCarousel from '@/components/product/SimilarProductsCarousel';
+import ReviewsSection from '@/components/product/ReviewsSection';
+import { Product, ProductVariantType } from '@/lib/types/productType';
+
+const ProductDetailPage = () => {
+  const params = useParams();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  
+  // State for selected variant
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariantType | undefined>(undefined);
+  
+  // Parse product from URL if available (for server-side rendering)
+  const productFromUrl = searchParams?.get('product') 
+    ? (JSON.parse(searchParams.get('product') as string) as Product)
+    : undefined;
+
+  const { 
+    data: product, 
+    isLoading, 
+    error
+  } = useGetProductById(id || null, {
+    initialData: productFromUrl,
+    enabled: !productFromUrl && !!id,
+  });
+  
+  // Set the first variant as default when product loads
+  useEffect(() => {
+    if (product && product.variants && product.variants.length > 0 && !selectedVariant) {
+      setSelectedVariant(product.variants[0]);
+    }
+  }, [product, selectedVariant]);
+  
+  // Fetch similar products based on current product's category and subcategory
+  const { data: similarProducts = [] } = useGetSimilarProducts(
+    product?.category, 
+    product?.subcategory,
+    product?._id,
+    { enabled: !!product }
+  );
+  
+  useEffect(() => {
+    if (error) {
+      console.error('Error loading product:', error);
+      // You can add a toast notification here if needed
+    }
+  }, [error]);
+
+  if (isLoading && !product) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
+        <Loader2 className="h-12 w-12 animate-spin text-pink-500" />
+        <p className="text-gray-600">Loading product details...</p>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="flex justify-center mb-4">
+            <AlertCircle className="h-12 w-12 text-rose-500" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Product Not Found</h2>
+          <p className="text-gray-600 mb-6">
+            {error?.message || 'The product you\'re looking for doesn\'t exist or has been removed.'}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              variant="outline"
+              onClick={() => router.back()}
+              className="flex items-center gap-2"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Go Back
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => window.location.reload()}
+              className="bg-pink-500 hover:bg-pink-600"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Try Again
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <nav className="mb-8">
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <a href="/" className="hover:text-purple-600">Home</a>
+            <ChevronRight className="h-4 w-4" />
+            <a href="/" className="hover:text-purple-600">Products</a>
+            <ChevronRight className="h-4 w-4" />
+            <span className="text-gray-900">{product.name}</span>
+          </div>
+        </nav>
+
+        {/* Product Details */}
+        <div className="grid lg:grid-cols-2 gap-8 mb-16">
+          <ProductImageGallery product={product} selectedVariant={selectedVariant} />
+          <ProductInfo product={product} selectedVariant={selectedVariant} setSelectedVariant={setSelectedVariant} />
+        </div>
+
+        {/* Similar Products Section */}
+        {similarProducts && similarProducts.length > 0 && (
+          <div className="border-t pt-16">
+            <h2 className="text-2xl font-bold text-gray-900 mb-8">You May Also Like</h2>
+            <SimilarProductsCarousel products={similarProducts} />
+          </div>
+        )}
+        {/* Reviews Section */}
+        <ReviewsSection />
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetailPage;

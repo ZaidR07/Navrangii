@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, Heart } from "lucide-react";
+import { Star } from "lucide-react";
+import Link from "next/link";
+import WishlistToggle from '@/components/wishlist/WishlistToggle';
 
 interface Product {
   name: string;
@@ -67,22 +69,27 @@ export default function FeaturedProducts() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {featuredProducts.map((product, index) => (
-            <motion.div
-              key={product.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
-            >
+            <Link key={product.name} href={`/product/featured-${index}`}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+              >
               <div className="relative overflow-hidden">
                 <img
                   src={product.image}
                   alt={product.name}
                   className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300"
+                  style={{ aspectRatio: '3/4', objectFit: 'cover' }}
                 />
-                <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <Heart className="h-5 w-5 text-gray-600 hover:text-red-500 transition-colors" />
+                <div className="absolute top-4 right-4">
+                  <WishlistToggle 
+                    product={product as any} 
+                    className="bg-white/80 backdrop-blur-sm p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" 
+                    iconClassName="h-5 w-5" 
+                  />
                 </div>
               </div>
               <div className="p-6">
@@ -103,7 +110,8 @@ export default function FeaturedProducts() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
       </div>

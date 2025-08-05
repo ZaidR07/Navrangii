@@ -101,12 +101,12 @@ export default function CouponForm() {
         // Update existing coupon
         await updateCoupon({ id: couponId, data: formattedData })
         toast.success("Coupon updated successfully!")
-        router.push("/coupons") // Redirect to list page
+        router.push("/admin/coupons") // Redirect to list page
       } else {
         // Create new coupon
         await addCoupon(formattedData)
         toast.success("Coupon created successfully!")
-        router.push("/coupons") // Redirect to list page
+        router.push("/admin/coupons") // Redirect to list page
         form.reset() // Reset form for new entry
       }
     } catch (error) {
@@ -141,7 +141,7 @@ export default function CouponForm() {
   }
 
   const handleCancel = () => {
-    router.push("/coupons")
+    router.push("/admin/coupons")
   }
 
   // Show loading state when fetching coupon data for edit
@@ -167,7 +167,7 @@ export default function CouponForm() {
             <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-slate-800 mb-2">Coupon Not Found</h3>
             <p className="text-slate-600 mb-4">The coupon you&apos;re trying to edit doesn&apos;t exist.</p>
-            <Button onClick={() => router.push("/coupons")}>Back to Coupons</Button>
+            <Button onClick={() => router.push("/admin/coupons")}>Back to Coupons</Button>
           </CardContent>
         </Card>
       </div>

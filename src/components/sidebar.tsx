@@ -41,21 +41,21 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = false }:
   }, [isOpen, setIsOpen]);
 
   const navItems: NavItem[] = [
-    { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-    { href: "/customers", label: "Customers", icon: <Users className="h-5 w-5" /> },
-    { href: "/marketing", label: "Marketing", icon: <BadgeIndianRupee className="h-5 w-5" /> },
-    { href: "/products", label: "Products", icon: <Package className="h-5 w-5" /> },
-    { href: "/orders", label: "Orders", icon: <ShoppingCart className="h-5 w-5" /> },
-    { href: "/payments", label: "Payments", icon: <CreditCard className="h-5 w-5" /> },
-    { href: "/reports", label: "Reports", icon: <MessageCircleWarning className="h-5 w-5" /> },
-    { href: "/shipments", label: "Shipments", icon: <Truck className="h-5 w-5" /> },
-    { href: "/coupons", label: "Coupons", icon: <Tag className="h-5 w-5" /> },
+    { href: "/admin/dashboard", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
+    { href: "/admin/customers", label: "Customers", icon: <Users className="h-5 w-5" /> },
+    { href: "/admin/marketing", label: "Marketing", icon: <BadgeIndianRupee className="h-5 w-5" /> },
+    { href: "/admin/products", label: "Products", icon: <Package className="h-5 w-5" /> },
+    { href: "/admin/orders", label: "Orders", icon: <ShoppingCart className="h-5 w-5" /> },
+    { href: "/admin/payments", label: "Payments", icon: <CreditCard className="h-5 w-5" /> },
+    { href: "/admin/reports", label: "Reports", icon: <MessageCircleWarning className="h-5 w-5" /> },
+    { href: "/admin/shipments", label: "Shipments", icon: <Truck className="h-5 w-5" /> },
+    { href: "/admin/coupons", label: "Coupons", icon: <Tag className="h-5 w-5" /> },
   ];
 
   const secondaryItems: NavItem[] = [
-    { href: "/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
-    { href: "/notifications", label: "Notifications", icon: <Bell className="h-5 w-5" /> },
-    { href: "/profile", label: "Profile", icon: <User className="h-5 w-5" /> },
+    { href: "/admin/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
+    { href: "/admin/notifications", label: "Notifications", icon: <Bell className="h-5 w-5" /> },
+    { href: "/admin/profile", label: "Profile", icon: <User className="h-5 w-5" /> },
   ];
 
   return (

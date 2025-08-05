@@ -5,6 +5,10 @@ import { motion } from "framer-motion";
 import { Home, Heart, User, ShoppingCart, Menu } from "lucide-react";
 import Link from "next/link";
 import CategoriesModal from "./CategoriesModal";
+import { useWishlist } from '@/context/WishlistContext';
+import { useAuth } from '@/context/UserContext';
+import LoginModal from '@/components/LoginModal';
+import Cookies from 'js-cookie';
 
 interface BottomNavItem {
   id: string;
@@ -18,15 +22,29 @@ const navItems: BottomNavItem[] = [
   { id: "categories", icon: <Menu className="h-6 w-6" />, label: "Categories", href: "#" },
   { id: "wishlist", icon: <Heart className="h-6 w-6" />, label: "Wishlist", href: "/wishlist" },
   { id: "cart", icon: <ShoppingCart className="h-6 w-6" />, label: "Cart", href: "/cart" },
-  { id: "profile", icon: <User className="h-6 w-6" />, label: "Profile", href: "/profile" },
 ];
 
 export default function MobileBottomNav() {
   const [activeItem, setActiveItem] = useState("home");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const { wishlistCount } = useWishlist();
+  const { user, logout } = useAuth();
+  
+  // Check if user is logged in by checking for email cookie
+  const isUserLoggedIn = !!Cookies.get('userEmail');
 
   const handleCategoryClick = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+  
+  const handleProfileClick = () => {
+    if (isUserLoggedIn) {
+      // Redirect to profile page or show user menu
+      window.location.href = '/profile';
+    } else {
+      setIsLoginModalOpen(true);
+    }
   };
 
   return (
@@ -57,9 +75,9 @@ export default function MobileBottomNav() {
                     3
                   </span>
                 )}
-                {item.id === "wishlist" && (
+                {item.id === "wishlist" && wishlistCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                    5
+                    {wishlistCount}
                   </span>
                 )}
               </div>
@@ -71,6 +89,12 @@ export default function MobileBottomNav() {
 
       {/* Categories Modal */}
       <CategoriesModal isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+      
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </>
   );
 }

@@ -33,7 +33,7 @@ import { Separator } from "./ui/separator";
 import type { ExtendedUser } from "@/lib/types/userType";
 import type { Order } from "@/lib/types/orderType";
 import Image from "next/image";
-import PageLoading from "./page-loading";
+import LoaderSpinner from "./loader-spinner";
 
 interface CustomersTableProps {
   filteredUsers?: ExtendedUser[];
@@ -72,7 +72,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
   isDebouncing,
 }) => {
   if (isDebouncing) {
-    return <PageLoading />;
+    return <LoaderSpinner message="Loading customers..." />;
   }
   return (
     <Card className="bg-gradient-to-r from-violet-500/5 to-purple-500/5 backdrop-blur-sm border-white/20">

@@ -46,7 +46,7 @@ import KPICard from "@/components/kpl-card"
 import { toast } from "react-toastify"
 import { useGetCoupons } from "@/hooks/coupon/useGetCoupons"
 import { useDeleteCoupon } from "@/hooks/coupon/useDeleteCoupon"
-import PageLoading from "@/components/page-loading"
+import LoaderSpinner from "@/components/loader-spinner"
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -109,7 +109,7 @@ export default function CouponsPage() {
   const totalUsage = coupons?.reduce((sum, coupon) => sum + coupon.usedCount, 0) || 0
  
   if (isLoading) {
-    return <PageLoading/>
+    return <LoaderSpinner message="Loading coupons..." />
   }
 
   if (isError) {
@@ -141,7 +141,7 @@ export default function CouponsPage() {
             </p>
           </div>
           <Button
-            onClick={() => router.push("/coupons/form")}
+            onClick={() => router.push("/admin/coupons/form")}
             className="bg-gradient-to-r from-purple-500 to-purple-600 text-white border-0 hover:from-purple-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -349,7 +349,7 @@ export default function CouponsPage() {
               <h3 className="text-lg font-semibold text-slate-700 mb-2">No coupons found</h3>
               <p className="text-slate-500 mb-4">Get started by creating your first coupon</p>
               <Button
-                onClick={() => router.push("/coupons/form")}
+                onClick={() => router.push("/admin/coupons/form")}
                 className="bg-gradient-to-r from-purple-600 to-purple-700 text-white"
               >
                 <Plus className="h-4 w-4 mr-2" />

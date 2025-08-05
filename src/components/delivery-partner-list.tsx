@@ -43,10 +43,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { DeliveryPartners } from "@/lib/types/orderType";
-import PageLoading from "./page-loading";
-import PageError from "./page-error";
-import { useDebounce } from "use-debounce";
 import { toast } from "react-toastify";
+import LoaderSpinner from "./loader-spinner";
+import { useDebounce } from "use-debounce";
 import { useGetDeliveryPartners } from "@/hooks/delivery-partner/useGetDeliveryPartner";
 import { useDeleteDeliveryPartner } from "@/hooks/delivery-partner/useDeleteDeliveryPartner";
 
@@ -99,8 +98,18 @@ export default function DeliveryPartnerList({
     });
   };
 
-  if (isLoading || isDeleting) return <PageLoading />;
-  if (isError) return <PageError />;
+  if (isLoading || isDeleting) return <LoaderSpinner message="Loading delivery partners..." />;
+
+  if (isError) {
+    toast.error("Failed to load delivery partners. Please try again later.");
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="font-medium text-red-700 dark:text-red-300">
+          Failed to load delivery partners
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50/30 to-blue-50/20 p-4 sm:p-6 lg:p-8">
@@ -127,7 +136,7 @@ export default function DeliveryPartnerList({
       </div>
 
       {isDebouncing ? (
-        <PageLoading />
+        <LoaderSpinner message="Loading delivery partners..." />
       ) : (
         <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-2xl pt-0">
           <CardHeader className="pt-6 border-b border-purple-100 bg-gradient-to-r from-purple-50 to-indigo-50">

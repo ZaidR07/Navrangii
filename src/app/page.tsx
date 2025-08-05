@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import React from "react";
 import axios from "axios";
+
 import NoticeBar from "@/components/NoticeBar";
 import NavigationHeader from "@/components/NavigationHeader";
 import HeroCarousel from "@/components/HeroCarousel";
@@ -11,30 +12,28 @@ import CategoriesSection from "@/components/CategoriesSection";
 import BestSellingProducts from "@/components/BestSellingProducts";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { useGetAllProducts } from "@/hooks/product/useGetProduct";
 
 export default function HomePage() {
-  // Keep server alive
-  useEffect(() => {
-    const keepServerAlive = () => {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      if (backendUrl) {
-        axios.get(`${backendUrl}/api/keep-alive`)
-          .then(() => console.log('Keep-alive ping sent'))
-          .catch(() => console.log('Keep-alive ping failed'));
-      }
-    };
+  const { data: products = [], isLoading, error: productsError } = useGetAllProducts();
+  
+  // Filter products for SALE category (case-insensitive)
+  const saleProducts = React.useMemo(() => {
+    return products.filter(product => 
+      product.category && product.category.toUpperCase().includes('SALE')
+    );
+  }, [products]);
 
-    keepServerAlive();
-    const interval = setInterval(keepServerAlive, 5 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // Use the hook's loading and error states
+  const loading = isLoading;
+  const error = productsError?.message || null;
 
   return (
     <div className="min-h-screen bg-white pb-16 lg:pb-0">
       <NoticeBar />
       <NavigationHeader />
       <HeroCarousel />
-      <SaleSection />
+      <SaleSection products={saleProducts} loading={loading} error={error} />
       <HimHerSection />
       <CategoriesSection />
       <BestSellingProducts />

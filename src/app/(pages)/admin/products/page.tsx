@@ -27,8 +27,9 @@ import { Button } from "@/components/ui/button";
 import { useGetAllProducts } from "@/hooks/product/useGetProduct";
 import { useHasMounted } from "@/lib/useHasMounted";
 import { CenteredGradientCard } from "@/components/centered-gradient-card";
-import PageLoading from "@/components/page-loading";
-import PageError from "@/components/page-error";
+import { toast } from "react-toastify";
+import LoaderSpinner from "@/components/loader-spinner";
+
 import { useDebounce } from "use-debounce";
 import { Product } from "@/lib/types/productType";
 import { useGetVariable } from "@/hooks/variable/useGetVariable";
@@ -58,7 +59,7 @@ export default function ProductManagementPage() {
   /* fetch --------------------------------------------------- */
   const { data: productsList, isError, isLoading } = useGetAllProducts();
   
-    const { data: variable} = useGetVariable();
+  const { data: variable} = useGetVariable();
 
   /* local state --------------------------------------------- */
   const [search, setSearch] = useState("");
@@ -75,6 +76,8 @@ export default function ProductManagementPage() {
   const filtered = useMemo(() => {
     const q = debounced.toLowerCase();
     return safeProducts.filter((product) => {
+      // Safety check to ensure product and product.name exist
+      if (!product || !product.name) return false;
       const matchesSearch = product.name.toLowerCase().includes(q);
       const matchesCategory = category === "all" || product.category === category;
       return matchesSearch && matchesCategory;
@@ -90,26 +93,36 @@ export default function ProductManagementPage() {
   /* --------------------------------------------------------- */
   /* conditional UI (after all hooks)                          */
   /* --------------------------------------------------------- */
-  if (isLoading) return <PageLoading />;
-  if (isError) return <PageError />;
+  if (isLoading) return <LoaderSpinner message="Loading products..." />;
 
-  if (totalProducts === 0) {
+  if (isError) {
+    toast.error("Failed to load products. Please try again later.");
     return (
       <CenteredGradientCard>
-        <p className="font-medium text-purple-700 dark:text-purple-300 mb-4">
-          No products yet – add your first one!
+        <p className="font-medium text-red-700 dark:text-red-300">
+          Failed to load products
         </p>
-        <ProductDialog
-          trigger={
-            <Button className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Add Product
-            </Button>
-          }
-        />
       </CenteredGradientCard>
     );
   }
+
+  // if (totalProducts === 0) {
+  //   return (
+  //     <CenteredGradientCard>
+  //       <p className="font-medium text-purple-700 dark:text-purple-300 mb-4">
+  //         No products yet – add your first one!
+  //       </p>
+  //       <ProductDialog
+  //         trigger={
+  //           <Button className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+  //             <PlusCircle className="mr-2 h-4 w-4" />
+  //             Add Product
+  //           </Button>
+  //         }
+  //       />
+  //     </CenteredGradientCard>
+  //   );
+  // }
 
   /* --------------------------------------------------------- */
   /* render main page                                          */

@@ -26,5 +26,6 @@ export interface Product {
   style:             string; 
   options?:          string; 
   variants?:         ProductVariantType[];
-   createdAt?: string;
+  image?:            string;
+  createdAt?:        string;
 }

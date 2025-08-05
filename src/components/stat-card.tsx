@@ -5,58 +5,38 @@ import { LucideIcon } from "lucide-react";
 
 interface StatCardProps {
   title: string;
-  today: number;
-  yesterday: number;
-  week: number;
-  month: number;
+  value: string;
   icon: LucideIcon;
-  color?: string; // e.g. "from-purple-500 to-purple-600"
+  change: string;
+  changeType?: 'increase' | 'decrease';
 }
 
 const StatCard: React.FC<StatCardProps> = ({
   title,
-  today,
-  yesterday,
-  week,
-  month,
+  value,
   icon: Icon,
-  color = "from-purple-500 to-purple-600",
+  change,
+  changeType,
 }) => (
   <div
-    className={[
-      "relative grid gap-4 rounded-2xl p-4 sm:p-6 text-white",
-      "bg-gradient-to-br",
-      color,
-      "border border-white/15 backdrop-blur-md",
-      "shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl",
-      "min-h-[160px] overflow-hidden",
-    ].join(" ")}
+    className="relative grid gap-4 rounded-2xl p-4 sm:p-6 text-white bg-gradient-to-br from-purple-500 to-purple-600 border border-white/15 backdrop-blur-md shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl min-h-[160px] overflow-hidden"
   >
-    {/* Header with title, today value, and icon (grid version) */}
+    {/* Header with title, value, and icon (grid version) */}
     <div className="grid grid-cols-[1fr_auto] items-start">
       <div className="grid gap-1">
         <p className="text-sm font-medium text-white/90">{title}</p>
-        <p className="text-3xl sm:text-4xl font-bold">{today}</p>
+        <p className="text-3xl sm:text-4xl font-bold">{value}</p>
       </div>
       <div className="p-3 rounded-full bg-white/15 backdrop-blur-sm place-self-start">
         <Icon className="text-white" size={32} />
       </div>
     </div>
 
-    {/* 3-column stats grid */}
-    <div className="grid grid-cols-2 gap-2 text-center text-xs sm:text-sm">
-      <div>
-        <p className=" text-white/70 tracking-wider">Yesterday</p>
-        <p className="font-semibold">{yesterday}</p>
-      </div>
-      <div>
-        <p className=" text-white/70 tracking-wider">Week</p>
-        <p className="font-semibold">{week}</p>
-      </div>
-    </div>
+    {/* Change indicator */}
     <div className="text-center">
-      <p className=" text-white/70 tracking-wider">Month</p>
-      <p className="font-semibold">{month}</p>
+      <p className={`text-white/70 tracking-wider ${changeType === 'increase' ? 'text-green-300' : 'text-red-300'}`}>
+        {change}
+      </p>
     </div>
 
     {/* Decorative blob */}
