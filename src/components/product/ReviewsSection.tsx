@@ -2,7 +2,7 @@ import React from 'react';
 import { Star } from 'lucide-react';
 
 const ReviewsSection = () => (
-  <div className="border-t pt-16">
+  <div id="reviews-section" className="border-t pt-16">
     <h2 className="text-2xl font-bold text-gray-900 mb-8">Customer Reviews</h2>
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[1, 2, 3].map((review) => (

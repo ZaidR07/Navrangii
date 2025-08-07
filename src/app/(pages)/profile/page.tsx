@@ -1,27 +1,105 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Package, Heart, User, MapPin, Phone, Mail, Edit3 } from "lucide-react";
 import { useGetProfile, useUpdateProfile } from '@/hooks/user/useProfile';
 import { useAuth } from '@/context/UserContext';
 import Cookies from 'js-cookie';
+import WishlistItem from '@/components/wishlist/WishlistItem';
+import { useWishlist } from '@/hooks/wishlist/useWishlist';
+
+import AddressManager from '@/components/profile/AddressManager';
+
+interface Address {
+  title: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  isDefault?: boolean;
+}
 
 interface UserProfile {
   id: string;
   name: string;
   email: string;
   phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
+  addresses: Address[];
 }
 
-interface UpdateProfileData extends Partial<UserProfile> {
+interface UpdateProfileData {
+  name?: string;
+  phone?: string;
+  addresses?: Address[];
   email: string;
 }
+
+const WishlistContent = () => {
+  const { user } = useAuth();
+  const email = Cookies.get('userEmail');
+  
+  const { data: wishlistData, isLoading, isError, error, refetch } = useWishlist(email || '');
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
+  
+  if (isError) {
+    return (
+      <div className="text-center py-12">
+        <Heart className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-medium text-gray-900">Error loading wishlist</h3>
+        <p className="mt-1 text-sm text-gray-500">{error?.message || 'Failed to load wishlist items'}</p>
+        <div className="mt-6">
+          <button
+            onClick={() => refetch()}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  const wishlistItems = wishlistData?.wishlist || [];
+  
+  if (wishlistItems.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <Heart className="mx-auto h-12 w-12 text-gray-400" />
+        <h3 className="mt-2 text-sm font-medium text-gray-900">Your wishlist is empty</h3>
+        <p className="mt-1 text-sm text-gray-500">Save items that you like by clicking the heart icon on product pages</p>
+        <div className="mt-6">
+          <button
+            onClick={() => window.location.href = '/'}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+          >
+            Start Shopping
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {wishlistItems.map((item: any) => (
+        <WishlistItem 
+          key={item.productId} 
+          item={item} 
+          onRemove={() => refetch()} 
+        />
+      ))}
+    </div>
+  );
+};
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'wishlist'>('profile');
@@ -37,10 +115,24 @@ export default function ProfilePage() {
   const { mutate: updateProfile } = useUpdateProfile();
 
   const handleUpdateProfile = (data: Partial<UserProfile>) => {
+    console.log('Updating profile with data:', data);
     const emailFromCookie = Cookies.get('userEmail');
     if (emailFromCookie) {
-      updateProfile({ ...data, email: emailFromCookie } as any);
+      // Ensure we're sending the correct data structure
+      const updateData = {
+        ...data,
+        email: emailFromCookie
+      };
+      console.log('Sending update data:', updateData);
+      updateProfile(updateData as UpdateProfileData);
       setIsEditing(false);
+    }
+  };
+
+  const handleUpdateAddresses = (addresses: Address[]) => {
+    const emailFromCookie = Cookies.get('userEmail');
+    if (emailFromCookie) {
+      updateProfile({ addresses, email: emailFromCookie } as any);
     }
   };
 
@@ -104,10 +196,9 @@ export default function ProfilePage() {
             )}
 
             {activeTab === 'wishlist' && (
-              <div className="text-center py-12">
-                <div className="mx-auto h-12 w-12 text-gray-400">❤️</div>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Your wishlist is empty</h3>
-                <p className="mt-1 text-sm text-gray-500">Start adding items to your wishlist.</p>
+              <div className="py-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">My Wishlist</h2>
+                <WishlistContent />
               </div>
             )}
 
@@ -163,32 +254,25 @@ export default function ProfilePage() {
 
                         <div>
                           <h3 className="text-lg font-medium text-gray-900 mb-4">Address Information</h3>
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700">Address</label>
-                              <p className="mt-1 text-sm text-gray-900">{userProfile.address}</p>
+                          {userProfile.addresses && userProfile.addresses.length > 0 ? (
+                            <div className="space-y-4">
+                              {userProfile.addresses.map((address, index) => (
+                                <div key={index} className="border border-gray-200 rounded-lg p-4">
+                                  {address.isDefault && (
+                                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mb-2">
+                                      Default Address
+                                    </span>
+                                  )}
+                                  <h4 className="font-medium text-gray-900">{address.title}</h4>
+                                  <p className="text-gray-600 text-sm mt-1">{address.address}</p>
+                                  <p className="text-gray-600 text-sm">{address.city}, {address.state} {address.zipCode}</p>
+                                  <p className="text-gray-600 text-sm">{address.country}</p>
+                                </div>
+                              ))}
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">City</label>
-                                <p className="mt-1 text-sm text-gray-900">{userProfile.city}</p>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">State</label>
-                                <p className="mt-1 text-sm text-gray-900">{userProfile.state}</p>
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">ZIP Code</label>
-                                <p className="mt-1 text-sm text-gray-900">{userProfile.zipCode}</p>
-                              </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">Country</label>
-                                <p className="mt-1 text-sm text-gray-900">{userProfile.country}</p>
-                              </div>
-                            </div>
-                          </div>
+                          ) : (
+                            <p className="text-gray-500 text-sm">No addresses saved yet.</p>
+                          )}
                         </div>
                       </div>
                     )}
@@ -215,8 +299,20 @@ interface EditProfileFormProps {
   onCancel: () => void;
 }
 
+interface EditProfileFormData {
+  name: string;
+  email: string;
+  phone: string;
+  addresses: Address[];
+}
+
 const EditProfileForm = ({ profile, onUpdate, onCancel }: EditProfileFormProps) => {
-  const [formData, setFormData] = useState<UserProfile>(profile);
+  const [formData, setFormData] = useState<EditProfileFormData>({
+    name: profile.name || '',
+    email: profile.email || '',
+    phone: profile.phone || '',
+    addresses: profile.addresses || []
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -225,9 +321,7 @@ const EditProfileForm = ({ profile, onUpdate, onCancel }: EditProfileFormProps) 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Remove id from the data to be sent
-    const { id, ...updateData } = formData;
-    onUpdate(updateData);
+    onUpdate(formData);
     onCancel();
   };
 
@@ -276,66 +370,10 @@ const EditProfileForm = ({ profile, onUpdate, onCancel }: EditProfileFormProps) 
         </div>
 
         <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Address Information</h3>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700">Address</label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="city" className="block text-sm font-medium text-gray-700">City</label>
-              <input
-                type="text"
-                id="city"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="state" className="block text-sm font-medium text-gray-700">State</label>
-                <input
-                  type="text"
-                  id="state"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                />
-              </div>
-              <div>
-                <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700">ZIP Code</label>
-                <input
-                  type="text"
-                  id="zipCode"
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
-              <input
-                type="text"
-                id="country"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-              />
-            </div>
-          </div>
+          <AddressManager 
+            addresses={formData.addresses || []} 
+            onUpdateAddresses={(addresses) => setFormData(prev => ({ ...prev, addresses }))} 
+          />
         </div>
       </div>
 

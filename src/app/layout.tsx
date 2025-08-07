@@ -6,6 +6,7 @@ import { ToastContainer } from 'react-toastify';
 import { Theme } from "@/components/theme";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/UserContext";
+import { CartProvider } from "@/context/CartContext";
 
 
 
@@ -27,10 +28,12 @@ export default function RootLayout({
         <QueryProvider>
           <AuthProvider>
             <WishlistProvider>
-              <Theme>
-                <ToastContainer />
-                {children}
-              </Theme>
+              <CartProvider>
+                <Theme>
+                  <ToastContainer />
+                  {children}
+                </Theme>
+              </CartProvider>
             </WishlistProvider>
           </AuthProvider>
         </QueryProvider>

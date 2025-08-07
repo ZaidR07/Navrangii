@@ -2,26 +2,28 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/axios';
 import Cookies from 'js-cookie';
 
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
+interface Address {
+  title: string;
   address: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
+  isDefault?: boolean;
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  addresses: Address[];
 }
 
 interface UpdateProfileData {
   name?: string;
   phone?: string;
-  address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country?: string;
+  addresses?: Address[];
   email: string; // Email is required for identification
 }
 

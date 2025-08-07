@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Menu, X, Sparkles, ChevronDown, User } from "lucide-react";
+import { Heart, Menu, X, Sparkles, ChevronDown, User, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CategoriesModal from "./CategoriesModal";
 import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/UserContext';
+import { useCart } from '@/context/CartContext';
 import LoginModal from '@/components/LoginModal';
 import Cookies from 'js-cookie';
 
@@ -16,11 +17,16 @@ export default function NavigationHeader() {
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const { wishlistCount } = useWishlist();
+  const { cartCount } = useCart();
   const { user, logout } = useAuth();
   const pathname = usePathname();
   
-  // Check if user is logged in by checking for email cookie
-  const isUserLoggedIn = !!Cookies.get('userEmail');
+  const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+
+  // Check if user is logged in by checking for email cookie - only on client side
+  useEffect(() => {
+    setIsUserLoggedIn(!!Cookies.get('userEmail'));
+  }, []);
 
   const isActive = (path: string) => pathname === path;
   const isCategoryActive = (category: string) => pathname.includes(`/category/${category}`);
@@ -37,11 +43,6 @@ export default function NavigationHeader() {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Mobile menu button - Removed as per request */}
-            <div className="lg:hidden w-6">
-              {/* Empty div for spacing */}
-            </div>
-            
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -50,12 +51,12 @@ export default function NavigationHeader() {
             >
               <Link href="/" className="flex items-center">
                 <Sparkles className="h-8 w-8 text-purple-600" />
-                <span className="text-2xl font-bold text-gray-900">Darshu Fashion</span>
+                <span className="text-xl sm:text-2xl font-bold text-gray-900">Darshu Fashion</span>
               </Link>
             </motion.div>
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center justify-between flex-1">
+            <div className="hidden lg:flex items-center justify-center flex-1">
               <nav className="flex space-x-8">
                 {categories.map((category) => (
                   <Link
@@ -93,25 +94,28 @@ export default function NavigationHeader() {
                   Sale
                 </Link>
               </nav>
-              
-              {/* Right Side Icons - Moved inside the flex container */}
+            </div>
+            
+            {/* Right Side Icons */}
+            <div className="hidden lg:flex items-center space-x-4">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center space-x-4"
               >
+                {/* Cart */}
+                <Link href="/cart" className="p-2 text-gray-600 hover:text-purple-500 relative">
+                  <ShoppingCart className="h-6 w-6" />
+                  <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    0
+                  </span>
+                </Link>
                 {/* Wishlist */}
-                <Link 
-                  href="/wishlist" 
-                  className="relative p-2 text-gray-600 hover:text-purple-500"
-                  aria-label="Wishlist"
-                >
+                <Link href="/wishlist" className="p-2 text-gray-600 hover:text-purple-500 relative">
                   <Heart className="h-6 w-6" />
-                  {wishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {wishlistCount}
-                    </span>
-                  )}
+                  <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
                 </Link>
                 
                 {/* Cart */}
@@ -120,9 +124,9 @@ export default function NavigationHeader() {
                   className="relative p-2 text-gray-600 hover:text-purple-500"
                   aria-label="Shopping Cart"
                 >
-                  <ShoppingBag className="h-6 w-6" />
+                  <ShoppingCart className="h-6 w-6" />
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    3
+                    {cartCount}
                   </span>
                 </Link>
                 
@@ -155,6 +159,18 @@ export default function NavigationHeader() {
             {/* Mobile Right Side Icons */}
             <div className="lg:hidden flex items-center space-x-4">
               <div className="flex items-center space-x-2">
+                {/* Mobile Cart */}
+                <Link 
+                  href="/cart" 
+                  className="p-2 text-gray-600 hover:text-purple-500 relative"
+                  aria-label="Shopping Cart"
+                >
+                  <ShoppingCart className="h-6 w-6" />
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                </Link>
+                
                 {/* Mobile Profile/Login Button */}
                 {isUserLoggedIn ? (
                   <button 

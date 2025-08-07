@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { Product, ProductVariantType } from '@/lib/types/productType';
 import WishlistToggle from '@/components/wishlist/WishlistToggle';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface ProductDetailProps {
   product: Product;
@@ -13,7 +15,9 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
   const [selectedImage, setSelectedImage] = useState(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentMobileImage, setCurrentMobileImage] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const fullscreenRef = useRef<HTMLDivElement>(null);
   
   // Get images from selected variant or first variant, or fallback to product image
   const variantImages = selectedVariant?.gallery || product.variants?.[0]?.gallery || [];
@@ -57,8 +61,128 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
     }
   };
   
+  // Handle keyboard navigation in fullscreen mode
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFullscreen(false);
+      } else if (e.key === 'ArrowRight') {
+        const nextIndex = (currentMobileImage + 1) % allImages.length;
+        handleMobileImageSelect(nextIndex);
+      } else if (e.key === 'ArrowLeft') {
+        const prevIndex = (currentMobileImage - 1 + allImages.length) % allImages.length;
+        handleMobileImageSelect(prevIndex);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreen, currentMobileImage, allImages.length]);
+
+  // Close fullscreen when clicking outside the image
+  useEffect(() => {
+    if (!isFullscreen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (fullscreenRef.current && !fullscreenRef.current.contains(e.target as Node)) {
+        setIsFullscreen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isFullscreen]);
+
   return (
     <div className="lg:col-span-1">
+      {/* Fullscreen Image Viewer */}
+      <AnimatePresence>
+        {isFullscreen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center p-4"
+          >
+            <div className="w-full h-full flex flex-col">
+              {/* Header */}
+              <div className="flex justify-between items-center p-4">
+                <span className="text-white text-sm">
+                  {currentMobileImage + 1} / {allImages.length}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsFullscreen(false)}
+                  className="text-white hover:bg-white/10"
+                >
+                  <X className="h-6 w-6" />
+                </Button>
+              </div>
+              
+              {/* Main Image */}
+              <div className="flex-1 flex items-center justify-center relative">
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <img
+                    src={allImages[currentMobileImage]}
+                    alt={`${product.name} ${currentMobileImage + 1}`}
+                    className="-mt-12 min-w-[90vw] lg:min-w-[22vw] max-h-[70vh]  max-w-[90vw] object-contain"
+                    style={{ width: 'auto', height: 'auto' }}
+                    onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
+                  />
+                </div>
+                
+                {/* Navigation Arrows */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    const prevIndex = (currentMobileImage - 1 + allImages.length) % allImages.length;
+                    handleMobileImageSelect(prevIndex);
+                  }}
+                  className="absolute left-4 bg-white/20 hover:bg-white/30 text-white"
+                >
+                  <ChevronLeft className="h-8 w-8" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    const nextIndex = (currentMobileImage + 1) % allImages.length;
+                    handleMobileImageSelect(nextIndex);
+                  }}
+                  className="absolute right-4 bg-white/20 hover:bg-white/30 text-white"
+                >
+                  <ChevronRight className="h-8 w-8" />
+                </Button>
+              </div>
+              
+              {/* Thumbnails */}
+              <div className="flex overflow-x-auto py-4 gap-2 justify-center">
+                {allImages.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleMobileImageSelect(idx)}
+                    className={cn(
+                      'flex-shrink-0 w-16 h-16 border-2 rounded overflow-hidden',
+                      idx === currentMobileImage ? 'border-purple-500' : 'border-transparent'
+                    )}
+                  >
+                    <img
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/100/eee/aaa?text=No+Image'; }}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Mobile View - Horizontal scroll with bubble indicators */}
       <div className="lg:hidden mb-6">
         {/* Horizontal scrollable images */}
@@ -70,15 +194,31 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
           {allImages.map((image, index) => (
             <div 
               key={index}
-              className="flex-shrink-0 snap-center"
+              className="flex-shrink-0 snap-center relative"
               style={{ width: 'calc(100% - 1rem)' }}
             >
-              <img 
-                src={image}
-                alt={`${product.name} ${index + 1}`}
-                className="w-full aspect-[4/5] object-cover rounded-lg"
-                onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
-              />
+              <button 
+                onClick={() => {
+                  setCurrentMobileImage(index);
+                  setIsFullscreen(true);
+                }}
+                className="w-full h-full"
+              >
+                <img 
+                  src={image}
+                  alt={`${product.name} ${index + 1}`}
+                  className="w-full aspect-[4/5] object-cover rounded-lg"
+                  onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
+                />
+              </button>
+              {/* Wishlist Toggle Button */}
+              <div className="absolute top-2 right-2">
+                <WishlistToggle 
+                  product={product} 
+                  className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md"
+                  iconClassName="h-5 w-5"
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -97,58 +237,52 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
           </div>
         )}
       </div>
-      
-      {/* Desktop View - Keep existing functionality */}
-      <div className="relative hidden lg:block">
-        <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-xl bg-gray-100">
-          <img 
-            src={allImages[selectedImage] || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
-            alt={product.name}
-            className="w-full h-full object-cover"
-            onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
-          />
-          <WishlistToggle 
-            product={product} 
-            className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-md hover:bg-gray-50" 
-            iconClassName="h-5 w-5" 
-          />
-        </div>
-        
-        <div className="relative">
-          <div className="overflow-hidden">
-            <motion.div className="flex gap-4" animate={{ x: -currentIndex * 100 + '%' }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
-              {productItems.map((group, groupIndex) => (
-                <div key={groupIndex} className="flex-shrink-0 w-full grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {group.map((image: string, index: number) => {
-                    const globalIndex = groupIndex * 4 + index;
-                    return (
-                      <motion.div
-                        key={globalIndex}
-                        className={`aspect-[4/5] rounded-lg overflow-hidden cursor-pointer ${selectedImage === globalIndex ? 'ring-2 ring-purple-600' : ''}`}
-                        onClick={() => setSelectedImage(globalIndex)}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <img 
-                          src={image}
-                          alt={`${product.name} ${globalIndex + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
-                        />
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              ))}
-            </motion.div>
+
+      {/* Desktop View */}
+      <div className="hidden lg:block">
+        <div className="relative mb-4 overflow-hidden rounded-lg bg-gray-100" style={{ aspectRatio: '4/5' }}>
+          <button 
+            onClick={() => {
+              setCurrentMobileImage(selectedImage);
+              setIsFullscreen(true);
+            }}
+            className="w-full h-full"
+          >
+            <img
+              src={allImages[selectedImage] || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
+              alt={product.name}
+              className="w-full h-full object-cover"
+              onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
+            />
+          </button>
+          <div className="absolute top-2 right-2">
+            <WishlistToggle 
+              product={product} 
+              className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md"
+              iconClassName="h-5 w-5"
+            />
           </div>
-          <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-50" onClick={prevSlide} aria-label="Previous images">
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-50" onClick={nextSlide} aria-label="Next images">
-            <ChevronRight className="h-5 w-5" />
-          </button>
         </div>
+
+        {/* Thumbnails */}
+        {allImages.length > 1 && (
+          <div className="grid grid-cols-4 gap-2">
+            {allImages.map((image, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedImage(index)}
+                className={`relative aspect-square overflow-hidden rounded-lg ${selectedImage === index ? 'ring-2 ring-purple-600' : ''}`}
+              >
+                <img
+                  src={image}
+                  alt={`${product.name} ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/100/eee/aaa?text=No+Image'; }}
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       
       <style jsx>{`

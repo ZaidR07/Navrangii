@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, ShoppingBag } from "lucide-react";
+import { Star } from "lucide-react";
 import { Product as ProductType } from "@/lib/types/productType";
 import Link from "next/link";
 
@@ -88,7 +88,9 @@ const ProductCard = ({ product, index, productId, productData }: { product: Prod
         </div>
         <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center group-hover:shadow-lg mt-auto">
           <span>View Product</span>
-          <ShoppingBag className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
     </motion.div>
@@ -134,8 +136,11 @@ const MobileProductCard = ({ product, index, productId, productData }: { product
             <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
           </div>
         </div>
-        <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-1.5 rounded-md text-sm font-semibold transition-colors">
-          View Product
+        <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-1.5 rounded-md text-sm font-semibold transition-colors flex items-center justify-center">
+          <span>View Product</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
     </motion.div>
@@ -158,10 +163,10 @@ export default function SaleSection({ products = [], loading = false, error = nu
           transition={{ duration: 0.8 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-purple-800 mb-4">
+          <h2 className="text-2xl md:text-4xl lg:text-6xl font-bold text-purple-800 mb-4">
             {getMonthlyTitle()}
           </h2>
-          <p className="text-xl md:text-2xl text-purple-700 mb-12">
+          <p className="text-lg md:text-xl lg:text-2xl text-purple-700 mb-12">
             Up to 70% OFF on Selected Items
           </p>
         </motion.div>

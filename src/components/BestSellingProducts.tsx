@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star, ShoppingBag } from "lucide-react";
+import { Star } from "lucide-react";
 import Link from "next/link";
 import WishlistToggle from '@/components/wishlist/WishlistToggle';
 
@@ -105,7 +105,9 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         </div>
         <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center group-hover:shadow-lg mt-auto">
           <span>View Product</span>
-          <ShoppingBag className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
     </motion.div>
@@ -149,8 +151,11 @@ const MobileProductCard = ({ product, index }: { product: Product; index: number
             <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
           </div>
         </div>
-        <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-1.5 rounded-md text-sm font-semibold transition-colors">
-          View Product
+        <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-1.5 rounded-md text-sm font-semibold transition-colors flex items-center justify-center">
+          <span>View Product</span>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       </div>
     </motion.div>

@@ -65,6 +65,8 @@ export default function MobileBottomNav() {
                 setActiveItem(item.id);
                 if (item.id === "categories") {
                   handleCategoryClick();
+                } else if (item.id === "wishlist") {
+                  window.location.href = '/wishlist';
                 }
               }}
             >

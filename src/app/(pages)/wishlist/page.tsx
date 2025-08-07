@@ -12,6 +12,8 @@ import Cookies from 'js-cookie';
 export default function WishlistPage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [undoItems, setUndoItems] = useState<any[]>([]);
+  const [undoTimers, setUndoTimers] = useState<Record<string, NodeJS.Timeout>>({});
   
   // Check if user is logged in using the userEmail cookie
   useEffect(() => {
@@ -24,7 +26,10 @@ export default function WishlistPage() {
   const { data: wishlistData, isLoading, isError, refetch } = useWishlist(userEmail || '');
   const removeMutation = useRemoveFromWishlist();
   
-  const wishlistItems = wishlistData?.wishlist || [];
+  // Filter out items that are in undo state
+  const wishlistItems = (wishlistData?.wishlist || []).filter(
+    (item: any) => !undoItems.some(undoItem => undoItem.productId === item.productId)
+  );
   
   const handleLoginRequired = () => {
     setIsLoginModalOpen(true);
@@ -40,13 +45,54 @@ export default function WishlistPage() {
   const removeFromWishlist = async (productId: string) => {
     if (!userEmail) return;
     
-    try {
-      await removeMutation.mutateAsync({ email: userEmail, productId });
-      // Refetch the wishlist data after successful removal
-      refetch();
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
+    // Find the item being removed
+    const itemToRemove = (wishlistData?.wishlist || []).find(
+      (item: any) => item.productId === productId
+    );
+    
+    if (itemToRemove) {
+      // Add to undo items
+      setUndoItems(prev => [...prev, itemToRemove]);
+      
+      // Set a timer to actually remove after 2 seconds
+      const timer = setTimeout(async () => {
+        try {
+          await removeMutation.mutateAsync({ email: userEmail, productId });
+          // Refetch the wishlist data after successful removal
+          refetch();
+          // Remove from undo items
+          setUndoItems(prev => prev.filter(item => item.productId !== productId));
+          // Clear the timer
+          setUndoTimers(prev => {
+            const newTimers = { ...prev };
+            delete newTimers[productId];
+            return newTimers;
+          });
+        } catch (error) {
+          console.error('Error removing from wishlist:', error);
+          // Remove from undo items even if there's an error
+          setUndoItems(prev => prev.filter(item => item.productId !== productId));
+        }
+      }, 2000);
+      
+      // Store the timer so it can be cleared if undo is clicked
+      setUndoTimers(prev => ({ ...prev, [productId]: timer }));
     }
+  };
+  
+  const undoRemove = (productId: string) => {
+    // Clear the timer for this item
+    if (undoTimers[productId]) {
+      clearTimeout(undoTimers[productId]);
+      setUndoTimers(prev => {
+        const newTimers = { ...prev };
+        delete newTimers[productId];
+        return newTimers;
+      });
+    }
+    
+    // Remove from undo items
+    setUndoItems(prev => prev.filter(item => item.productId !== productId));
   };
   
   if (isLoading) {
@@ -84,10 +130,15 @@ export default function WishlistPage() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <Heart className="text-red-500" />
-            My Wishlist
-          </h1>
+          <button 
+            onClick={() => window.history.back()}
+            className="flex items-center text-gray-600 hover:text-gray-900"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back
+          </button>
           <span className="text-gray-600">
             {wishlistItems.length} {wishlistItems.length === 1 ? 'item' : 'items'}
           </span>
@@ -99,7 +150,7 @@ export default function WishlistPage() {
             <h3 className="text-xl font-medium text-gray-900 mb-2">Your wishlist is empty</h3>
             <p className="text-gray-500 mb-6">Save items that you like by clicking the heart icon on product pages</p>
             <button 
-              onClick={handleLoginRequired}
+              onClick={() => window.location.href = '/'}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
             >
               Start Shopping
@@ -113,6 +164,26 @@ export default function WishlistPage() {
                 item={{ productId: item.productId, product: item.product }} 
                 onRemove={removeFromWishlist} 
               />
+            ))}
+            
+            {/* Undo items - these are temporarily hidden but still in the DOM for undo functionality */}
+            {undoItems.map((item: any) => (
+              <div key={`undo-${item.productId}`} className="relative">
+                <WishlistItem 
+                  key={item.productId} 
+                  item={{ productId: item.productId, product: item.product }} 
+                  onRemove={() => {}} // No-op since it's being removed
+                />
+                <div className="fixed bottom-4 right-4 bg-white text-purple-600 px-4 py-3 rounded-lg shadow-lg z-50 flex items-center border border-gray-200">
+                  <span className="text-sm mr-3">Removed from wishlist</span>
+                  <button 
+                    onClick={() => undoRemove(item.productId)}
+                    className="text-sm font-semibold text-purple-600 hover:text-purple-800"
+                  >
+                    Undo
+                  </button>
+                </div>
+              </div>
             ))}
           </div>
         )}

@@ -1,8 +1,11 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Minus, Plus, ShoppingBag, Truck, RotateCcw, Shield, Heart } from 'lucide-react';
+import { Star, Minus, Plus, Truck, RotateCcw, Shield, Heart, ShoppingCart } from 'lucide-react';
 import { Product, ProductVariantType } from '@/lib/types/productType';
 import WishlistToggle from '@/components/wishlist/WishlistToggle';
+import { useCart } from '@/context/CartContext';
 
 interface ProductDetailProps {
   product: Product;
@@ -13,6 +16,7 @@ interface ProductDetailProps {
 const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDetailProps) => {
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
   
   // Use selected variant or first variant as fallback
   const currentVariant = selectedVariant || product.variants?.[0];
@@ -51,12 +55,33 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
         <div className="flex items-center mb-4">
-          <div className="flex items-center">
+          <button 
+            onClick={() => {
+              const reviewsSection = document.getElementById('reviews-section');
+              if (reviewsSection) {
+                reviewsSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="flex items-center hover:opacity-80 transition-opacity"
+          >
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
             ))}
-          </div>
-          <span className="ml-2 text-gray-600">(4.5) • 234 Reviews</span>
+          </button>
+          <button 
+            onClick={() => {
+              const reviewsSection = document.getElementById('reviews-section');
+              if (reviewsSection) {
+                reviewsSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+            className="ml-2 text-gray-600 hover:text-purple-600 transition-colors flex items-center"
+          >
+            (4.5) • 234 Reviews
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
         </div>
         <div className="mb-6">
           <div className="flex items-baseline gap-3">
@@ -69,6 +94,13 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
             )}
           </div>
           <p className="text-green-600 text-sm mt-1">Inclusive of all taxes</p>
+          {selectedSize && selectedSizeData?.stock !== undefined && (
+            <p className={`text-sm mt-2 ${selectedSizeData.stock < 5 ? 'text-red-600 font-medium' : 'text-gray-600'}`}>
+              {selectedSizeData.stock < 5 
+                ? `Only ${selectedSizeData.stock} ${selectedSizeData.stock === 1 ? 'piece' : 'pieces'} left!` 
+                : `In Stock (${selectedSizeData.stock} available)`}
+            </p>
+          )}
         </div>
         {availableSizes.length > 0 && (
           <div className="mb-6">
@@ -111,7 +143,22 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
           </div>
         </div>
         <div className="flex gap-4 mb-8">
-          <button className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"><ShoppingBag className="h-5 w-5" />Add to Cart</button>
+          <button 
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+            onClick={() => {
+              if (selectedSize && currentVariant && product._id) {
+                addToCart({
+                  productId: product._id,
+                  variantId: currentVariant._id || '',
+                  size: selectedSize,
+                  quantity: quantity
+                });
+              }
+            }}
+          >
+            <ShoppingCart className="h-5 w-5" />
+            Add to Cart
+          </button>
           <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">Buy Now</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">

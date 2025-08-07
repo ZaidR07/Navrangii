@@ -8,6 +8,7 @@ import NavigationHeader from "@/components/NavigationHeader";
 import HeroCarousel from "@/components/HeroCarousel";
 import SaleSection from "@/components/SaleSection";
 import HimHerSection from "@/components/HimHerSection";
+import NewArrivalsSection from "@/components/NewArrivalsSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import BestSellingProducts from "@/components/BestSellingProducts";
 import Footer from "@/components/Footer";
@@ -35,6 +36,7 @@ export default function HomePage() {
       <HeroCarousel />
       <SaleSection products={saleProducts} loading={loading} error={error} />
       <HimHerSection />
+      <NewArrivalsSection />
       <CategoriesSection />
       <BestSellingProducts />
       <Footer />
