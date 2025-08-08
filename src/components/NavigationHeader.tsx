@@ -32,10 +32,10 @@ export default function NavigationHeader() {
   const isCategoryActive = (category: string) => pathname.includes(`/category/${category}`);
 
   const categories = [
-    { name: "Women's Outfits", id: "women" },
-    { name: "Men's Outfits", id: "men" },
-    { name: "Jewelry", id: "jewelry" },
-    { name: "Couple Suites", id: "couples" }
+    { name: "Women's Outfits", id: "WOMEN'S" },
+    { name: "Men's Outfits", id: "MEN'S" },
+    { name: "Jewelry", id: "JEWELRY" },
+    { name: "Couple Suites", id: "COUPLE'S" }
   ];
 
   return (

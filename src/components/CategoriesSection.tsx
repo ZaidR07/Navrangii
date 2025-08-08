@@ -19,7 +19,7 @@ const categories: Category[] = [
     bgColor: "from-rose-400 to-pink-500",
     textColor: "text-white",
     image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=300&fit=crop&crop=center",
-    href: "/category/women"
+    href: "/category/WOMEN'S"
   },
   {
     title: "Men's Collection",
@@ -27,7 +27,7 @@ const categories: Category[] = [
     bgColor: "from-blue-400 to-indigo-500",
     textColor: "text-white",
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=center",
-    href: "/category/men"
+    href: "/category/MEN'S"
   },
   {
     title: "Couple's Collection",
@@ -35,7 +35,7 @@ const categories: Category[] = [
     bgColor: "from-purple-400 to-violet-500",
     textColor: "text-white",
     image: "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?w=400&h=300&fit=crop&crop=center",
-    href: "/category/couples"
+    href: "/category/COUPLE'S"
   },
   {
     title: "Jewelry Collection",
@@ -43,7 +43,7 @@ const categories: Category[] = [
     bgColor: "from-yellow-400 to-orange-500",
     textColor: "text-white",
     image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop&crop=center",
-    href: "/category/jewelry"
+    href: "/category/JEWELRY"
   }
 ];
 

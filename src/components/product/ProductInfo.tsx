@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Minus, Plus, Truck, RotateCcw, Shield, Heart, ShoppingCart } from 'lucide-react';
+import { Star, Minus, Plus, Truck, RotateCcw, Shield, ShoppingCart } from 'lucide-react';
 import { Product, ProductVariantType } from '@/lib/types/productType';
-import WishlistToggle from '@/components/wishlist/WishlistToggle';
 import { useCart } from '@/context/CartContext';
 
 interface ProductDetailProps {
@@ -161,17 +160,10 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
           </button>
           <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">Buy Now</button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><Truck className="h-5 w-5 text-green-600" /><div><p className="font-medium text-sm">Free Shipping</p><p className="text-xs text-gray-600">On orders above ₹999</p></div></div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><RotateCcw className="h-5 w-5 text-blue-600" /><div><p className="font-medium text-sm">Easy Returns</p><p className="text-xs text-gray-600">15 days return policy</p></div></div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"><Shield className="h-5 w-5 text-purple-600" /><div><p className="font-medium text-sm">Secure Payment</p><p className="text-xs text-gray-600">100% secure checkout</p></div></div>
-        </div>
-        <div className="flex justify-end mb-4">
-          <WishlistToggle 
-            product={product} 
-            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50" 
-            iconClassName="h-5 w-5" 
-          />
+        <div className="flex flex-row flex-wrap lg:flex-nowrap mb-8">
+          <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><Truck className="h-5 w-5 text-green-600" /><div><p className="font-medium text-sm">Free Shipping</p><p className="text-xs text-gray-600">On orders above ₹999</p></div></div>
+          <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><RotateCcw className="h-5 w-5 text-blue-600" /><div><p className="font-medium text-sm">Easy Returns</p><p className="text-xs text-gray-600">15 days return policy</p></div></div>
+          <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><Shield className="h-5 w-5 text-purple-600" /><div><p className="font-medium text-sm">Secure Payment</p><p className="text-xs text-gray-600">100% secure checkout</p></div></div>
         </div>
         <div className="mb-8">
           <h3 className="text-lg font-semibold mb-3">Product Details</h3>

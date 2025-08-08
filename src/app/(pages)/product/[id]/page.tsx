@@ -108,7 +108,12 @@ const ProductDetailPage = () => {
           <div className="flex items-center space-x-2 text-sm text-gray-600">
             <a href="/" className="hover:text-purple-600">Home</a>
             <ChevronRight className="h-4 w-4" />
-            <a href="/" className="hover:text-purple-600">Products</a>
+            <a
+              href={`/category/${encodeURIComponent(product.category)}`}
+              className="hover:text-purple-600"
+            >
+              Categories
+            </a>
             <ChevronRight className="h-4 w-4" />
             <span className="text-gray-900">{product.name}</span>
           </div>

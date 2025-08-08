@@ -16,28 +16,28 @@ const categories: Category[] = [
   {
     id: "women",
     name: "Women's Outfits",
-    href: "/category/women",
+    href: "/category/WOMEN'S",
     image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300&h=300&fit=crop&crop=center",
     bgColor: "bg-pink-100"
   },
   {
     id: "men",
     name: "Men's Outfits",
-    href: "/category/men",
+    href: "/category/MEN'S",
     image: "https://images.unsplash.com/photo-1539109136884-43d0e9d63eee?w=300&h=300&fit=crop&crop=center",
     bgColor: "bg-blue-100"
   },
   {
     id: "jewelry",
     name: "Jewelry",
-    href: "/category/jewelry",
+    href: "/category/JEWELRY",
     image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&h=300&fit=crop&crop=center",
     bgColor: "bg-yellow-100"
   },
   {
     id: "couples",
     name: "Couple Suites",
-    href: "/category/couples",
+    href: "/category/COUPLE'S",
     image: "https://images.unsplash.com/photo-1519669417670-68775a509115?w=300&h=300&fit=crop&crop=center",
     bgColor: "bg-purple-100"
   }
