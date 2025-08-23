@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import Cookies from 'js-cookie';
 import { useAddToCart } from '@/hooks/cart/useAddToCart';
 import { useCart as useCartQuery } from '@/hooks/cart/useCart';
+import { toast } from 'react-toastify';
 
 interface CartItem {
   productId: string;
@@ -17,9 +18,15 @@ interface CartContextType {
   setCartCount: (count: number) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (productId: string, variantId: string | undefined, size: string) => void;
+  isCartPopupOpen: boolean;
+  setCartPopupOpen: (isOpen: boolean) => void;
+  cartPopupMessage: string;
+  setCartPopupMessage: (message: string) => void;
+  isLoginModalOpen: boolean;
+  setLoginModalOpen: (isOpen: boolean) => void;
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined);
+export const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const useCart = () => {
   const context = useContext(CartContext);
@@ -35,6 +42,9 @@ interface CartProviderProps {
 
 export const CartProvider = ({ children }: CartProviderProps) => {
   const [cartCount, setCartCount] = useState(0);
+  const [isCartPopupOpen, setCartPopupOpen] = useState(false);
+  const [cartPopupMessage, setCartPopupMessage] = useState('');
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const { mutate: addToCartMutation } = useAddToCart();
   const userEmail = Cookies.get('userEmail') || '';
   const { data: cartData } = useCartQuery(userEmail);
@@ -54,7 +64,20 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         variantId: item.variantId,
         size: item.size,
         quantity: item.quantity
+      }, {
+        onSuccess: () => {
+          // Show popup
+          setCartPopupMessage(`${item.quantity} item${item.quantity > 1 ? 's' : ''} added to cart`);
+          setCartPopupOpen(true);
+          toast.success('Item added to cart successfully!');
+        },
+        onError: (error) => {
+          toast.error('Failed to add item to cart: ' + error.message);
+        }
       });
+    } else {
+      // Handle non-logged in users
+      setLoginModalOpen(true);
     }
   };
   
@@ -64,7 +87,18 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
   
   return (
-    <CartContext.Provider value={{ cartCount, setCartCount, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ 
+      cartCount, 
+      setCartCount, 
+      addToCart, 
+      removeFromCart,
+      isCartPopupOpen,
+      setCartPopupOpen,
+      cartPopupMessage,
+      setCartPopupMessage,
+      isLoginModalOpen,
+      setLoginModalOpen
+    }}>
       {children}
     </CartContext.Provider>
   );

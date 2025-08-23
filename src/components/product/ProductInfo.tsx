@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Minus, Plus, Truck, RotateCcw, Shield, ShoppingCart } from 'lucide-react';
+import { Star, Minus, Plus, Truck, RotateCcw, Shield, ShoppingCart, Heart } from 'lucide-react';
 import { Product, ProductVariantType } from '@/lib/types/productType';
 import { useCart } from '@/context/CartContext';
+import { useWishlist } from '@/context/WishlistContext';
+import { toast } from 'react-toastify';
 
 interface ProductDetailProps {
   product: Product;
@@ -16,6 +18,7 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
+  const { addToWishlist, isInWishlist } = useWishlist();
   
   // Use selected variant or first variant as fallback
   const currentVariant = selectedVariant || product.variants?.[0];
@@ -136,27 +139,56 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
         <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3">Quantity</h3>
           <div className="flex items-center gap-3">
-            <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)}><Minus className="h-4 w-4" /></button>
-            <span className="px-4 py-2 border border-gray-300 rounded-lg min-w-[60px] text-center">{quantity}</span>
-            <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50" onClick={() => setQuantity(q => q + 1)}><Plus className="h-4 w-4" /></button>
+            <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-800" onClick={() => setQuantity(q => q > 1 ? q - 1 : 1)}><Minus className="h-4 w-4" /></button>
+            <span className="px-4 py-2 border border-gray-300 rounded-lg min-w-[60px] text-gray-800 text-center">{quantity}</span>
+            <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-800" onClick={() => setQuantity(q => q + 1)}><Plus className="h-4 w-4" /></button>
           </div>
         </div>
         <div className="flex gap-4 mb-8">
           <button 
             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
             onClick={() => {
-              if (selectedSize && currentVariant && product._id) {
-                addToCart({
-                  productId: product._id,
-                  variantId: currentVariant._id || '',
-                  size: selectedSize,
-                  quantity: quantity
-                });
+              if (!selectedSize) {
+                toast.error('Please select a size');
+                return;
               }
+              if (!currentVariant) {
+                toast.error('Please select a color variant');
+                return;
+              }
+              if (!product._id) {
+                toast.error('Product information is incomplete');
+                return;
+              }
+              addToCart({
+                productId: product._id,
+                variantId: currentVariant._id || '',
+                size: selectedSize,
+                quantity: quantity
+              });
             }}
           >
             <ShoppingCart className="h-5 w-5" />
             Add to Cart
+          </button>
+          <button 
+            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${product._id && isInWishlist(product._id) ? 'bg-red-500 hover:bg-red-600 text-white' : 'border border-gray-300 hover:border-gray-400 text-gray-700'}`}
+            onClick={async () => {
+              if (!product._id) {
+                toast.error('Product information is incomplete');
+                return;
+              }
+              try {
+                await addToWishlist(product);
+                toast.success(isInWishlist(product._id) ? 'Removed from wishlist' : 'Added to wishlist');
+              } catch (error) {
+                toast.error('Please login to add to wishlist');
+              }
+            }}
+            disabled={!product._id}
+          >
+            <Heart className={`h-5 w-5 ${product._id && isInWishlist(product._id) ? 'fill-current' : ''}`} />
+            {product._id && isInWishlist(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
           </button>
           <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">Buy Now</button>
         </div>
@@ -165,16 +197,30 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
           <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><RotateCcw className="h-5 w-5 text-blue-600" /><div><p className="font-medium text-sm">Easy Returns</p><p className="text-xs text-gray-600">15 days return policy</p></div></div>
           <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><Shield className="h-5 w-5 text-purple-600" /><div><p className="font-medium text-sm">Secure Payment</p><p className="text-xs text-gray-600">100% secure checkout</p></div></div>
         </div>
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-3">Product Details</h3>
+        <div className="mb-8 bg-purple-50 p-6 rounded-lg">
+          <h3 className="text-lg text-gray-800 font-semibold mb-3">Product Details :-</h3>
           <div className="prose prose-sm text-gray-600">
-            <p>{product.description || "Premium quality product crafted with attention to detail and comfort."}</p>
-            <ul className="mt-4">
-              <li>Material: {product.fabric || "Premium Cotton Blend"}</li>
-              <li>Fit: Regular Fit</li>
-              <li>Care: Machine wash cold</li>
-              <li>Origin: Made in India</li>
-            </ul>
+            {/* <p>{product.description || "Premium quality product crafted with attention to detail and comfort."}</p> */}
+            <table className="min-w-full mt-4 border-collapse">
+              <tbody className="divide-y divide-gray-200">
+                <tr>
+                  <td className="py-2 font-medium text-gray-700 w-1/3">Material</td>
+                  <td className="py-2 text-gray-600">{product.fabric || "Premium Cotton Blend"}</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-700 w-1/3">Fit</td>
+                  <td className="py-2 text-gray-600">Regular Fit</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-700 w-1/3">Care</td>
+                  <td className="py-2 text-gray-600">Machine wash cold</td>
+                </tr>
+                <tr>
+                  <td className="py-2 font-medium text-gray-700 w-1/3">Origin</td>
+                  <td className="py-2 text-gray-600">Made in India</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </motion.div>

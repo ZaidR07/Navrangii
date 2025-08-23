@@ -3,11 +3,21 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Product } from '@/lib/types/productType';
 import { useAuth } from '@/context/UserContext';
+import Cookies from 'js-cookie';
+import axios from '@/lib/axios';
 
 interface WishlistItem {
   id: string;
   product: Product;
   addedAt: string;
+}
+
+interface WishlistData {
+  email: string;
+  wishlist: Array<{
+    productId: string;
+    addedAt: string;
+  }>;
 }
 
 interface WishlistContextType {
@@ -27,37 +37,41 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   
   useEffect(() => {
     // Check if user is logged in
-    if (user) {
-      loadWishlistItems(user.email);
+    if (user?.email) {
+      loadWishlistItemsFromServer(user.email);
     } else {
-      setWishlistItems([]);
+      // Try to get user email from cookies as fallback
+      const userEmail = Cookies.get('userEmail');
+      if (userEmail) {
+        loadWishlistItemsFromServer(userEmail);
+      } else {
+        setWishlistItems([]);
+      }
     }
   }, [user]);
   
-  const loadWishlistItems = (email: string) => {
+  const loadWishlistItemsFromServer = async (email: string) => {
     try {
-      const items = JSON.parse(localStorage.getItem(`wishlist_${email}`) || '[]');
-      setWishlistItems(items);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/${email}`);
+      // Transform the response data to match our WishlistItem structure
+      setWishlistItems(response.data.wishlist.map((item: any) => ({
+        id: item.productId,
+        product: item.product,
+        addedAt: item.addedAt
+      })));
     } catch (error) {
-      console.error('Error loading wishlist:', error);
+      console.error('Error loading wishlist from server:', error);
       setWishlistItems([]);
     }
   };
   
-  const saveWishlistItems = (email: string, items: WishlistItem[]) => {
-    try {
-      localStorage.setItem(`wishlist_${email}`, JSON.stringify(items));
-    } catch (error) {
-      console.error('Error saving wishlist:', error);
-    }
-  };
   
   const requiresLogin = () => {
     return !user;
   };
   
-  const addToWishlist = (product: Product) => {
-    if (!user) {
+  const addToWishlist = async (product: Product) => {
+    if (!user && !Cookies.get('userEmail')) {
       // In a real app, this would trigger the login flow
       throw new Error('Login required');
     }
@@ -67,23 +81,36 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       return; // Already in wishlist
     }
     
-    const newItem: WishlistItem = {
-      id: `${product._id}-${Date.now()}`,
-      product,
-      addedAt: new Date().toISOString(),
-    };
+    const email = user?.email || Cookies.get('userEmail') || '';
     
-    const updatedItems = [...wishlistItems, newItem];
-    setWishlistItems(updatedItems);
-    saveWishlistItems(user.email, updatedItems);
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/add`, {
+        email,
+        productId: product._id
+      });
+      
+      // Refresh wishlist items
+      loadWishlistItemsFromServer(email);
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+      throw error;
+    }
   };
   
-  const removeFromWishlist = (productId: string) => {
-    if (!user) return;
+  const removeFromWishlist = async (productId: string) => {
+    const email = user?.email || Cookies.get('userEmail');
+    if (!email) return;
     
-    const updatedItems = wishlistItems.filter(item => item.product._id !== productId);
-    setWishlistItems(updatedItems);
-    saveWishlistItems(user.email, updatedItems);
+    try {
+      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/remove`, {
+        data: { email, productId }
+      });
+      
+      // Refresh wishlist items
+      loadWishlistItemsFromServer(email);
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+    }
   };
   
   const isInWishlist = (productId: string) => {

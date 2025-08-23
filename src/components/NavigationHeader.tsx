@@ -6,26 +6,47 @@ import { Heart, Menu, X, Sparkles, ChevronDown, User, ShoppingCart } from "lucid
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import CategoriesModal from "./CategoriesModal";
-import { useWishlist } from '@/context/WishlistContext';
 import { useAuth } from '@/context/UserContext';
-import { useCart } from '@/context/CartContext';
+import { useCartCount } from '@/hooks/cart/useCartCount';
+import { useWishlistCount } from '@/hooks/wishlist/useWishlistCount';
 import LoginModal from '@/components/LoginModal';
 import Cookies from 'js-cookie';
+
+interface WishlistIconProps {
+  userEmail: string | null;
+}
+
+function WishlistIcon({ userEmail }: WishlistIconProps) {
+  const { data, isLoading } = useWishlistCount(userEmail || '');
+  
+  const wishlistCount = data?.count || 0;
+  
+  return (
+    <Link href="/wishlist" className="p-2 text-gray-600 hover:text-purple-500 relative">
+      <Heart className="h-6 w-6" />
+      <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+        {isLoading ? '0' : wishlistCount}
+      </span>
+    </Link>
+  );
+}
 
 export default function NavigationHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const { wishlistCount } = useWishlist();
-  const { cartCount } = useCart();
   const { user, logout } = useAuth();
   const pathname = usePathname();
   
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { data: cartData, isLoading: isCartLoading } = useCartCount(userEmail || '');
 
   // Check if user is logged in by checking for email cookie - only on client side
   useEffect(() => {
-    setIsUserLoggedIn(!!Cookies.get('userEmail'));
+    const email = Cookies.get('userEmail');
+    setIsUserLoggedIn(!!email);
+    setUserEmail(email || null);
   }, []);
 
   const isActive = (path: string) => pathname === path;
@@ -103,20 +124,8 @@ export default function NavigationHeader() {
                 animate={{ opacity: 1, x: 0 }}
                 className="flex items-center space-x-4"
               >
-                {/* Cart */}
-                <Link href="/cart" className="p-2 text-gray-600 hover:text-purple-500 relative">
-                  <ShoppingCart className="h-6 w-6" />
-                  <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    0
-                  </span>
-                </Link>
                 {/* Wishlist */}
-                <Link href="/wishlist" className="p-2 text-gray-600 hover:text-purple-500 relative">
-                  <Heart className="h-6 w-6" />
-                  <span className="absolute -top-1 -right-1 bg-purple-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                </Link>
+                <WishlistIcon userEmail={userEmail} />
                 
                 {/* Cart */}
                 <Link 
@@ -126,7 +135,7 @@ export default function NavigationHeader() {
                 >
                   <ShoppingCart className="h-6 w-6" />
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartCount}
+                    {isCartLoading ? '0' : cartData?.count || 0}
                   </span>
                 </Link>
                 
@@ -159,18 +168,6 @@ export default function NavigationHeader() {
             {/* Mobile Right Side Icons */}
             <div className="lg:hidden flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                {/* Mobile Cart */}
-                <Link 
-                  href="/cart" 
-                  className="p-2 text-gray-600 hover:text-purple-500 relative"
-                  aria-label="Shopping Cart"
-                >
-                  <ShoppingCart className="h-6 w-6" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                </Link>
-                
                 {/* Mobile Profile/Login Button */}
                 {isUserLoggedIn ? (
                   <button 

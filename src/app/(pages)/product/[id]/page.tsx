@@ -11,6 +11,8 @@ import ProductInfo from '@/components/product/ProductInfo';
 import SimilarProductsCarousel from '@/components/product/SimilarProductsCarousel';
 import ReviewsSection from '@/components/product/ReviewsSection';
 import { Product, ProductVariantType } from '@/lib/types/productType';
+import CartLoginModal from '@/components/cart/CartLoginModal';
+import { useCart } from '@/context/CartContext';
 
 const ProductDetailPage = () => {
   const params = useParams();
@@ -20,6 +22,9 @@ const ProductDetailPage = () => {
   
   // State for selected variant
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantType | undefined>(undefined);
+  
+  // Cart context
+  const { isLoginModalOpen, setLoginModalOpen } = useCart();
   
   // Parse product from URL if available (for server-side rendering)
   const productFromUrl = searchParams?.get('product') 
@@ -100,6 +105,11 @@ const ProductDetailPage = () => {
     );
   }
 
+  const handleLoginSuccess = (email: string) => {
+    // Optionally show a success message
+    // The modal will auto-close after 3 seconds due to justLoggedIn state
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -135,6 +145,13 @@ const ProductDetailPage = () => {
         {/* Reviews Section */}
         <ReviewsSection />
       </div>
+      
+      {/* Cart Login Modal */}
+      <CartLoginModal 
+        isOpen={isLoginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </div>
   );
 };

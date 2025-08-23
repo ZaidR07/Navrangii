@@ -85,17 +85,17 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
         <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <button 
-              className="p-1 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="p-1 border text-gray-800 border-gray-300 rounded-md hover:bg-gray-50"
               onClick={() => handleQuantityChange(itemQuantity - 1)}
               disabled={itemQuantity <= 1}
             >
               <Minus className="h-4 w-4" />
             </button>
-            <span className="px-3 py-1 border border-gray-300 rounded-lg min-w-[40px] text-center">
+            <span className="px-3 py-1 border text-gray-800 border-gray-300 rounded-lg min-w-[40px] text-center">
               {itemQuantity}
             </span>
             <button 
-              className="p-1 border border-gray-300 rounded-md hover:bg-gray-50"
+              className="p-1 border text-gray-800 border-gray-300 rounded-md hover:bg-gray-50"
               onClick={() => handleQuantityChange(itemQuantity + 1)}
               disabled={itemQuantity >= 10}
             >

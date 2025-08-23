@@ -1,26 +1,45 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, Filter, X, ChevronLeft } from 'lucide-react';
 import { useGetAllProducts } from '@/hooks/product/useGetProduct';
+import { useGetVariable } from '@/hooks/variable/useGetVariable';
 import { Product } from '@/lib/types/productType';
 
 export default function CategoryPage({ params }: { params: { categoryName: string } }) {
+  // Custom scrollbar styles
+  const scrollbarStyles = `
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f3e8ff; /* purple-50 equivalent */
+      border-radius: 3px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #c084fc; /* purple-400 equivalent */
+      border-radius: 3px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #a855f7; /* purple-500 equivalent */
+    }
+  `;
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { data: products = [], isLoading, error } = useGetAllProducts();
+  const { data: products = [], isLoading: productsLoading, error: productsError } = useGetAllProducts();
+  const { data: variables, isLoading: variablesLoading, error: variablesError } = useGetVariable();
   
   // State for filters
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('');
-  const [selectedFabric, setSelectedFabric] = useState<string>('');
-  const [selectedOccasion, setSelectedOccasion] = useState<string>('');
-  const [selectedPattern, setSelectedPattern] = useState<string>('');
-  const [selectedStyle, setSelectedStyle] = useState<string>('');
-  const [selectedColor, setSelectedColor] = useState<string>('');
-  const [selectedSize, setSelectedSize] = useState<string>('');
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [selectedFabric, setSelectedFabric] = useState<string[]>([]);
+  const [selectedOccasion, setSelectedOccasion] = useState<string[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string[]>([]);
+  const [selectedSize, setSelectedSize] = useState<string[]>([]);
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('');
   const [showFilters, setShowFilters] = useState(false);
   
   // Get category name from params
@@ -33,66 +52,53 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
     );
   }, [products, categoryName]);
   
-  // Get unique filter options from products
-  const filterOptions = useMemo(() => {
-    const subcategories = Array.from(new Set(categoryProducts.map(p => p.subcategory).filter(Boolean))) as string[];
-    const fabrics = Array.from(new Set(categoryProducts.map(p => p.fabric).filter(Boolean))) as string[];
-    const occasions = Array.from(new Set(categoryProducts.map(p => p.occasion).filter(Boolean))) as string[];
-    const patterns = Array.from(new Set(categoryProducts.map(p => p.patternAndPrint).filter(Boolean))) as string[];
-    const styles = Array.from(new Set(categoryProducts.map(p => p.style).filter(Boolean))) as string[];
-    
-    // Get all colors and sizes from variants
-    const colors = Array.from(new Set(categoryProducts.flatMap(p => 
-      p.variants?.flatMap(v => v.color) || []
-    ).filter(Boolean))) as string[];
-    
-    const sizes = Array.from(new Set(categoryProducts.flatMap(p => 
-      p.variants?.flatMap(v => v.sizes.map(s => s.size)) || []
-    ).filter(Boolean))) as string[];
-    
-    return {
-      subcategories,
-      fabrics,
-      occasions,
-      patterns,
-      styles,
-      colors,
-      sizes
-    };
-  }, [categoryProducts]);
   
-  // Apply filters to products
+  // Filter products based on selected filters
   const filteredProducts = useMemo(() => {
-    return categoryProducts.filter(product => {
-      // Subcategory filter
-      if (selectedSubcategory && product.subcategory !== selectedSubcategory) return false;
+    return products.filter((product) => {
+      // Category filter
+      if (params.categoryName && product.category !== params.categoryName) {
+        return false;
+      }
       
-      // Fabric filter
-      if (selectedFabric && product.fabric !== selectedFabric) return false;
+      // Fabric filter - check if product fabric is in selected fabrics array
+      if (selectedFabric.length > 0 && !selectedFabric.includes(product.fabric)) {
+        return false;
+      }
       
-      // Occasion filter
-      if (selectedOccasion && product.occasion !== selectedOccasion) return false;
+      // Occasion filter - check if product occasion is in selected occasions array
+      if (selectedOccasion.length > 0 && !selectedOccasion.includes(product.occasion)) {
+        return false;
+      }
       
-      // Pattern filter
-      if (selectedPattern && product.patternAndPrint !== selectedPattern) return false;
+      // Color filter - check if any variant has a color in selected colors array
+      if (selectedColor.length > 0 && (!product.variants || !product.variants.some(variant => selectedColor.includes(variant.color)))) {
+        return false;
+      }
       
-      // Style filter
-      if (selectedStyle && product.style !== selectedStyle) return false;
+      // Size filter - check if any variant has a size in selected sizes array
+      if (selectedSize.length > 0 && (!product.variants || !product.variants.some(variant => variant.sizes.some(size => selectedSize.includes(size.size))))) {
+        return false;
+      }
       
-      // Color filter (check if any variant has the selected color)
-      if (selectedColor && !product.variants?.some(v => v.color === selectedColor)) return false;
-      
-      // Size filter (check if any variant has the selected size)
-      if (selectedSize && !product.variants?.some(v => 
-        v.sizes.some(s => s.size === selectedSize)
-      )) return false;
-      
-      // Price filter (check if any variant is within price range)
-      if (priceRange[0] > 0 || priceRange[1] < 5000) {
-        const hasPriceInRange = product.variants?.some(v => 
-          v.sizes.some(s => 
-            s.sellingPrice >= priceRange[0] && s.sellingPrice <= priceRange[1]
-          )
+      // Price range filter - check if any variant has a price within selected range
+      if (selectedPriceRange && product.variants && product.variants.length > 0) {
+        const hasPriceInRange = product.variants.some(variant => 
+          variant.sizes.some(size => {
+            const price = size.sellingPrice;
+            switch (selectedPriceRange) {
+              case 'under-500':
+                return price < 500;
+              case '500-2000':
+                return price >= 500 && price <= 2000;
+              case '2000-5000':
+                return price > 2000 && price <= 5000;
+              case '5000-20000':
+                return price > 5000 && price <= 20000;
+              default:
+                return true;
+            }
+          })
         );
         if (!hasPriceInRange) return false;
       }
@@ -100,30 +106,25 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
       return true;
     });
   }, [
-    categoryProducts, 
-    selectedSubcategory, 
+    products, 
+    params.categoryName, 
     selectedFabric, 
     selectedOccasion, 
-    selectedPattern, 
-    selectedStyle, 
     selectedColor, 
     selectedSize, 
-    priceRange
+    selectedPriceRange
   ]);
   
   // Clear all filters
   const clearAllFilters = () => {
-    setSelectedSubcategory('');
-    setSelectedFabric('');
-    setSelectedOccasion('');
-    setSelectedPattern('');
-    setSelectedStyle('');
-    setSelectedColor('');
-    setSelectedSize('');
-    setPriceRange([0, 5000]);
+    setSelectedFabric([]);
+    setSelectedOccasion([]);
+    setSelectedColor([]);
+    setSelectedSize([]);
+    setSelectedPriceRange('');
   };
   
-  if (isLoading) {
+  if (productsLoading || variablesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
@@ -131,12 +132,12 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
     );
   }
   
-  if (error) {
+  if (productsError || variablesError) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Products</h2>
-          <p className="text-gray-600">{error.message || 'Failed to load products. Please try again later.'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Data</h2>
+          <p className="text-gray-600">{productsError?.message || variablesError?.message || 'Failed to load data. Please try again later.'}</p>
         </div>
       </div>
     );
@@ -144,6 +145,7 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
   
   return (
     <div className="min-h-screen bg-purple-50">
+      <style jsx>{scrollbarStyles}</style>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -167,79 +169,54 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar - Desktop */}
           <div className="hidden lg:block w-full lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow p-6 sticky top-8">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-purple-800">Filters</h2>
+            <div className="bg-gradient-to-b from-purple-50 to-fuchsia-50 rounded-xl shadow-lg p-6 sticky top-8 border border-purple-100">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-purple-200">
+                <h2 className="text-xl font-bold text-purple-800 flex items-center">
+                  <Filter className="h-5 w-5 mr-2 text-purple-600" /> Filters
+                </h2>
                 <button 
                   onClick={clearAllFilters}
-                  className="text-sm text-purple-600 hover:text-purple-800"
+                  className="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center transition-colors duration-200"
                 >
-                  Clear All
+                  <X className="h-4 w-4 mr-1" /> Clear All
                 </button>
               </div>
               
-              {/* Subcategory Filter */}
-              {filterOptions.subcategories.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Subcategory</h3>
-                  <div className="space-y-2">
-                    {filterOptions.subcategories.map((subcategory) => (
-                      <div key={subcategory} className="flex items-center">
-                        <input
-                          id={`subcategory-${subcategory}`}
-                          name="subcategory"
-                          type="radio"
-                          checked={selectedSubcategory === subcategory}
-                          onChange={() => setSelectedSubcategory(subcategory)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
-                        />
-                        <label
-                          htmlFor={`subcategory-${subcategory}`}
-                          className="ml-3 text-sm text-gray-700"
-                        >
-                          {subcategory}
-                        </label>
-                      </div>
-                    ))}
-                    {selectedSubcategory && (
-                      <button
-                        onClick={() => setSelectedSubcategory('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
-                      >
-                        <X className="h-3 w-3 mr-1" /> Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              
               {/* Fabric Filter */}
-              {filterOptions.fabrics.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Fabric</h3>
-                  <div className="space-y-2">
-                    {filterOptions.fabrics.map((fabric) => (
-                      <div key={fabric} className="flex items-center">
+              {variables?.fabric && variables.fabric.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-purple-500 mr-2"></div> Fabric
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.fabric.map((fabric) => (
+                      <div key={fabric} className="flex items-center group">
                         <input
                           id={`fabric-${fabric}`}
                           name="fabric"
-                          type="radio"
-                          checked={selectedFabric === fabric}
-                          onChange={() => setSelectedFabric(fabric)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedFabric.includes(fabric)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedFabric(prev => [...prev, fabric]);
+                            } else {
+                              setSelectedFabric(prev => prev.filter(item => item !== fabric));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`fabric-${fabric}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {fabric}
                         </label>
                       </div>
                     ))}
-                    {selectedFabric && (
+                    {selectedFabric.length > 0 && (
                       <button
-                        onClick={() => setSelectedFabric('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedFabric([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -249,102 +226,40 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Occasion Filter */}
-              {filterOptions.occasions.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Occasion</h3>
-                  <div className="space-y-2">
-                    {filterOptions.occasions.map((occasion) => (
-                      <div key={occasion} className="flex items-center">
+              {variables?.occassion && variables.occassion.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-fuchsia-500 mr-2"></div> Occasion
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.occassion.map((occasion) => (
+                      <div key={occasion} className="flex items-center group">
                         <input
                           id={`occasion-${occasion}`}
                           name="occasion"
-                          type="radio"
-                          checked={selectedOccasion === occasion}
-                          onChange={() => setSelectedOccasion(occasion)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedOccasion.includes(occasion)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedOccasion(prev => [...prev, occasion]);
+                            } else {
+                              setSelectedOccasion(prev => prev.filter(item => item !== occasion));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`occasion-${occasion}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {occasion}
                         </label>
                       </div>
                     ))}
-                    {selectedOccasion && (
+                    {selectedOccasion.length > 0 && (
                       <button
-                        onClick={() => setSelectedOccasion('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
-                      >
-                        <X className="h-3 w-3 mr-1" /> Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Pattern Filter */}
-              {filterOptions.patterns.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Pattern</h3>
-                  <div className="space-y-2">
-                    {filterOptions.patterns.map((pattern) => (
-                      <div key={pattern} className="flex items-center">
-                        <input
-                          id={`pattern-${pattern}`}
-                          name="pattern"
-                          type="radio"
-                          checked={selectedPattern === pattern}
-                          onChange={() => setSelectedPattern(pattern)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
-                        />
-                        <label
-                          htmlFor={`pattern-${pattern}`}
-                          className="ml-3 text-sm text-gray-700"
-                        >
-                          {pattern}
-                        </label>
-                      </div>
-                    ))}
-                    {selectedPattern && (
-                      <button
-                        onClick={() => setSelectedPattern('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
-                      >
-                        <X className="h-3 w-3 mr-1" /> Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Style Filter */}
-              {filterOptions.styles.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Style</h3>
-                  <div className="space-y-2">
-                    {filterOptions.styles.map((style) => (
-                      <div key={style} className="flex items-center">
-                        <input
-                          id={`style-${style}`}
-                          name="style"
-                          type="radio"
-                          checked={selectedStyle === style}
-                          onChange={() => setSelectedStyle(style)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
-                        />
-                        <label
-                          htmlFor={`style-${style}`}
-                          className="ml-3 text-sm text-gray-700"
-                        >
-                          {style}
-                        </label>
-                      </div>
-                    ))}
-                    {selectedStyle && (
-                      <button
-                        onClick={() => setSelectedStyle('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedOccasion([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -354,32 +269,40 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Color Filter */}
-              {filterOptions.colors.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Color</h3>
-                  <div className="space-y-2">
-                    {filterOptions.colors.map((color) => (
-                      <div key={color} className="flex items-center">
+              {variables?.color && variables.color.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-pink-500 mr-2"></div> Color
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.color.map((color) => (
+                      <div key={color} className="flex items-center group">
                         <input
                           id={`color-${color}`}
                           name="color"
-                          type="radio"
-                          checked={selectedColor === color}
-                          onChange={() => setSelectedColor(color)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedColor.includes(color)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedColor(prev => [...prev, color]);
+                            } else {
+                              setSelectedColor(prev => prev.filter(item => item !== color));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`color-${color}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {color}
                         </label>
                       </div>
                     ))}
-                    {selectedColor && (
+                    {selectedColor.length > 0 && (
                       <button
-                        onClick={() => setSelectedColor('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedColor([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -389,32 +312,40 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Size Filter */}
-              {filterOptions.sizes.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Size</h3>
-                  <div className="space-y-2">
-                    {filterOptions.sizes.map((size) => (
-                      <div key={size} className="flex items-center">
+              {variables?.sizes && variables.sizes.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-indigo-500 mr-2"></div> Size
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.sizes.map((size) => (
+                      <div key={size} className="flex items-center group">
                         <input
                           id={`size-${size}`}
                           name="size"
-                          type="radio"
-                          checked={selectedSize === size}
-                          onChange={() => setSelectedSize(size)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedSize.includes(size)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedSize(prev => [...prev, size]);
+                            } else {
+                              setSelectedSize(prev => prev.filter(item => item !== size));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`size-${size}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {size}
                         </label>
                       </div>
                     ))}
-                    {selectedSize && (
+                    {selectedSize.length > 0 && (
                       <button
-                        onClick={() => setSelectedSize('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedSize([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -424,35 +355,42 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Price Range Filter */}
-              <div className="mb-6">
-                <h3 className="text-md font-medium text-gray-900 mb-3">Price Range</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Min Price</label>
-                    <input
-                      type="number"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Max Price</label>
-                    <input
-                      type="number"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      min="0"
-                    />
-                  </div>
-                  <button
-                    onClick={() => setPriceRange([0, 5000])}
-                    className="text-xs text-purple-600 hover:text-purple-800 flex items-center"
-                  >
-                    <X className="h-3 w-3 mr-1" /> Reset Price Range
-                  </button>
+              <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                  <div className="h-2 w-2 rounded-full bg-rose-500 mr-2"></div> Price Range
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { id: 'under-500', label: 'Under ₹500', value: 'under-500' },
+                    { id: '500-2000', label: '₹500 - ₹2000', value: '500-2000' },
+                    { id: '2000-5000', label: '₹2000 - ₹5000', value: '2000-5000' },
+                    { id: '5000-20000', label: '₹5000 - ₹20000', value: '5000-20000' }
+                  ].map((range) => (
+                    <div key={range.id} className="flex items-center group">
+                      <input
+                        id={`price-${range.id}`}
+                        name="price-range"
+                        type="radio"
+                        checked={selectedPriceRange === range.value}
+                        onChange={() => setSelectedPriceRange(range.value)}
+                        className="h-4 w-4 text-purple-600 border-purple-300 focus:ring-purple-500 bg-white checked:bg-purple-600"
+                      />
+                      <label
+                        htmlFor={`price-${range.id}`}
+                        className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
+                      >
+                        {range.label}
+                      </label>
+                    </div>
+                  ))}
+                  {selectedPriceRange && (
+                    <button
+                      onClick={() => setSelectedPriceRange('')}
+                      className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
+                    >
+                      <X className="h-3 w-3 mr-1" /> Clear
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -471,79 +409,54 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
           
           {/* Mobile Filters */}
           {showFilters && (
-            <div className="lg:hidden bg-white rounded-lg shadow p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            <div className="lg:hidden bg-gradient-to-b from-purple-50 to-fuchsia-50 rounded-xl shadow-lg p-6 mb-6 border border-purple-100">
+              <div className="flex justify-between items-center mb-6 pb-2 border-b border-purple-200">
+                <h2 className="text-xl font-bold text-purple-800 flex items-center">
+                  <Filter className="h-5 w-5 mr-2 text-purple-600" /> Filters
+                </h2>
                 <button 
                   onClick={() => setShowFilters(false)}
-                  className="text-gray-400 hover:text-gray-500"
+                  className="text-purple-600 hover:text-purple-800"
                 >
                   <X className="h-6 w-6" />
                 </button>
               </div>
               
-              {/* Subcategory Filter */}
-              {filterOptions.subcategories.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Subcategory</h3>
-                  <div className="space-y-2">
-                    {filterOptions.subcategories.map((subcategory) => (
-                      <div key={subcategory} className="flex items-center">
-                        <input
-                          id={`mobile-subcategory-${subcategory}`}
-                          name="subcategory"
-                          type="radio"
-                          checked={selectedSubcategory === subcategory}
-                          onChange={() => setSelectedSubcategory(subcategory)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
-                        />
-                        <label
-                          htmlFor={`mobile-subcategory-${subcategory}`}
-                          className="ml-3 text-sm text-gray-700"
-                        >
-                          {subcategory}
-                        </label>
-                      </div>
-                    ))}
-                    {selectedSubcategory && (
-                      <button
-                        onClick={() => setSelectedSubcategory('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
-                      >
-                        <X className="h-3 w-3 mr-1" /> Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              
               {/* Fabric Filter */}
-              {filterOptions.fabrics.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Fabric</h3>
-                  <div className="space-y-2">
-                    {filterOptions.fabrics.map((fabric) => (
-                      <div key={fabric} className="flex items-center">
+              {variables?.fabric && variables.fabric.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-purple-500 mr-2"></div> Fabric
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.fabric.map((fabric) => (
+                      <div key={fabric} className="flex items-center group">
                         <input
                           id={`mobile-fabric-${fabric}`}
                           name="fabric"
-                          type="radio"
-                          checked={selectedFabric === fabric}
-                          onChange={() => setSelectedFabric(fabric)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedFabric.includes(fabric)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedFabric(prev => [...prev, fabric]);
+                            } else {
+                              setSelectedFabric(prev => prev.filter(item => item !== fabric));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`mobile-fabric-${fabric}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {fabric}
                         </label>
                       </div>
                     ))}
-                    {selectedFabric && (
+                    {selectedFabric.length > 0 && (
                       <button
-                        onClick={() => setSelectedFabric('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedFabric([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -553,102 +466,40 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Occasion Filter */}
-              {filterOptions.occasions.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Occasion</h3>
-                  <div className="space-y-2">
-                    {filterOptions.occasions.map((occasion) => (
-                      <div key={occasion} className="flex items-center">
+              {variables?.occassion && variables.occassion.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-fuchsia-500 mr-2"></div> Occasion
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.occassion.map((occasion) => (
+                      <div key={occasion} className="flex items-center group">
                         <input
                           id={`mobile-occasion-${occasion}`}
                           name="occasion"
-                          type="radio"
-                          checked={selectedOccasion === occasion}
-                          onChange={() => setSelectedOccasion(occasion)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedOccasion.includes(occasion)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedOccasion(prev => [...prev, occasion]);
+                            } else {
+                              setSelectedOccasion(prev => prev.filter(item => item !== occasion));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`mobile-occasion-${occasion}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {occasion}
                         </label>
                       </div>
                     ))}
-                    {selectedOccasion && (
+                    {selectedOccasion.length > 0 && (
                       <button
-                        onClick={() => setSelectedOccasion('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
-                      >
-                        <X className="h-3 w-3 mr-1" /> Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Pattern Filter */}
-              {filterOptions.patterns.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Pattern</h3>
-                  <div className="space-y-2">
-                    {filterOptions.patterns.map((pattern) => (
-                      <div key={pattern} className="flex items-center">
-                        <input
-                          id={`mobile-pattern-${pattern}`}
-                          name="pattern"
-                          type="radio"
-                          checked={selectedPattern === pattern}
-                          onChange={() => setSelectedPattern(pattern)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
-                        />
-                        <label
-                          htmlFor={`mobile-pattern-${pattern}`}
-                          className="ml-3 text-sm text-gray-700"
-                        >
-                          {pattern}
-                        </label>
-                      </div>
-                    ))}
-                    {selectedPattern && (
-                      <button
-                        onClick={() => setSelectedPattern('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
-                      >
-                        <X className="h-3 w-3 mr-1" /> Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-              
-              {/* Style Filter */}
-              {filterOptions.styles.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Style</h3>
-                  <div className="space-y-2">
-                    {filterOptions.styles.map((style) => (
-                      <div key={style} className="flex items-center">
-                        <input
-                          id={`mobile-style-${style}`}
-                          name="style"
-                          type="radio"
-                          checked={selectedStyle === style}
-                          onChange={() => setSelectedStyle(style)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
-                        />
-                        <label
-                          htmlFor={`mobile-style-${style}`}
-                          className="ml-3 text-sm text-gray-700"
-                        >
-                          {style}
-                        </label>
-                      </div>
-                    ))}
-                    {selectedStyle && (
-                      <button
-                        onClick={() => setSelectedStyle('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedOccasion([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -658,32 +509,40 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Color Filter */}
-              {filterOptions.colors.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Color</h3>
-                  <div className="space-y-2">
-                    {filterOptions.colors.map((color) => (
-                      <div key={color} className="flex items-center">
+              {variables?.color && variables.color.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-pink-500 mr-2"></div> Color
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.color.map((color) => (
+                      <div key={color} className="flex items-center group">
                         <input
                           id={`mobile-color-${color}`}
                           name="color"
-                          type="radio"
-                          checked={selectedColor === color}
-                          onChange={() => setSelectedColor(color)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedColor.includes(color)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedColor(prev => [...prev, color]);
+                            } else {
+                              setSelectedColor(prev => prev.filter(item => item !== color));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`mobile-color-${color}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {color}
                         </label>
                       </div>
                     ))}
-                    {selectedColor && (
+                    {selectedColor.length > 0 && (
                       <button
-                        onClick={() => setSelectedColor('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedColor([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -693,32 +552,40 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Size Filter */}
-              {filterOptions.sizes.length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-3">Size</h3>
-                  <div className="space-y-2">
-                    {filterOptions.sizes.map((size) => (
-                      <div key={size} className="flex items-center">
+              {variables?.sizes && variables.sizes.length > 0 && (
+                <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                  <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                    <div className="h-2 w-2 rounded-full bg-indigo-500 mr-2"></div> Size
+                  </h3>
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                    {variables.sizes.map((size) => (
+                      <div key={size} className="flex items-center group">
                         <input
                           id={`mobile-size-${size}`}
                           name="size"
-                          type="radio"
-                          checked={selectedSize === size}
-                          onChange={() => setSelectedSize(size)}
-                          className="h-4 w-4 text-purple-600 border-gray-300 focus:ring-purple-500"
+                          type="checkbox"
+                          checked={selectedSize.includes(size)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedSize(prev => [...prev, size]);
+                            } else {
+                              setSelectedSize(prev => prev.filter(item => item !== size));
+                            }
+                          }}
+                          className="h-4 w-4 text-purple-600 border-purple-300 rounded focus:ring-purple-500 focus:ring-2 focus:ring-offset-1 focus:ring-offset-purple-50 transition-all duration-200 bg-white checked:bg-purple-600"
                         />
                         <label
                           htmlFor={`mobile-size-${size}`}
-                          className="ml-3 text-sm text-gray-700"
+                          className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
                         >
                           {size}
                         </label>
                       </div>
                     ))}
-                    {selectedSize && (
+                    {selectedSize.length > 0 && (
                       <button
-                        onClick={() => setSelectedSize('')}
-                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center"
+                        onClick={() => setSelectedSize([])}
+                        className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
                       >
                         <X className="h-3 w-3 mr-1" /> Clear
                       </button>
@@ -728,35 +595,42 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
               )}
               
               {/* Price Range Filter */}
-              <div className="mb-6">
-                <h3 className="text-md font-medium text-gray-900 mb-3">Price Range</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Min Price</label>
-                    <input
-                      type="number"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      min="0"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-700 mb-1">Max Price</label>
-                    <input
-                      type="number"
-                      value={priceRange[1]}
-                      onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      min="0"
-                    />
-                  </div>
-                  <button
-                    onClick={() => setPriceRange([0, 5000])}
-                    className="text-xs text-purple-600 hover:text-purple-800 flex items-center"
-                  >
-                    <X className="h-3 w-3 mr-1" /> Reset Price Range
-                  </button>
+              <div className="mb-6 bg-white rounded-lg p-4 shadow-sm border border-purple-100">
+                <h3 className="text-md font-semibold text-purple-800 mb-3 flex items-center">
+                  <div className="h-2 w-2 rounded-full bg-rose-500 mr-2"></div> Price Range
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { id: 'mobile-under-500', label: 'Under ₹500', value: 'under-500' },
+                    { id: 'mobile-500-2000', label: '₹500 - ₹2000', value: '500-2000' },
+                    { id: 'mobile-2000-5000', label: '₹2000 - ₹5000', value: '2000-5000' },
+                    { id: 'mobile-5000-20000', label: '₹5000 - ₹20000', value: '5000-20000' }
+                  ].map((range) => (
+                    <div key={range.id} className="flex items-center group">
+                      <input
+                        id={range.id}
+                        name="price-range"
+                        type="radio"
+                        checked={selectedPriceRange === range.value}
+                        onChange={() => setSelectedPriceRange(range.value)}
+                        className="h-4 w-4 text-purple-600 border-purple-300 focus:ring-purple-500 bg-white checked:bg-purple-600"
+                      />
+                      <label
+                        htmlFor={range.id}
+                        className="ml-3 text-sm text-gray-700 group-hover:text-purple-700 transition-colors duration-200 cursor-pointer"
+                      >
+                        {range.label}
+                      </label>
+                    </div>
+                  ))}
+                  {selectedPriceRange && (
+                    <button
+                      onClick={() => setSelectedPriceRange('')}
+                      className="text-xs text-purple-600 hover:text-purple-800 mt-2 flex items-center transition-colors duration-200"
+                    >
+                      <X className="h-3 w-3 mr-1" /> Clear
+                    </button>
+                  )}
                 </div>
               </div>
               
@@ -766,9 +640,9 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
                   clearAllFilters();
                   setShowFilters(false);
                 }}
-                className="w-full py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 mt-4"
+                className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white rounded-lg text-sm font-medium hover:from-purple-700 hover:to-fuchsia-700 shadow-md transition-all duration-200 mt-4 flex items-center justify-center"
               >
-                Clear All Filters
+                <X className="h-4 w-4 mr-2" /> Clear All Filters
               </button>
             </div>
           )}

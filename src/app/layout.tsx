@@ -7,6 +7,7 @@ import { Theme } from "@/components/theme";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/UserContext";
 import { CartProvider } from "@/context/CartContext";
+import CartPopup from "@/components/cart/CartPopup";
 
 
 
@@ -32,6 +33,7 @@ export default function RootLayout({
                 <Theme>
                   <ToastContainer />
                   {children}
+                  <CartPopup />
                 </Theme>
               </CartProvider>
             </WishlistProvider>
