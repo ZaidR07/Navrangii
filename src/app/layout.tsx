@@ -8,6 +8,7 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/context/UserContext";
 import { CartProvider } from "@/context/CartContext";
 import CartPopup from "@/components/cart/CartPopup";
+import BackToTopButton from "@/components/BackToTopButton";
 
 
 
@@ -33,6 +34,7 @@ export default function RootLayout({
                 <Theme>
                   <ToastContainer />
                   {children}
+                  <BackToTopButton />
                   <CartPopup />
                 </Theme>
               </CartProvider>

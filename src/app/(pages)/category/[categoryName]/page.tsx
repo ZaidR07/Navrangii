@@ -142,7 +142,7 @@ export default function CategoryPage({ params }: { params: { categoryName: strin
       </div>
     );
   }
-  
+
   return (
     <div className="min-h-screen bg-purple-50">
       <style jsx>{scrollbarStyles}</style>

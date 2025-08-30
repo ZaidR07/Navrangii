@@ -11,6 +11,7 @@ import { useCartCount } from '@/hooks/cart/useCartCount';
 import { useWishlistCount } from '@/hooks/wishlist/useWishlistCount';
 import LoginModal from '@/components/LoginModal';
 import Cookies from 'js-cookie';
+import Image from 'next/image';
 
 interface WishlistIconProps {
   userEmail: string | null;
@@ -63,7 +64,7 @@ export default function NavigationHeader() {
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-28">
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -71,8 +72,14 @@ export default function NavigationHeader() {
               className="flex items-center space-x-2"
             >
               <Link href="/" className="flex items-center">
-                <Sparkles className="h-8 w-8 text-purple-600" />
-                <span className="text-xl sm:text-2xl font-bold text-gray-900">Darshu Fashion</span>
+                <Image
+                  src="/logo.png"
+                  alt="Darshu Fashion Logo"
+                  width={720}
+                  height={216}
+                  priority
+                  className="h-28 w-auto object-contain"
+                />
               </Link>
             </motion.div>
 

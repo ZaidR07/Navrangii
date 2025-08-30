@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface Category {
   title: string;
@@ -18,7 +18,7 @@ const categories: Category[] = [
     subtitle: "Elegant & Trendy",
     bgColor: "from-rose-400 to-pink-500",
     textColor: "text-white",
-    image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=300&fit=crop&crop=center",
+    image: "/woman_collection.jpg",
     href: "/category/WOMEN'S"
   },
   {
@@ -26,7 +26,7 @@ const categories: Category[] = [
     subtitle: "Bold & Stylish",
     bgColor: "from-blue-400 to-indigo-500",
     textColor: "text-white",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop&crop=center",
+    image: "/mens_collection.jpg",
     href: "/category/MEN'S"
   },
   {
@@ -34,7 +34,7 @@ const categories: Category[] = [
     subtitle: "Perfect Pairs",
     bgColor: "from-purple-400 to-violet-500",
     textColor: "text-white",
-    image: "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?w=400&h=300&fit=crop&crop=center",
+    image: "/couple_collection.jpg",
     href: "/category/COUPLE'S"
   },
   {
@@ -42,7 +42,7 @@ const categories: Category[] = [
     subtitle: "Sparkle & Shine",
     bgColor: "from-yellow-400 to-orange-500",
     textColor: "text-white",
-    image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&h=300&fit=crop&crop=center",
+    image: "/jewellery_collection.jpg",
     href: "/category/JEWELRY"
   }
 ];
@@ -81,10 +81,6 @@ export default function CategoriesSection() {
                       alt={category.title}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-br ${category.bgColor} opacity-80`}></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles className="h-12 w-12 text-white" />
-                    </div>
                   </div>
                   <div className="p-6">
                     <h4 className="text-xl font-bold text-gray-900 mb-2">{category.title}</h4>
@@ -132,10 +128,6 @@ export default function CategoriesSection() {
                       alt={category.title}
                       className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
                     />
-                    <div className={`absolute inset-0 bg-gradient-to-br ${category.bgColor} opacity-70`}></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Sparkles className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
-                    </div>
                   </div>
                   <div className="p-3 sm:p-4">
                     <h4 className="text-sm sm:text-base font-bold text-gray-900 mb-1">{category.title}</h4>
