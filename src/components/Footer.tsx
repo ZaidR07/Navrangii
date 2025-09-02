@@ -3,8 +3,21 @@
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import Image from 'next/image';
+import { useGetGeneralSettings } from "@/hooks/GeneralSettings/useGetGeneralSettings";
 
 export default function Footer() {
+  const { settings } = useGetGeneralSettings();
+  const phone = settings?.phoneNumber?.trim() || "";
+  const email = settings?.email?.trim() || "";
+  const whatsapp = settings?.whatsapp?.trim() || "";
+  const freeShippingThreshold = settings?.freeShippingThreshold ?? null;
+  const returnPeriod = settings?.returnPeriod ?? null;
+
+  const telHref = phone ? `tel:${phone}` : undefined;
+  const mailHref = email ? `mailto:${email}` : undefined;
+  const whatsappDigits = whatsapp ? whatsapp.replace(/\D+/g, "") : "";
+  const whatsappHref = whatsappDigits ? `https://wa.me/${whatsappDigits}` : undefined;
+
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -117,38 +130,44 @@ export default function Footer() {
           >
             <h3 className="text-lg font-semibold mb-6">Contact Us</h3>
             <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <Phone className="h-5 w-5 text-purple-400" />
-                <a
-                  href="tel:+918830772745"
-                  className="text-gray-400 hover:text-white transition-colors"
-                  aria-label="Call 8830772745"
-                >
-                  Call: 8830772745
-                </a>
-              </div>
-              <div className="flex items-center space-x-3">
-                <MessageCircle className="h-5 w-5 text-purple-400" />
-                <a
-                  href="https://wa.me/918830772745"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors"
-                  aria-label="WhatsApp Chat"
-                >
-                  WhatsApp: 8830772745
-                </a>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Mail className="h-5 w-5 text-purple-400" />
-                <a
-                  href="mailto:darshufashion879@gmail.com"
-                  className="text-gray-400 hover:text-white transition-colors"
-                  aria-label="Email darshufashion879@gmail.com"
-                >
-                  darshufashion879@gmail.com
-                </a>
-              </div>
+              {phone && (
+                <div className="flex items-center space-x-3">
+                  <Phone className="h-5 w-5 text-purple-400" />
+                  <a
+                    href={telHref}
+                    className="text-gray-400 hover:text-white transition-colors"
+                    aria-label={`Call ${phone}`}
+                  >
+                    Call: {phone}
+                  </a>
+                </div>
+              )}
+              {whatsappDigits && (
+                <div className="flex items-center space-x-3">
+                  <MessageCircle className="h-5 w-5 text-purple-400" />
+                  <a
+                    href={whatsappHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 hover:text-white transition-colors"
+                    aria-label="WhatsApp Chat"
+                  >
+                    WhatsApp: {whatsapp}
+                  </a>
+                </div>
+              )}
+              {email && (
+                <div className="flex items-center space-x-3">
+                  <Mail className="h-5 w-5 text-purple-400" />
+                  <a
+                    href={mailHref}
+                    className="text-gray-400 hover:text-white transition-colors"
+                    aria-label={`Email ${email}`}
+                  >
+                    {email}
+                  </a>
+                </div>
+              )}
               <div className="flex items-center space-x-3">
                 <MapPin className="h-5 w-5 text-purple-400" />
                 <span className="text-gray-400">Mumbai, Maharashtra, India</span>
@@ -165,14 +184,18 @@ export default function Footer() {
           className="mt-12 pt-8 border-t border-gray-800"
         >
           <div className="grid md:grid-cols-2 gap-8 text-center">
-            <div>
-              <h4 className="text-lg font-semibold text-purple-400 mb-2">Free Shipping</h4>
-              <p className="text-gray-400">On orders above Rs 999</p>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold text-purple-400 mb-2">7-Day Return Period</h4>
-              <p className="text-gray-400">Hassle-free returns within 7 days</p>
-            </div>
+            {freeShippingThreshold !== null && (
+              <div>
+                <h4 className="text-lg font-semibold text-purple-400 mb-2">Free Shipping</h4>
+                <p className="text-gray-400">On orders above Rs {freeShippingThreshold}</p>
+              </div>
+            )}
+            {returnPeriod !== null && (
+              <div>
+                <h4 className="text-lg font-semibold text-purple-400 mb-2">{returnPeriod}-Day Return Period</h4>
+                <p className="text-gray-400">Hassle-free returns within {returnPeriod} days</p>
+              </div>
+            )}
           </div>
         </motion.div>
 

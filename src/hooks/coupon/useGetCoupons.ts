@@ -11,7 +11,7 @@ export function useGetCoupons() {
         { withCredentials: true }
       );
       if (!response?.data) throw new Error("Failed to fetch coupons");
-      return response.data.data;
+      return response.data.coupons || [];
     },
   });
 }

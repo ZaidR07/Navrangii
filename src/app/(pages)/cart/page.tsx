@@ -4,20 +4,27 @@ import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/cart/useCart';
 import { useRemoveFromCart } from '@/hooks/cart/useRemoveFromCart';
 import { useUpdateCartQuantity } from '@/hooks/cart/useUpdateCartQuantity';
+import { useGetCoupons } from '@/hooks/coupon/useGetCoupons';
 import { motion } from 'framer-motion';
-import { X, ShoppingCart } from 'lucide-react';
+import { X, ShoppingCart, Tag, Calendar, Check } from 'lucide-react';
 import CartLoginModal from '@/components/cart/CartLoginModal';
 import CartItem from '@/components/cart/CartItem';
 import Cookies from 'js-cookie';
 import { useRouter } from 'next/navigation';
 import { CartItem as CartItemType } from '@/hooks/cart/useCart';
+import { Coupon } from '@/lib/types/couponType';
 
 export default function CartPage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [undoItems, setUndoItems] = useState<any[]>([]);
   const [undoTimers, setUndoTimers] = useState<Record<string, NodeJS.Timeout>>({});
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [showCouponList, setShowCouponList] = useState(false);
   const router = useRouter();
+  
+  const { data: coupons = [] } = useGetCoupons();
   
   // Check if user is logged in using the userEmail cookie
   useEffect(() => {
@@ -51,8 +58,26 @@ export default function CartPage() {
     return total + (price * item.quantity);
   }, 0);
   
+  // Calculate discount
+  const calculateDiscount = () => {
+    if (!appliedCoupon || subtotal < appliedCoupon.minimumOrderAmount) return 0;
+    
+    let discount = 0;
+    if (appliedCoupon.discountType === 'percentage') {
+      discount = (subtotal * appliedCoupon.discountValue) / 100;
+      if (appliedCoupon.maximumDiscountAmount) {
+        discount = Math.min(discount, appliedCoupon.maximumDiscountAmount);
+      }
+    } else {
+      discount = appliedCoupon.discountValue;
+    }
+    
+    return Math.min(discount, subtotal); // Ensure discount doesn't exceed subtotal
+  };
+  
+  const discount = calculateDiscount();
   const shipping = subtotal > 999 ? 0 : 99;
-  const total = subtotal + shipping;
+  const total = subtotal - discount + shipping;
   
   const handleLoginRequired = () => {
     setIsLoginModalOpen(true);
@@ -63,6 +88,62 @@ export default function CartPage() {
     // The cookie is already set by the login process, so we don't need to set it here
     setIsLoginModalOpen(false);
     refetch();
+  };
+  
+  const applyCoupon = (code: string) => {
+    const coupon = coupons.find(c => c.code.toLowerCase() === code.toLowerCase());
+    if (coupon) {
+      // Check if coupon is valid
+      const now = new Date();
+      const startDate = new Date(coupon.startDate);
+      const endDate = new Date(coupon.endDate);
+      
+      if (coupon.status !== 'active') {
+        alert('This coupon is not active');
+        return;
+      }
+      
+      if (now < startDate) {
+        alert('This coupon is not yet valid');
+        return;
+      }
+      
+      if (now > endDate) {
+        alert('This coupon has expired');
+        return;
+      }
+      
+      if (coupon.usedCount >= coupon.usageLimit) {
+        alert('This coupon has reached its usage limit');
+        return;
+      }
+      
+      if (subtotal < coupon.minimumOrderAmount) {
+        alert(`Minimum order amount is ₹${coupon.minimumOrderAmount}`);
+        return;
+      }
+      
+      setAppliedCoupon(coupon);
+      setShowCouponList(false);
+    } else {
+      alert('Invalid coupon code');
+    }
+  };
+  
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+  };
+  
+  const handleApplyCoupon = () => {
+    if (couponCode.trim()) {
+      applyCoupon(couponCode.trim());
+    }
+  };
+  
+  const handleCouponSelect = (coupon: Coupon) => {
+    setCouponCode(coupon.code);
+    applyCoupon(coupon.code);
   };
   
   const removeFromCart = async (productId: string, variantId: string | undefined, size: string) => {
@@ -252,6 +333,108 @@ export default function CartPage() {
             
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 sticky top-8">
+                {/* Coupon Section */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Apply Coupon</h3>
+                  
+                  {appliedCoupon ? (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="flex items-center">
+                            <Check className="h-5 w-5 text-green-600 mr-2" />
+                            <span className="font-semibold text-green-800">{appliedCoupon.code}</span>
+                          </div>
+                          <p className="text-sm text-green-700 mt-1">{appliedCoupon.description}</p>
+                          <div className="flex items-center text-xs text-green-600 mt-1">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            <span>Valid until {new Date(appliedCoupon.endDate).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={removeCoupon}
+                          className="text-green-600 hover:text-green-800"
+                        >
+                          <X className="h-5 w-5" />
+                        </button>
+                      </div>
+                      <div className="mt-2 text-sm text-green-700">
+                        <span>You saved ₹{discount.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value)}
+                          placeholder="Enter coupon code"
+                          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        />
+                        <button
+                          onClick={handleApplyCoupon}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                      
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowCouponList(!showCouponList)}
+                          className="text-sm text-purple-600 hover:text-purple-800 font-medium"
+                        >
+                          {showCouponList ? 'Hide available coupons' : 'View available coupons'}
+                        </button>
+                        
+                        {showCouponList && (
+                          <div className="absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                            {coupons.length > 0 ? (
+                              coupons
+                                .filter(coupon => {
+                                  const now = new Date();
+                                  const startDate = new Date(coupon.startDate);
+                                  const endDate = new Date(coupon.endDate);
+                                  return coupon.status === 'active' && now >= startDate && now <= endDate;
+                                })
+                                .map((coupon) => (
+                                  <div 
+                                    key={coupon._id}
+                                    className="p-4 border-b border-gray-100 last:border-b-0 hover:bg-gray-50 cursor-pointer"
+                                    onClick={() => handleCouponSelect(coupon)}
+                                  >
+                                    <div className="flex justify-between">
+                                      <span className="font-semibold text-purple-700">{coupon.code}</span>
+                                      <span className="text-sm font-medium">
+                                        {coupon.discountType === 'percentage' 
+                                          ? `${coupon.discountValue}% OFF`
+                                          : `₹${coupon.discountValue} OFF`}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 mt-1">{coupon.description}</p>
+                                    <div className="flex justify-between items-center mt-2">
+                                      <span className="text-xs text-gray-500">
+                                        Min. ₹{coupon.minimumOrderAmount}
+                                      </span>
+                                      <span className="text-xs text-gray-500">
+                                        Valid until {new Date(coupon.endDate).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))
+                            ) : (
+                              <div className="p-4 text-center text-gray-500">
+                                No coupons available
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
                 
                 <div className="space-y-4 mb-6">
@@ -263,10 +446,19 @@ export default function CartPage() {
                     <span className="text-gray-600">Shipping</span>
                     <span className="font-medium">{shipping === 0 ? 'FREE' : `₹${shipping}`}</span>
                   </div>
-                  <div className="border-t border-gray-200 pt-4 flex justify-between text-lg font-bold">
-                    <span>Total</span>
-                    <span className="text-purple-600">₹{total.toLocaleString()}</span>
+                  {appliedCoupon && (
+                  <div className="flex justify-between text-green-600">
+                    <div className="flex items-center">
+                      <Tag className="h-4 w-4 mr-1" />
+                      <span>Coupon ({appliedCoupon.code})</span>
+                    </div>
+                    <span>-₹{discount.toLocaleString()}</span>
                   </div>
+                )}
+                <div className="border-t border-gray-200 pt-4 flex justify-between text-lg font-bold">
+                  <span>Total</span>
+                  <span className="text-purple-600">₹{total.toLocaleString()}</span>
+                </div>
                 </div>
                 
                 <button 

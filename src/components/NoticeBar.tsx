@@ -3,65 +3,49 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useGetGeneralSettings } from "@/hooks/GeneralSettings/useGetGeneralSettings";
 
 interface Notice {
-  id: number;
+  id: string;
   text: string;
   bgColor: string;
   textColor: string;
 }
 
-const notices: Notice[] = [
-  {
-    id: 1,
-    text: "🎉 Free Shipping on Orders Above ₹2,999 - Limited Time Offer!",
-    bgColor: "bg-purple-600",
-    textColor: "text-white"
-  },
-  {
-    id: 2,
-    text: "💕 New Couple Collection - Perfect Matching Outfits for Him & Her",
-    bgColor: "bg-purple-600",
-    textColor: "text-white"
-  },
-  {
-    id: 3,
-    text: "⭐ Get 50% OFF on All Fashion Items - Awesome August Sale!",
-    bgColor: "bg-purple-600",
-    textColor: "text-white"
-  },
-  {
-    id: 4,
-    text: "🚚 Easy Returns & Exchange - 30 Day Return Policy",
-    bgColor: "bg-purple-600",
-    textColor: "text-white"
-  },
-  {
-    id: 5,
-    text: "💎 Premium Jewelry Collection - Handcrafted with Love",
-    bgColor: "bg-purple-600",
-    textColor: "text-white"
-  }
-];
-
 export default function NoticeBar() {
+  const { settings } = useGetGeneralSettings();
   const [currentNotice, setCurrentNotice] = useState(0);
+
+  // Build notices list from backend settings (only titles from newsAndOffers)
+  const notices: Notice[] = (settings?.newsAndOffers || [])
+    .filter((item) => item && item.title && (item.isActive ?? true))
+    .map((item) => ({
+      id: String(item.id ?? item.title),
+      text: item.title,
+      bgColor: "bg-purple-600",
+      textColor: "text-white",
+    }));
 
   // Auto-advance notices every 4 seconds
   useEffect(() => {
+    if (!notices.length) return;
     const timer = setInterval(() => {
       setCurrentNotice((prev) => (prev + 1) % notices.length);
     }, 4000);
     return () => clearInterval(timer);
-  }, []);
+  }, [notices.length]);
 
   const nextNotice = () => {
+    if (!notices.length) return;
     setCurrentNotice((prev) => (prev + 1) % notices.length);
   };
 
   const prevNotice = () => {
+    if (!notices.length) return;
     setCurrentNotice((prev) => (prev - 1 + notices.length) % notices.length);
   };
+
+  if (!notices.length) return null;
 
   return (
     <div className={`relative ${notices[currentNotice].bgColor} ${notices[currentNotice].textColor} py-3 overflow-hidden`}>

@@ -16,6 +16,7 @@ import {
 
 import VariablesSetting from "./variables-setting";
 import DeliveryPartner from "./delivery-partner-setting";
+import GeneralSettings from "./GeneralSettings";
 
 
 export default function TabsSettings() {
@@ -75,6 +76,8 @@ export default function TabsSettings() {
           </Tabs>
         </CardContent>
       </Card>
+      
+      <GeneralSettings />
     </div>
   );
 }

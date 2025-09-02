@@ -100,27 +100,7 @@ export default function NavigationHeader() {
                   </Link>
                 ))}
                 
-                <Link
-                  href="/new-arrivals"
-                  className={`px-1 pt-1 text-sm font-medium ${
-                    isActive('/new-arrivals')
-                      ? 'text-purple-600 border-b-2 border-purple-500'
-                      : 'text-gray-700 hover:text-purple-600 hover:border-purple-300 border-b-2 border-transparent'
-                  }`}
-                >
-                  New Arrivals
-                </Link>
                 
-                <Link
-                  href="/sale"
-                  className={`px-1 pt-1 text-sm font-medium ${
-                    isActive('/sale')
-                      ? 'text-purple-600 border-b-2 border-purple-500'
-                      : 'text-gray-700 hover:text-purple-600 hover:border-purple-300 border-b-2 border-transparent'
-                  }`}
-                >
-                  Sale
-                </Link>
               </nav>
             </div>
             
