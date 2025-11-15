@@ -26,7 +26,7 @@ interface SettingsResponse {
 
 async function updateGeneralSettingsRequest(data: GeneralSettings) {
   const response = await axios.post<SettingsResponse>(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/general-settings/add-update-general-settings`,
+    '/api/general-settings/add-update-general-settings',
     data,
     {
       withCredentials: true,

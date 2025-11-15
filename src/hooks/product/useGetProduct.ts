@@ -5,7 +5,7 @@ import axios, { AxiosError } from 'axios';
 // API service function for fetching all products
 export async function fetchAllProducts(): Promise<Product[]> {
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/product/all`, {
+    const response = await axios.get('/api/product/all', {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
@@ -37,7 +37,7 @@ export async function fetchSimilarProducts(category?: string, subcategory?: stri
     if (subcategory) params.append('subcategory', subcategory);
     if (excludeId) params.append('excludeId', excludeId);
     
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/product/similar?${params.toString()}`, {
+    const response = await axios.get(`/api/product/similar?${params.toString()}`, {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export async function fetchProductById(id: string): Promise<Product> {
   }
 
   try {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/product/${id}`, {
+    const response = await axios.get(`/api/product/${id}`, {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',

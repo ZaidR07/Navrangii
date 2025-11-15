@@ -7,7 +7,7 @@ export function useGetVariable() {
     queryKey: ["variables"],
     queryFn: async () => {
 
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/variables/listofvariables`, {
+      const res = await axios.get('/api/variables/listofvariables', {
         withCredentials: true,
       });
 

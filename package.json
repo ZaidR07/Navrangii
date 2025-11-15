@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.932.0",
     "@hookform/resolvers": "^5.1.1",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -28,11 +29,13 @@
     "@tanstack/react-query-devtools": "^5.80.7",
     "@uidotdev/usehooks": "^2.4.1",
     "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.17.3",
     "js-cookie": "^3.0.5",
+    "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.514.0",
     "mongodb": "^6.18.0",
