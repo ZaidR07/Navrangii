@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "../../../../lib/mongodb";
 import { getAuthenticatedAdmin } from "../../../../lib/adminAuth";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const authUser = await getAuthenticatedAdmin();
 
@@ -170,12 +170,12 @@ export async function GET(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in getAllUsers:", error);
     return NextResponse.json(
       {
         message: "Error fetching users",
-        error: error?.message ?? "Unknown error",
+        error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

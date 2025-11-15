@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { connectToDB } from "./mongodb";
-import { AdminTokenUser, generateAccessToken } from "./adminTokens";
+import { AdminTokenUser } from "./adminTokens";
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || "access-secret";
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || "refresh-secret";
@@ -20,7 +20,7 @@ export async function getAuthenticatedAdmin() {
       const decoded = jwt.verify(accessToken, ACCESS_TOKEN_SECRET) as AdminTokenUser;
       return decoded;
     }
-  } catch (err) {
+  } catch {
     // fall through to refresh-token based flow
   }
 
@@ -46,7 +46,7 @@ export async function getAuthenticatedAdmin() {
       phone: currentUser.phone,
     };
     return userForToken;
-  } catch (err) {
+  } catch {
     return null;
   }
 }

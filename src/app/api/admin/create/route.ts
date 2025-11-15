@@ -71,10 +71,10 @@ export async function POST(req: NextRequest) {
     });
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
     return NextResponse.json(
-      { message: "Something went wrong in Add User controller", error: error?.message ?? "Unknown error" },
+      { message: "Something went wrong in Add User controller", error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

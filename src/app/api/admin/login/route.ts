@@ -91,11 +91,11 @@ export async function POST(req: NextRequest) {
       console.error("Error generating tokens:", tokenError);
       return NextResponse.json({ message: "Error generating authentication tokens" }, { status: 500 });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Unexpected error in login controller:", error);
     return NextResponse.json(
       {
-        message: "An unexpected error occurred during login",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

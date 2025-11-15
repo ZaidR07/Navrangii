@@ -54,13 +54,13 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in addUpdateGeneralSettings:", error);
     return NextResponse.json(
       {
         success: false,
         message: "Error updating general settings",
-        error: error?.message ?? "Unknown error",
+        error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

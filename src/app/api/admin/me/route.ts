@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "../../../../lib/mongodb";
 import { getAuthenticatedAdmin } from "../../../../lib/adminAuth";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const authUser = await getAuthenticatedAdmin();
 
@@ -22,16 +22,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Access denied" }, { status: 403 });
     }
 
-    const { password: _password, ...safeUser } = user;
+    const { password, ...userWithoutPassword } = user;
 
     return NextResponse.json(
-      { message: "Admin retrieved successfully", safeUser },
+      { message: "Admin retrieved successfully", userWithoutPassword },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in get admin controller", error);
     return NextResponse.json(
-      { message: "Something went wrong in get admin controller", error: error?.message ?? "Unknown error" },
+      { message: "Something went wrong in get admin controller", error: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }
