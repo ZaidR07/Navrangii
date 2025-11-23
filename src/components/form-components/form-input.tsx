@@ -20,6 +20,8 @@ interface FormInputProps<T extends FieldValues> {
   type?: string;
   placeHolder?: string;
   disabled?: boolean;
+  maxLength?: number;
+  icon?: React.ReactNode;
 }
 
 export default function FormInput<T extends FieldValues>({
@@ -29,6 +31,8 @@ export default function FormInput<T extends FieldValues>({
   type = "text",
   placeHolder,
   disabled = false,
+  maxLength,
+  icon,
 }: FormInputProps<T>) {
   return (
     <Controller
@@ -38,22 +42,30 @@ export default function FormInput<T extends FieldValues>({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input
-              type={type}
-              placeholder={placeHolder}
-              disabled={disabled}
-              {...field}
-              value={field.value ?? ""}
-              onChange={(e) => {
-                const value =
-                  type === "number"
-                    ? e.target.value === ""
-                      ? ""
-                      : Number(e.target.value)
-                    : e.target.value;
-                field.onChange(value);
-              }}
-            />
+            <div className="relative">
+              <Input
+                type={type}
+                placeholder={placeHolder}
+                disabled={disabled}
+                maxLength={maxLength}
+                {...field}
+                value={field.value ?? ""}
+                onChange={(e) => {
+                  const value =
+                    type === "number"
+                      ? e.target.value === ""
+                        ? ""
+                        : Number(e.target.value)
+                      : e.target.value;
+                  field.onChange(value);
+                }}
+              />
+              {icon && (
+                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                  {icon}
+                </div>
+              )}
+            </div>
           </FormControl>
           {fieldState?.error && (
             <FormMessage className="text-red-600">{fieldState.error.message}</FormMessage>

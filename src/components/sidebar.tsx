@@ -54,7 +54,6 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = false }:
 
   const secondaryItems: NavItem[] = [
     { href: "/admin/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
-    { href: "/admin/notifications", label: "Notifications", icon: <Bell className="h-5 w-5" /> },
     { href: "/admin/profile", label: "Profile", icon: <User className="h-5 w-5" /> },
   ];
 

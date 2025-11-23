@@ -83,6 +83,16 @@ function getErrorMessage(error: AxiosError): string {
           >
             Sign in
           </Button>
+          
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => router.push("/admin/forgot-password")}
+              className="text-sm text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
+            >
+              Forgot your password?
+            </button>
+          </div>
         </form>
       </Form>
     </div>

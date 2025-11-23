@@ -1,9 +1,10 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import ModeToggle from "./mode-toggle";
 import { Button } from "./ui/button";
-import { LogOut, Loader2 } from "lucide-react";
+import { LogOut, Loader2, Bell } from "lucide-react";
 import { useLogout } from "@/hooks/admin/useLogout";
 import { useCurrentAdmin } from "@/hooks/admin/useCurrentAdmin";
 
@@ -23,6 +24,20 @@ export default function Header() {
         border-b border-purple-200/30 dark:border-purple-700/30 shadow-sm
       "
     >
+      {/* Left Side - Notifications */}
+      <div className="flex items-center gap-4">
+        <Link href="/admin/notifications">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-slate-600 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400"
+            aria-label="Notifications"
+          >
+            <Bell className="h-6 w-6 fill-purple-600 text-purple-600 dark:fill-purple-400 dark:text-purple-400" />
+          </Button>
+        </Link>
+      </div>
+
       {/* Mobile Centered Welcome */}
       <div className="sm:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
         <div className="text-center">
