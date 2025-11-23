@@ -10,7 +10,7 @@ interface UpdateCartQuantityParams {
 }
 
 const updateCartQuantity = async ({ email, productId, variantId, size, quantity }: UpdateCartQuantityParams) => {
-  const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/cart/update-quantity`, { 
+  const response = await axios.post(`cart/update-quantity`, { 
     email, 
     productId,
     variantId,

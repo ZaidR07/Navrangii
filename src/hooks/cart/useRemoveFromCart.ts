@@ -9,7 +9,7 @@ interface RemoveFromCartParams {
 }
 
 const removeFromCart = async ({ email, productId, variantId, size }: RemoveFromCartParams) => {
-  const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/cart/remove`, { 
+  const response = await axios.post(`cart/remove`, { 
     email, 
     productId,
     variantId,

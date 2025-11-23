@@ -4,7 +4,7 @@ import { Variables } from "@/lib/types/variablesType";
 
 async function updateVariables(variables: Variables): Promise<Variables> {
   const response = await axios.put(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL!}/variables/update`,
+    `api/variables/update`,
     variables,
     {
       withCredentials: true,

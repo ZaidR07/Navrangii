@@ -20,7 +20,7 @@ const addToCart = async (params: AddToCartParams): Promise<AddToCartResponse> =>
     throw new Error('User not logged in');
   }
   
-  const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/cart/add`, {
+  const response = await axios.post(`cart/add`, {
     email,
     ...params
   });

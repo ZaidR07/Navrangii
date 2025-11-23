@@ -170,7 +170,7 @@ export default function WishlistPage() {
             {undoItems.map((item: any) => (
               <div key={`undo-${item.productId}`} className="relative">
                 <WishlistItem 
-                  key={item.productId} 
+                  key={`undo-item-${item.productId}`}
                   item={{ productId: item.productId, product: item.product }} 
                   onRemove={() => {}} // No-op since it's being removed
                 />

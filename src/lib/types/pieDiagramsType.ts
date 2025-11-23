@@ -43,7 +43,7 @@ export interface PieDatum {
 }
 
 export type StatusKey = "orders" | "complaint" | "visitors" | "customers";
-export type StatCardKey = "orders" | "sales" | "products" | "visitors";
+export type StatCardKey = "orders" | "sales" | "products" | "visitors" | "customers";
 
 export interface StatCardDatum {
   today: number;

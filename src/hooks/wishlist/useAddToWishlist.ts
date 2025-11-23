@@ -6,7 +6,7 @@ interface AddToWishlistParams {
 }
 
 const addToWishlist = async ({ email, productId }: AddToWishlistParams) => {
-  const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/add`, { email, productId });
+  const response = await axios.post(`wishlist/add`, { email, productId });
   return response.data;
 };
 

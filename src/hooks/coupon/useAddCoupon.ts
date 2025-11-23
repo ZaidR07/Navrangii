@@ -5,7 +5,7 @@ import axios from "axios";
 
 async function addCoupon(data: CouponFormData): Promise<Coupon> {
   const response = await axios.post(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/coupon/create`,
+    `api/coupon/create`,
     data,
     { withCredentials: true }
   );

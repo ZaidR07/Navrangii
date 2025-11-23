@@ -6,7 +6,7 @@ interface CartCountData {
 }
 
 const fetchCartCount = async (email: string) => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/cart/count/${email}`);
+  const response = await axios.get(`cart/count/${email}`);
   return response.data;
 };
 

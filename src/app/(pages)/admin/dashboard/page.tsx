@@ -42,8 +42,6 @@ export default function Dashboard() {
   } = useGetEarningData();
   
   const [size, setSize] = useState<"sm" | "md" | "xs">("sm");
-  const [mounted, setMounted] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Show toast notifications for errors
   useEffect(() => {
@@ -58,26 +56,8 @@ export default function Dashboard() {
     }
   }, [statsError, pieStatsError, yearlyEarningsError, statsErrorObj, pieStatsErrorObj, yearlyEarningsErrorObj]);
 
-  // Handle loading state
-  useEffect(() => {
-    const loading = (statsIsLoading && !statsCardData) || 
-                  (pieStatsIsLoading && !pieStatsData) || 
-                  (yearlyEarningsIsLoading && !yearlyEarnings) || 
-                  !mounted;
-    
-    if (loading) {
-      setIsLoading(true);
-      const toastId = toast.loading('Loading dashboard data...');
-      return () => toast.dismiss(toastId);
-    } else {
-      setIsLoading(false);
-    }
-  }, [statsIsLoading, pieStatsIsLoading, yearlyEarningsIsLoading, statsCardData, pieStatsData, yearlyEarnings, mounted]);
-
   // Handle window resize
   useEffect(() => {
-    setMounted(true);
-    
     const breakpoints = {
       sm: 640,
       md: 768,
@@ -101,15 +81,6 @@ export default function Dashboard() {
     return () => window.removeEventListener("resize", updateSize);
   }, []);
 
-  // Show loading overlay if any data is still loading
-  if (isLoading) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white bg-opacity-80 z-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-100/40 p-4 sm:p-6 dark:from-slate-900 dark:to-purple-900/40">
       <ToastContainer />
@@ -128,64 +99,57 @@ export default function Dashboard() {
 
         {/* Stats Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {statsCardData && statsCardData.orders && statsCardData.sales && statsCardData.products && statsCardData.customers ? (
-            [
-              {
-                title: "Total Orders",
-                value: (statsCardData.orders.month || 0).toString(),
-                icon: ShoppingCart,
-                change: `${Math.round(
-                  ((statsCardData.orders.today || 0) - (statsCardData.orders.yesterday || 0)) / 
-                    Math.max(statsCardData.orders.yesterday || 1, 1) * 100
-                )}% from yesterday`,
-                changeType: (statsCardData.orders.today || 0) > (statsCardData.orders.yesterday || 0) ? 'increase' : 'decrease'
-              },
-              {
-                title: "Total Sales",
-                value: `₹${(statsCardData.sales.month || 0).toLocaleString()}`,
-                icon: DollarSign,
-                change: `${Math.round(
-                  ((statsCardData.sales.today || 0) - (statsCardData.sales.yesterday || 0)) / 
-                    Math.max(statsCardData.sales.yesterday || 1, 1) * 100
-                )}% from yesterday`,
-                changeType: (statsCardData.sales.today || 0) > (statsCardData.sales.yesterday || 0) ? 'increase' : 'decrease'
-              },
-              {
-                title: "Products in Stock",
-                value: (statsCardData.products.month || 0).toString(),
-                icon: Package,
-                change: `${Math.round(
-                  ((statsCardData.products.today || 0) - (statsCardData.products.yesterday || 0)) / 
-                    Math.max(statsCardData.products.yesterday || 1, 1) * 100
-                )}% from yesterday`,
-                changeType: (statsCardData.products.today || 0) > (statsCardData.products.yesterday || 0) ? 'increase' : 'decrease'
-              },
-              {
-                title: "Active Customers",
-                value: (statsCardData.customers.month || 0).toString(),
-                icon: Users,
-                change: `${Math.round(
-                  ((statsCardData.customers.today || 0) - (statsCardData.customers.yesterday || 0)) / 
-                    Math.max(statsCardData.customers.yesterday || 1, 1) * 100
-                )}% from yesterday`,
-                changeType: (statsCardData.customers.today || 0) > (statsCardData.customers.yesterday || 0) ? 'increase' : 'decrease'
-              },
-            ].map((stat, index) => (
-              <StatCard
-                key={index}
-                title={stat.title}
-                value={stat.value}
-                icon={stat.icon}
-                change={stat.change}
-                changeType={stat.changeType}
-              />
-            ))
-          ) : (
-            // Show placeholders if data failed to load
-            Array(4).fill(0).map((_, index) => (
-              <div key={index} className="h-32 bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse"></div>
-            ))
-          )}
+          {[
+            {
+              title: "Total Orders",
+              value: (statsCardData?.orders?.month || 0).toString(),
+              icon: ShoppingCart,
+              change: `${Math.round(
+                ((statsCardData?.orders?.today || 0) - (statsCardData?.orders?.yesterday || 0)) / 
+                  Math.max(statsCardData?.orders?.yesterday || 1, 1) * 100
+              )}% from yesterday`,
+              changeType: ((statsCardData?.orders?.today || 0) > (statsCardData?.orders?.yesterday || 0)) ? 'increase' : 'decrease' as const
+            },
+            {
+              title: "Total Sales",
+              value: `₹${(statsCardData?.sales?.month || 0).toLocaleString()}`,
+              icon: DollarSign,
+              change: `${Math.round(
+                ((statsCardData?.sales?.today || 0) - (statsCardData?.sales?.yesterday || 0)) / 
+                  Math.max(statsCardData?.sales?.yesterday || 1, 1) * 100
+              )}% from yesterday`,
+              changeType: ((statsCardData?.sales?.today || 0) > (statsCardData?.sales?.yesterday || 0)) ? 'increase' : 'decrease' as const
+            },
+            {
+              title: "Products in Stock",
+              value: (statsCardData?.products?.month || 0).toString(),
+              icon: Package,
+              change: `${Math.round(
+                ((statsCardData?.products?.today || 0) - (statsCardData?.products?.yesterday || 0)) / 
+                  Math.max(statsCardData?.products?.yesterday || 1, 1) * 100
+              )}% from yesterday`,
+              changeType: ((statsCardData?.products?.today || 0) > (statsCardData?.products?.yesterday || 0)) ? 'increase' : 'decrease' as const
+            },
+            {
+              title: "Active Customers",
+              value: (statsCardData?.customers?.month || 0).toString(),
+              icon: Users,
+              change: `${Math.round(
+                ((statsCardData?.customers?.today || 0) - (statsCardData?.customers?.yesterday || 0)) / 
+                  Math.max(statsCardData?.customers?.yesterday || 1, 1) * 100
+              )}% from yesterday`,
+              changeType: ((statsCardData?.customers?.today || 0) > (statsCardData?.customers?.yesterday || 0)) ? 'increase' : 'decrease' as const
+            },
+          ].map((stat, index) => (
+            <StatCard
+              key={index}
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              change={stat.change}
+              changeType={stat.changeType}
+            />
+          ))}
         </div>
 
         {/* Charts Grid */}

@@ -6,7 +6,7 @@ interface RemoveFromWishlistParams {
 }
 
 const removeFromWishlist = async ({ email, productId }: RemoveFromWishlistParams) => {
-  const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/remove`, { email, productId });
+  const response = await axios.post(`wishlist/remove`, { email, productId });
   return response.data;
 };
 

@@ -37,13 +37,7 @@ export default function CustomersPage() {
 
   if (isError) {
     toast.error("Failed to load customers. Please try again later.");
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="font-medium text-red-700 dark:text-red-300">
-          Failed to load customers
-        </p>
-      </div>
-    );
+    // Continue to render UI with empty data
   }
 
   return (

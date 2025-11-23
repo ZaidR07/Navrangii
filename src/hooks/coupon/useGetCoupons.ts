@@ -7,7 +7,7 @@ export function useGetCoupons() {
     queryKey: ["coupons"],
     queryFn: async () => {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/coupon/list`,
+        `api/coupon/list`,
         { withCredentials: true }
       );
       if (!response?.data) throw new Error("Failed to fetch coupons");

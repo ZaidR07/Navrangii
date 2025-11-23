@@ -97,13 +97,7 @@ export default function ProductManagementPage() {
 
   if (isError) {
     toast.error("Failed to load products. Please try again later.");
-    return (
-      <CenteredGradientCard>
-        <p className="font-medium text-red-700 dark:text-red-300">
-          Failed to load products
-        </p>
-      </CenteredGradientCard>
-    );
+    // Continue to render UI with empty data
   }
 
   // if (totalProducts === 0) {

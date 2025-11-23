@@ -52,7 +52,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   
   const loadWishlistItemsFromServer = async (email: string) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/${email}`);
+      const response = await axios.get(`wishlist/${email}`);
       // Transform the response data to match our WishlistItem structure
       setWishlistItems(response.data.wishlist.map((item: any) => ({
         id: item.productId,
@@ -77,14 +77,14 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     }
     
     // Check if product is already in wishlist
-    if (wishlistItems.some(item => item.product._id === product._id)) {
+    if (wishlistItems.some(item => item.product?._id === product._id)) {
       return; // Already in wishlist
     }
     
     const email = user?.email || Cookies.get('userEmail') || '';
     
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/add`, {
+      await axios.post(`wishlist/add`, {
         email,
         productId: product._id
       });
@@ -102,7 +102,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     if (!email) return;
     
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/remove`, {
+      await axios.delete(`wishlist/remove`, {
         data: { email, productId }
       });
       
@@ -114,7 +114,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
   };
   
   const isInWishlist = (productId: string) => {
-    return wishlistItems.some(item => item.product._id === productId);
+    return wishlistItems.some(item => item.product?._id === productId);
   };
   
   const wishlistCount = wishlistItems.length;

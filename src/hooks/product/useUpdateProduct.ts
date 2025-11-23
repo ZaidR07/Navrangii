@@ -9,7 +9,7 @@ async function updateProduct(product: Product): Promise<Product> {
   }
 
   const response = await axios.put(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL!}/product/update`,
+    `api/product/update`,
     product,
     {
       withCredentials: true,

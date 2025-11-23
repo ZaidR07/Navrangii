@@ -18,7 +18,7 @@ interface CartData {
 }
 
 const fetchCart = async (email: string) => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/cart/${email}`);
+  const response = await axios.get(`cart/${email}`);
   return response.data;
 };
 

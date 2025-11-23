@@ -57,6 +57,12 @@ export const statsCardData: Record<StatCardKey, StatCardDatum> = {
     week: 210,
     month: 730,
   },
+  customers: {
+    today: 8,
+    yesterday: 12,
+    week: 56,
+    month: 234,
+  },
 };
 
 /* Area‑chart dataset */

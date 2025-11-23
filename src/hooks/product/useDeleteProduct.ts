@@ -4,7 +4,7 @@ import axios from "axios";
 
 async function deleteProduct(productId: string): Promise<{ message: string }> {
   const response = await axios.delete(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL!}/product/${productId}`,
+    `api/product/${productId}`,
     {
       withCredentials: true,
     }

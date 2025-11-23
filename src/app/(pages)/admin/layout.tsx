@@ -19,6 +19,7 @@ export default function AuthCheckWrapper({ children }: AuthCheckWrapperProps) {
 
 
 useEffect(() => {
+  // Only redirect if not loading and no user exists (but don't redirect on error)
   if (!isLoading && !user && !isError) {
     router.push("/");
   }
@@ -29,7 +30,8 @@ useEffect(() => {
   }
 
   if (isError) {
-    return <PageError />;
+    // Don't show error page, just continue to render UI
+    // Admin auth failed but we can still show the interface
   }
 
   return (

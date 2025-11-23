@@ -4,7 +4,7 @@ import axios from "axios";
 
 async function deleteCoupon(id: string): Promise<{ success: boolean }> {
   const response = await axios.delete(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/coupon/${id}`,
+    `api/coupon/${id}`,
     { withCredentials: true }
   );
   if (!response?.data?.success) throw new Error("Failed to delete coupon");

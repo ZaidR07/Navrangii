@@ -51,9 +51,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   
   // Update cart count when cart data changes
   useEffect(() => {
-    if (cartData?.cart) {
-      const count = cartData.cart.reduce((total, item) => total + item.quantity, 0);
+    if (cartData?.cart && Array.isArray(cartData.cart)) {
+      const count = cartData.cart.reduce((total: number, item: any) => total + (item.quantity || 0), 0);
       setCartCount(count);
+    } else {
+      setCartCount(0);
     }
   }, [cartData]);
   

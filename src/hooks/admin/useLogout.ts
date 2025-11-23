@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 
 const logout = async (): Promise<string> => {
   const { data } = await axios.post<{ message: string }>(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL!}/admin/logout`,
+    `/api/admin/logout`,
     {}, // no body needed
     {
       withCredentials: true,

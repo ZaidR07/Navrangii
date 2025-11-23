@@ -5,7 +5,7 @@ import { AdminLoginInput } from "@/validationSchema/loginSchema";
 const login = async (values: AdminLoginInput): Promise<string> => {
   const { data } = await axios.post<{
     message: string;
-  }>(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/admin/login`, values, {
+  }>(`/api/admin/login`, values, {
     withCredentials: true,
     timeout: 10_000,
   });

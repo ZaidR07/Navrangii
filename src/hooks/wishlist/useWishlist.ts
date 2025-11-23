@@ -11,7 +11,7 @@ interface WishlistData {
 }
 
 const fetchWishlist = async (email: string) => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/${email}`);
+  const response = await axios.get(`wishlist/${email}`);
   return response.data;
 };
 

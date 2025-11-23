@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, Minus, Plus, Truck, RotateCcw, Shield, ShoppingCart, Heart } from 'lucide-react';
+import { Star, Minus, Plus, Truck, RotateCcw, Shield, ShoppingCart } from 'lucide-react';
 import { Product, ProductVariantType } from '@/lib/types/productType';
 import { useCart } from '@/context/CartContext';
-import { useWishlist } from '@/context/WishlistContext';
 import { toast } from 'react-toastify';
 
 interface ProductDetailProps {
@@ -18,7 +17,6 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
-  const { addToWishlist, isInWishlist } = useWishlist();
   
   // Use selected variant or first variant as fallback
   const currentVariant = selectedVariant || product.variants?.[0];
@@ -170,25 +168,6 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
           >
             <ShoppingCart className="h-5 w-5" />
             Add to Cart
-          </button>
-          <button 
-            className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2 ${product._id && isInWishlist(product._id) ? 'bg-red-500 hover:bg-red-600 text-white' : 'border border-gray-300 hover:border-gray-400 text-gray-700'}`}
-            onClick={async () => {
-              if (!product._id) {
-                toast.error('Product information is incomplete');
-                return;
-              }
-              try {
-                await addToWishlist(product);
-                toast.success(isInWishlist(product._id) ? 'Removed from wishlist' : 'Added to wishlist');
-              } catch (error) {
-                toast.error('Please login to add to wishlist');
-              }
-            }}
-            disabled={!product._id}
-          >
-            <Heart className={`h-5 w-5 ${product._id && isInWishlist(product._id) ? 'fill-current' : ''}`} />
-            {product._id && isInWishlist(product._id) ? 'Remove from Wishlist' : 'Add to Wishlist'}
           </button>
           <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">Buy Now</button>
         </div>

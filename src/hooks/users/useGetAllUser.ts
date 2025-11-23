@@ -4,7 +4,7 @@ import { ExtendedUser } from '@/lib/types/userType';
 
 // API service function
 async function fetchAllUser(): Promise<ExtendedUser[]> {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/admin/allUser`, {
+  const response = await axios.get(`/api/admin/allUser`, {
     
     withCredentials: true,
   });

@@ -6,10 +6,10 @@ import { getAuthenticatedAdmin } from "../../../../lib/adminAuth";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -78,7 +78,7 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const authUser = await getAuthenticatedAdmin();
@@ -87,7 +87,7 @@ export async function DELETE(
       return NextResponse.json({ message: "Access denied - Admins only." }, { status: 403 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(

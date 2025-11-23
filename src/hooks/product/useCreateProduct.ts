@@ -6,7 +6,7 @@ import axios from "axios";
 
 
 async function createProduct(product: Product): Promise<Product> {
-  const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/product/create`, product, {
+  const response = await axios.post(`api/product/create`, product, {
     withCredentials: true,
   });
   

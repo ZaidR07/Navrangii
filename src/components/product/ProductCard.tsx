@@ -22,10 +22,10 @@ export default function ProductCard({
   linkHref
 }: ProductCardProps) {
   // Get the first variant's price or fallback to 0
-  const firstVariant = product.variants?.[0];
+  const firstVariant = product?.variants?.[0];
   const firstSize = firstVariant?.sizes?.[0];
-  const price = firstSize?.sellingPrice || 0;
-  const originalPrice = firstSize?.marketPrice || price;
+  const price = firstSize?.sellingPrice || product?.price || 0;
+  const originalPrice = firstSize?.marketPrice || product?.originalPrice || price;
   
   // Calculate discount percentage
   const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
@@ -73,8 +73,8 @@ export default function ProductCard({
     >
       <div className="relative h-96 overflow-hidden">
         <img
-          src={product.image || firstVariant?.thumbnail || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
-          alt={product.name}
+          src={product?.image || firstVariant?.thumbnail || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
+          alt={product?.name || 'Product'}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           style={{ aspectRatio: '3/4', objectFit: 'cover' }}
           onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
@@ -91,7 +91,7 @@ export default function ProductCard({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              handleRemoveWithUndo(product._id || '');
+              handleRemoveWithUndo(product?._id || '');
             }}
             className="absolute top-4 left-4 bg-white rounded-full p-2 shadow-md transition-opacity duration-300 hover:bg-red-50"
             aria-label="Remove from wishlist"
@@ -117,13 +117,13 @@ export default function ProductCard({
       </div>
       
       <div className="p-5 flex-grow flex flex-col">
-        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">{product.name}</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">{product?.name || 'Product'}</h3>
         
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star 
-                key={i} 
+                key={`star-${i}`} 
                 className={`h-4 w-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
               />
             ))}
