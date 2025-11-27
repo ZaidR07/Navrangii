@@ -34,6 +34,16 @@ export default function RootLayout({
                   {children}
                   <BackToTopButton />
                   <CartPopup />
+                  
+                  {/* Botpress Chatbot */}
+                  <script 
+                    src="https://cdn.botpress.cloud/webchat/v3.4/inject.js" 
+                    defer
+                  />
+                  <script 
+                    src="https://files.bpcontent.cloud/2025/11/27/12/20251127123627-306P5VYY.js" 
+                    defer
+                  />
                 </Theme>
               </CartProvider>
             </WishlistProvider>
