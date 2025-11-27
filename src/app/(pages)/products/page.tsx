@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, Filter, X, ChevronLeft } from 'lucide-react';
@@ -8,7 +8,7 @@ import { useGetAllProducts } from '@/hooks/product/useGetProduct';
 import { useGetVariable } from '@/hooks/variable/useGetVariable';
 import { Product } from '@/lib/types/productType';
 
-export default function ProductsPage() {
+function ProductsPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: products = [], isLoading: productsLoading, error: productsError } = useGetAllProducts();
@@ -490,5 +490,17 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+      </div>
+    }>
+      <ProductsPageContent />
+    </Suspense>
   );
 }
