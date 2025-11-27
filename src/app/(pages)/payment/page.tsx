@@ -115,7 +115,7 @@ export default function PaymentPage() {
                 <CheckCircle className="h-8 w-8 text-green-600" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
-              <p className="text-gray-600 mb-8">Your order has been placed successfully. Thank you for shopping with Darshu Fashion!</p>
+              <p className="text-gray-600 mb-8">Your order has been placed successfully. Thank you for shopping with Navrangi!</p>
               
               <div className="max-w-md mx-auto bg-gray-50 rounded-lg p-6 mb-8 text-left">
                 <h3 className="font-bold text-gray-900 mb-4">Order Summary</h3>

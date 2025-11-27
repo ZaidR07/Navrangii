@@ -76,7 +76,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     <AnimatePresence>
       {isOpen && (
         <motion.div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -91,7 +91,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">
-                {isOtpSent ? 'Verify OTP' : 'Login to Darshu Fashion'}
+                {isOtpSent ? 'Verify OTP' : 'Login to Navrangi'}
               </h2>
               <button 
                 onClick={onClose}

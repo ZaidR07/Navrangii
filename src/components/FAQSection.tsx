@@ -29,7 +29,7 @@ const faqs: FAQ[] = [
   {
     id: 4,
     question: "Do you offer size exchanges?",
-    answer: "Yes, we offer size exchanges for regular-priced items within 7 days of delivery. The item must be unused and in original condition with tags attached. Please contact us at darshufashion879@gmail.com to initiate an exchange."
+    answer: "Yes, we offer size exchanges for regular-priced items within 7 days of delivery. The item must be unused and in original condition with tags attached. Please contact us at navrangi879@gmail.com to initiate an exchange."
   },
   {
     id: 5,
@@ -54,7 +54,7 @@ const faqs: FAQ[] = [
   {
     id: 9,
     question: "Do you offer bulk or wholesale orders?",
-    answer: "Yes, we offer special pricing for bulk orders and wholesale inquiries. Please contact us at darshufashion879@gmail.com or call 8830772745 with your requirements for a customized quote."
+    answer: "Yes, we offer special pricing for bulk orders and wholesale inquiries. Please contact us at navrangi879@gmail.com or call 8830772745 with your requirements for a customized quote."
   },
   {
     id: 10,
@@ -72,7 +72,7 @@ export default function FAQSection() {
 
   return (
     <section id="faq" className="py-20 bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

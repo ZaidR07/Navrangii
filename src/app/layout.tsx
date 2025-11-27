@@ -10,10 +10,8 @@ import { CartProvider } from "@/context/CartContext";
 import CartPopup from "@/components/cart/CartPopup";
 import BackToTopButton from "@/components/BackToTopButton";
 
-
-
 export const metadata: Metadata = {
-  title: "Admin",
+  title: "Navrangi",
   description: "",
 };
 

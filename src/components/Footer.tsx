@@ -31,7 +31,7 @@ export default function Footer() {
             <div className="flex space-x-2 ">
               <Image
                 src="/logo.png"
-                alt="Darshu Fashion Logo"
+                alt="Navrangi Logo"
                 width={400}
                 height={120}
                 className="h-[100px] w-auto object-contain filter brightness-0 invert"
@@ -201,7 +201,7 @@ export default function Footer() {
 
         {/* Copyright */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-          <p>&copy; 2024 Darshu Fashion. All rights reserved.</p>
+          <p>&copy; 2024 Navrangi. All rights reserved.</p>
         </div>
       </div>
     </footer>

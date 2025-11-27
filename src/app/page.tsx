@@ -19,10 +19,10 @@ import { useGetAllProducts } from "@/hooks/product/useGetProduct";
 
 export default function HomePage() {
   const { data: products = [], isLoading, error: productsError } = useGetAllProducts();
-  
+
   // Filter products for SALE category (case-insensitive)
   const saleProducts = React.useMemo(() => {
-    return products.filter(product => 
+    return products.filter(product =>
       product.category && product.category.toUpperCase().includes('SALE')
     );
   }, [products]);
@@ -38,7 +38,10 @@ export default function HomePage() {
       <HeroCarousel />
       <SaleSection products={saleProducts} loading={loading} error={error} />
       <HimHerSection />
-      <NewArrivalsSection />
+      <section id="new-arrivals">
+        <NewArrivalsSection />
+
+      </section>
       <CategoriesSection />
       <BestSellingProducts />
       <FAQSection />

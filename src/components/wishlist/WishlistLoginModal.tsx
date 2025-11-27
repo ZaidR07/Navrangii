@@ -88,7 +88,7 @@ export default function WishlistLoginModal({ isOpen, onClose, onLoginSuccess }: 
           >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">
-                {isOtpSent ? 'Verify OTP' : 'Login to Darshu Fashion'}
+                {isOtpSent ? 'Verify OTP' : 'Login to Navrangi'}
               </h2>
               <button 
                 onClick={onClose}

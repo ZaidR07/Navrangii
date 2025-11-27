@@ -17,29 +17,29 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
-  
+
   // Use selected variant or first variant as fallback
   const currentVariant = selectedVariant || product.variants?.[0];
-  
+
   // Get available sizes from current variant
   const availableSizes = currentVariant?.sizes || [];
-  
+
   // Get available colors from all variants
   const availableColors = product.variants?.map(variant => variant.color) || [];
-  
+
   // Get prices from selected size
   const selectedSizeData = availableSizes.find(size => size.size === selectedSize);
   const currentPrice = selectedSizeData?.sellingPrice || currentVariant?.sizes?.[0]?.sellingPrice || 0;
   const originalPrice = selectedSizeData?.marketPrice || currentVariant?.sizes?.[0]?.marketPrice || 0;
   const discount = originalPrice > currentPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0;
-  
+
   // Set default size when variant changes
   useEffect(() => {
     if (availableSizes.length > 0 && !selectedSize) {
       setSelectedSize(availableSizes[0].size);
     }
   }, [availableSizes, selectedSize]);
-  
+
   // Handle color selection
   const handleColorSelect = (color: string) => {
     const variant = product.variants?.find(v => v.color === color);
@@ -49,13 +49,45 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
       setSelectedSize("");
     }
   };
-  
+
   return (
     <div className="lg:col-span-1 lg:pl-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
+        <div className='flex justify-between items-start'>
+          <h1 className="text-3xl inline-block lg:text-2xl 2xl:text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+          {/* Share Button */}
+          <button
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: product.name,
+                  text: `Check out this ${product.name} from Navrangi!`,
+                  url: window.location.href
+                });
+              } else {
+                // Fallback - copy to clipboard
+                navigator.clipboard.writeText(window.location.href);
+                // You could add a toast notification here
+              }
+            }}
+            className="p-2 flex items-center bg-white border border-purple-500 rounded-lg hover:bg-purple-50 transition-colors duration-200"
+            title="Share product"
+          >
+            <p className='text-purple-600'>Share&nbsp;</p>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-5 w-5 text-purple-600"
+            >
+              <path d="M13 14H11C7.54202 14 4.53953 15.9502 3.03239 18.8107C3.01093 18.5433 3 18.2729 3 18C3 12.4772 7.47715 8 13 8V2.5L23.5 11L13 19.5V14ZM11 12H15V15.3078L20.3214 11L15 6.69224V10H13C10.5795 10 8.41011 11.0749 6.94312 12.7735C8.20873 12.2714 9.58041 12 11 12Z"></path>
+            </svg>
+          </button>
+        </div>
+
+
         <div className="flex items-center mb-4">
-          <button 
+          <button
             onClick={() => {
               const reviewsSection = document.getElementById('reviews-section');
               if (reviewsSection) {
@@ -68,7 +100,7 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
               <Star key={i} className="h-5 w-5 text-yellow-400 fill-current" />
             ))}
           </button>
-          <button 
+          <button
             onClick={() => {
               const reviewsSection = document.getElementById('reviews-section');
               if (reviewsSection) {
@@ -96,8 +128,8 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
           <p className="text-green-600 text-sm mt-1">Inclusive of all taxes</p>
           {selectedSize && selectedSizeData?.stock !== undefined && (
             <p className={`text-sm mt-2 ${selectedSizeData.stock < 5 ? 'text-red-600 font-medium' : 'text-gray-600'}`}>
-              {selectedSizeData.stock < 5 
-                ? `Only ${selectedSizeData.stock} ${selectedSizeData.stock === 1 ? 'piece' : 'pieces'} left!` 
+              {selectedSizeData.stock < 5
+                ? `Only ${selectedSizeData.stock} ${selectedSizeData.stock === 1 ? 'piece' : 'pieces'} left!`
                 : `In Stock (${selectedSizeData.stock} available)`}
             </p>
           )}
@@ -143,7 +175,7 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
           </div>
         </div>
         <div className="flex gap-4 mb-8">
-          <button 
+          <button
             className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
             onClick={() => {
               if (!selectedSize) {

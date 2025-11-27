@@ -192,8 +192,8 @@ export default function ReturnsPolicy() {
                 <Mail className="h-5 w-5 text-purple-200" />
                 <div>
                   <p className="font-medium">Email Support</p>
-                  <a href="mailto:darshufashion879@gmail.com" className="text-purple-200 hover:text-white transition-colors">
-                    darshufashion879@gmail.com
+                  <a href="mailto:navrangi879@gmail.com" className="text-purple-200 hover:text-white transition-colors">
+                    navrangi879@gmail.com
                   </a>
                 </div>
               </div>
