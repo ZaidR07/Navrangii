@@ -40,7 +40,7 @@ export default function NavigationHeader() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
   const pathname = usePathname();
   
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -379,21 +379,23 @@ export default function NavigationHeader() {
                   )}
                 </div>
 
-                {!isAuthenticated ? (
-                  <button 
-                    onClick={() => setIsLoginModalOpen(true)}
-                    className="px-4 py-1.5 text-sm font-semibold text-pink-600 border border-pink-600 rounded-lg hover:bg-pink-50 transition-colors ml-1"
-                  >
-                    Sign In
-                  </button>
-                ) : (
-                  <Link 
-                    href="/profile"
-                    className="p-2 text-gray-600 hover:text-purple-500 transition-colors"
-                    aria-label="Profile"
-                  >
-                    <User className="h-6 w-6" />
-                  </Link>
+                {!isLoading && (
+                  !isAuthenticated ? (
+                    <button 
+                      onClick={() => setIsLoginModalOpen(true)}
+                      className="px-4 py-1.5 text-sm font-semibold text-pink-600 border border-pink-600 rounded-lg hover:bg-pink-50 transition-colors ml-1"
+                    >
+                      Sign In
+                    </button>
+                  ) : (
+                    <Link 
+                      href="/profile"
+                      className="p-2 text-gray-600 hover:text-purple-500 transition-colors"
+                      aria-label="Profile"
+                    >
+                      <User className="h-6 w-6" />
+                    </Link>
+                  )
                 )}
 
                 <Link 

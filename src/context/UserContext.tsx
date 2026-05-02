@@ -16,6 +16,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (email: string, otp: string) => Promise<boolean>;
   logout: () => void;
   sendOtp: (email: string) => Promise<boolean>;
@@ -25,6 +26,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const { mutateAsync: sendOtpMutation } = useSendOtp();
   const { mutateAsync: verifyOtpMutation } = useVerifyOtp();
   
@@ -39,11 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('user');
       }
     }
+    setIsLoading(false);
   }, []);
   
   const sendOtp = async (email: string): Promise<boolean> => {
     try {
-      const response = await sendOtpMutation(email);
+      const response = await sendOtpMutation(email as any);
       
       if (!response.success) {
         throw new Error(response.message || 'Failed to send OTP');
@@ -87,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{ 
         user, 
         isAuthenticated,
+        isLoading,
         login,
         logout,
         sendOtp
