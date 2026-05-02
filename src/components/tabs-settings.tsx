@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tabs";
 
 import VariablesSetting from "./variables-setting";
-import DeliveryPartner from "./delivery-partner-setting";
+// import DeliveryPartner from "./delivery-partner-setting";
 import GeneralSettings from "./GeneralSettings";
 
 
@@ -30,7 +30,7 @@ export default function TabsSettings() {
               Product Settings
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-2 text-lg">
-              Manage your product variables and Delivery Partners here.
+              Manage your product variables here.
             </p>
           </div>
         </div>
@@ -42,7 +42,7 @@ export default function TabsSettings() {
             Settings Management
           </CardTitle>
           <CardDescription className="text-slate-600 dark:text-slate-400">
-            Add and organize your product variables and delivery partners here.
+            Add and organize your product variables here.
           </CardDescription>
         </CardHeader>
 
@@ -58,13 +58,13 @@ export default function TabsSettings() {
                 Variables
               </TabsTrigger>
 
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="deliveryPartner"
                 className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-indigo-600
                  data-[state=active]:text-white px-6 py-2 rounded-lg text-sm font-medium"
               >
               Delivery Partner
-              </TabsTrigger>
+              </TabsTrigger> */}
              
             </TabsList>
 
@@ -72,7 +72,7 @@ export default function TabsSettings() {
            <VariablesSetting value="variables" />
 
             {/* Delivery Partner Tab Content */}
-           <DeliveryPartner value="deliveryPartner" />
+           {/* <DeliveryPartner value="deliveryPartner" /> */}
           </Tabs>
         </CardContent>
       </Card>

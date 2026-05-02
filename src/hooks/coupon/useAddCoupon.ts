@@ -1,11 +1,11 @@
 import { Coupon } from "@/lib/types/couponType";
 import { CouponFormData } from "@/validationSchema/couponSchema";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 
 async function addCoupon(data: CouponFormData): Promise<Coupon> {
-  const response = await axios.post(
-    `api/coupon/create`,
+  const response = await apiClient.post(
+    `coupon/create`,
     data,
     { withCredentials: true }
   );

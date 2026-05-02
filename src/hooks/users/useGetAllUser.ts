@@ -1,18 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 import { ExtendedUser } from '@/lib/types/userType';
 
 // API service function
 async function fetchAllUser(): Promise<ExtendedUser[]> {
-  const response = await axios.get(`/api/admin/allUser`, {
+  const response = await apiClient.get(`admin/allUser`, {
     
     withCredentials: true,
   });
 
-  if (!response || !response.data || !response.data.data) {
-    throw new Error("Failed to fetch products");
+  if (!response || !response.data || !response.data.users) {
+    throw new Error("Failed to fetch users");
   }
-  return response.data.data;
+  return response.data.users;
 }
 
 // React Query hook

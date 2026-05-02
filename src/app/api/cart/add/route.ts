@@ -3,27 +3,54 @@ import { connectToDB } from "@/lib/mongodb";
 
 export async function POST(req: NextRequest) {
   try {
-    const { productId, userId, quantity = 1 } = await req.json();
+    const { productId, variantId, size, quantity = 1, email } = await req.json();
 
+    const userId = email;
     if (!productId || !userId) {
       return NextResponse.json(
-        { success: false, message: "Product ID and User ID are required" },
+        { success: false, message: "Product ID and Email are required" },
         { status: 400 }
       );
     }
 
     const { db } = await connectToDB();
 
-    // Add to cart
-    await db.collection("carts").updateOne(
-      { userId },
-      {
-        $push: { items: { productId, quantity, addedAt: new Date() } } as any,
-        $setOnInsert: { items: [], createdAt: new Date() },
-        $set: { updatedAt: new Date() }
-      },
-      { upsert: true }
-    );
+    // Check if item already exists in cart (same product, variant, size)
+    const existingCart = await db.collection("carts").findOne({ userId });
+
+    if (existingCart) {
+      const existingItem = (existingCart.items || []).find(
+        (item: any) => item.productId === productId && item.variantId === variantId && item.size === size
+      );
+
+      if (existingItem) {
+        // Increment quantity for existing item
+        await db.collection("carts").updateOne(
+          { userId, "items.productId": productId, "items.variantId": variantId, "items.size": size },
+          { $inc: { "items.$.quantity": quantity }, $set: { updatedAt: new Date() } }
+        );
+      } else {
+        // Add new item to existing cart
+        await db.collection("carts").updateOne(
+          { userId },
+          {
+            $push: { items: { productId, variantId: variantId || "", size: size || "", quantity, addedAt: new Date() } } as any,
+            $set: { updatedAt: new Date() }
+          }
+        );
+      }
+    } else {
+      // Create new cart with the item
+      await db.collection("carts").updateOne(
+        { userId },
+        {
+          $setOnInsert: { createdAt: new Date() },
+          $set: { updatedAt: new Date() },
+          $push: { items: { productId, variantId: variantId || "", size: size || "", quantity, addedAt: new Date() } } as any
+        },
+        { upsert: true }
+      );
+    }
 
     return NextResponse.json(
       {

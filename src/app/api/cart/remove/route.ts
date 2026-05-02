@@ -3,22 +3,28 @@ import { connectToDB } from "@/lib/mongodb";
 
 export async function POST(req: NextRequest) {
   try {
-    const { productId, userId } = await req.json();
+    const { productId, variantId, size, email } = await req.json();
 
+    const userId = email;
     if (!productId || !userId) {
       return NextResponse.json(
-        { success: false, message: "Product ID and User ID are required" },
+        { success: false, message: "Product ID and Email are required" },
         { status: 400 }
       );
     }
 
     const { db } = await connectToDB();
 
+    // Build the pull filter to match the specific item
+    const pullFilter: any = { productId };
+    if (variantId) pullFilter.variantId = variantId;
+    if (size) pullFilter.size = size;
+
     // Remove from cart
     const result = await db.collection("carts").updateOne(
       { userId },
       {
-        $pull: { items: { productId } } as any,
+        $pull: { items: pullFilter } as any,
         $set: { updatedAt: new Date() }
       }
     );

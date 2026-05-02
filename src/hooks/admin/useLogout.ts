@@ -1,10 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
+import apiClient from '@/lib/axios';
+import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
 
 const logout = async (): Promise<string> => {
-  const { data } = await axios.post<{ message: string }>(
-    `/api/admin/logout`,
+  const { data } = await apiClient.post<{ message: string }>(
+    `admin/logout`,
     {}, // no body needed
     {
       withCredentials: true,

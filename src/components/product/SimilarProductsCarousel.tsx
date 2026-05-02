@@ -21,9 +21,9 @@ const SimilarProductsCarousel = ({ products }: SimilarProductsCarouselProps) => 
   if (products.length === 0) return null;
   return (
     <div>
-      {/* Mobile: horizontal scroll like Sale section */}
+      {/* Mobile: cards grid (no slider) */}
       <div className="lg:hidden">
-        <div className="flex overflow-x-auto gap-4 pb-2 scrollbar-hide -mx-1 px-1">
+        <div className="grid grid-cols-2 gap-4">
           {products.map((product) => {
             const firstVariant = product.variants?.[0];
             const firstSize = firstVariant?.sizes?.[0];
@@ -31,8 +31,8 @@ const SimilarProductsCarousel = ({ products }: SimilarProductsCarouselProps) => 
             const originalPrice = firstSize?.marketPrice || 0;
             const discount = originalPrice > currentPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0;
             return (
-              <Link key={product._id} href={`/product/${product._id}`} className="shrink-0 w-56">
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+              <Link key={product._id} href={`/product/${product._id}`} className="w-full">
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow h-full">
                   <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
                     <img src={product.image || firstVariant?.gallery?.[0] || 'https://placehold.co/600x800/eee/aaa?text=No+Image'} alt={product.name} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x800/eee/aaa?text=No+Image'; }} />
                     {discount > 0 && (
@@ -41,7 +41,7 @@ const SimilarProductsCarousel = ({ products }: SimilarProductsCarouselProps) => 
                   </div>
                   <div className="p-3">
                     <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{product.name}</h3>
-                    <p className="text-xs text-gray-500 mb-2 line-clamp-1">{product.category}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 mb-1 line-clamp-1">{product.category}</p>
                     <div className="flex items-center gap-2">
                       <span className="font-semibold text-purple-600">₹{currentPrice.toLocaleString()}</span>
                       {originalPrice > currentPrice && (

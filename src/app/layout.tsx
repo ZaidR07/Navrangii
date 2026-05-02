@@ -25,12 +25,41 @@ export default function RootLayout({
       <body
         className={`antialiased dark:text-white`}
       >
+        <style>{`
+          .ReactQueryDevtools button {
+            right: 16px !important;
+            bottom: 160px !important;
+          }
+
+          @media (max-width: 1024px) {
+            #bp-web-widget-container,
+            .bpw-widget-container,
+            .bpw-floating-button {
+              top: 76% !important;
+              bottom: auto !important;
+              transform: translateY(-50%) !important;
+              right: 16px !important;
+              z-index: 1500 !important;
+            }
+
+            .ReactQueryDevtools,
+            .ReactQueryDevtools * {
+              z-index: 1500 !important;
+            }
+
+            .ReactQueryDevtools button {
+              top: 86% !important;
+              bottom: auto !important;
+              right: 16px !important;
+            }
+          }
+        `}</style>
         <QueryProvider>
           <AuthProvider>
             <WishlistProvider>
               <CartProvider>
                 <Theme>
-                  <ToastContainer />
+                  <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
                   {children}
                   <BackToTopButton />
                   <CartPopup />

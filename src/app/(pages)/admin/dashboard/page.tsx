@@ -83,7 +83,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-purple-100/40 p-4 sm:p-6 dark:from-slate-900 dark:to-purple-900/40">
-      <ToastContainer />
+      <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
       <div className="mx-auto w-full space-y-12">
         {/* Header */}
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -108,7 +108,7 @@ export default function Dashboard() {
                 ((statsCardData?.orders?.today || 0) - (statsCardData?.orders?.yesterday || 0)) / 
                   Math.max(statsCardData?.orders?.yesterday || 1, 1) * 100
               )}% from yesterday`,
-              changeType: ((statsCardData?.orders?.today || 0) > (statsCardData?.orders?.yesterday || 0)) ? 'increase' : 'decrease' as const
+              changeType: (statsCardData?.orders?.today || 0) > (statsCardData?.orders?.yesterday || 0) ? "increase" : "decrease" as "increase" | "decrease"
             },
             {
               title: "Total Sales",
@@ -118,7 +118,7 @@ export default function Dashboard() {
                 ((statsCardData?.sales?.today || 0) - (statsCardData?.sales?.yesterday || 0)) / 
                   Math.max(statsCardData?.sales?.yesterday || 1, 1) * 100
               )}% from yesterday`,
-              changeType: ((statsCardData?.sales?.today || 0) > (statsCardData?.sales?.yesterday || 0)) ? 'increase' : 'decrease' as const
+              changeType: (statsCardData?.sales?.today || 0) > (statsCardData?.sales?.yesterday || 0) ? "increase" : "decrease" as "increase" | "decrease"
             },
             {
               title: "Products in Stock",
@@ -128,7 +128,7 @@ export default function Dashboard() {
                 ((statsCardData?.products?.today || 0) - (statsCardData?.products?.yesterday || 0)) / 
                   Math.max(statsCardData?.products?.yesterday || 1, 1) * 100
               )}% from yesterday`,
-              changeType: ((statsCardData?.products?.today || 0) > (statsCardData?.products?.yesterday || 0)) ? 'increase' : 'decrease' as const
+              changeType: (statsCardData?.products?.today || 0) > (statsCardData?.products?.yesterday || 0) ? "increase" : "decrease" as "increase" | "decrease"
             },
             {
               title: "Active Customers",
@@ -138,7 +138,7 @@ export default function Dashboard() {
                 ((statsCardData?.customers?.today || 0) - (statsCardData?.customers?.yesterday || 0)) / 
                   Math.max(statsCardData?.customers?.yesterday || 1, 1) * 100
               )}% from yesterday`,
-              changeType: ((statsCardData?.customers?.today || 0) > (statsCardData?.customers?.yesterday || 0)) ? 'increase' : 'decrease' as const
+              changeType: (statsCardData?.customers?.today || 0) > (statsCardData?.customers?.yesterday || 0) ? "increase" : "decrease" as "increase" | "decrease"
             },
           ].map((stat, index) => (
             <StatCard

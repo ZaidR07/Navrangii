@@ -3,8 +3,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { useAddToCart } from '@/hooks/cart/useAddToCart';
+import { useClearCart } from '@/hooks/cart/useClearCart';
 import { useCart as useCartQuery } from '@/hooks/cart/useCart';
+import { useAuth } from '@/context/UserContext';
 import { toast } from 'react-toastify';
+import LoginModal from '@/components/LoginModal';
 
 interface CartItem {
   productId: string;
@@ -18,6 +21,7 @@ interface CartContextType {
   setCartCount: (count: number) => void;
   addToCart: (item: CartItem) => void;
   removeFromCart: (productId: string, variantId: string | undefined, size: string) => void;
+  clearCart: () => void;
   isCartPopupOpen: boolean;
   setCartPopupOpen: (isOpen: boolean) => void;
   cartPopupMessage: string;
@@ -45,8 +49,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const [isCartPopupOpen, setCartPopupOpen] = useState(false);
   const [cartPopupMessage, setCartPopupMessage] = useState('');
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+  const [pendingCartItem, setPendingCartItem] = useState<CartItem | null>(null);
   const { mutate: addToCartMutation } = useAddToCart();
-  const userEmail = Cookies.get('userEmail') || '';
+  const { mutate: clearCartMutation } = useClearCart();
+  const { user } = useAuth();
+  const userEmail = user?.email || Cookies.get('userEmail') || '';
   const { data: cartData } = useCartQuery(userEmail);
   
   // Update cart count when cart data changes
@@ -78,14 +85,46 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         }
       });
     } else {
-      // Handle non-logged in users
+      // Save pending item and show login modal
+      setPendingCartItem(item);
       setLoginModalOpen(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    // After login, add the pending item to cart
+    if (pendingCartItem) {
+      const email = Cookies.get('userEmail') || '';
+      if (email) {
+        addToCartMutation({
+          productId: pendingCartItem.productId,
+          variantId: pendingCartItem.variantId,
+          size: pendingCartItem.size,
+          quantity: pendingCartItem.quantity
+        }, {
+          onSuccess: () => {
+            setCartPopupMessage(`${pendingCartItem.quantity} item${pendingCartItem.quantity > 1 ? 's' : ''} added to cart`);
+            setCartPopupOpen(true);
+            toast.success('Item added to cart successfully!');
+          },
+          onError: (error) => {
+            toast.error('Failed to add item to cart: ' + error.message);
+          }
+        });
+      }
+      setPendingCartItem(null);
     }
   };
   
   const removeFromCart = (productId: string, variantId: string | undefined, size: string) => {
     // Implementation would go here if needed
     console.log('Remove from cart:', productId, variantId, size);
+  };
+
+  const clearCart = () => {
+    if (userEmail) {
+      clearCartMutation({ email: userEmail });
+    }
   };
   
   return (
@@ -94,6 +133,7 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       setCartCount, 
       addToCart, 
       removeFromCart,
+      clearCart,
       isCartPopupOpen,
       setCartPopupOpen,
       cartPopupMessage,
@@ -102,6 +142,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
       setLoginModalOpen
     }}>
       {children}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => { setLoginModalOpen(false); setPendingCartItem(null); }} 
+        onLoginSuccess={handleLoginSuccess}
+      />
     </CartContext.Provider>
   );
 };

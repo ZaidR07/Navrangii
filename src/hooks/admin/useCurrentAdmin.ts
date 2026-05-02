@@ -1,14 +1,14 @@
 
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 import { Admin } from "@/lib/types/adminType";
 
 export function useCurrentAdmin() {
   return useQuery<Admin>({
     queryKey: ["currentAdmin"],
     queryFn: async () => {
-      const res = await axios.get(`/api/admin/me`,{
-          withCredentials: true, // 
+      const res = await apiClient.get(`admin/me`,{
+          withCredentials: true,
         }); 
       // The backend returns { message, userWithoutPassword }, so we need to extract userWithoutPassword
       return res.data.userWithoutPassword;

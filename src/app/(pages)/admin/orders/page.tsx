@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   CheckCircle,
   Clock,
@@ -12,7 +12,7 @@ import { useHasMounted } from "@/lib/useHasMounted"
 import type { Order } from "@/lib/types/orderType"
 import KPICard from "@/components/kpl-card"
 
-import { mockOrders } from "@/lib/constants/ordersData"
+import { useGetOrders } from "@/hooks/order/useGetOrders"
 import OrdersListTab from "@/components/orders-list"
 import DistributorAssignment from "@/components/delivery-partner-assignment"
 
@@ -20,7 +20,7 @@ import DistributorAssignment from "@/components/delivery-partner-assignment"
 
 
 const getStatusColor = (orderStatusUpdate: Order["orderStatusUpdate"]) => {
-  switch (orderStatusUpdate.status) {
+  switch (orderStatusUpdate?.status) {
     case "pending":
       return "bg-gradient-to-r from-yellow-400 to-yellow-500 text-white"
     case "confirmed":
@@ -33,18 +33,56 @@ const getStatusColor = (orderStatusUpdate: Order["orderStatusUpdate"]) => {
       return "bg-gradient-to-r from-green-400 to-green-500 text-white"
     case "cancelled":
       return "bg-gradient-to-r from-red-400 to-red-500 text-white"
+    case "return_request":
+      return "bg-gradient-to-r from-amber-400 to-amber-500 text-white"
+    case "returned":
+      return "bg-gradient-to-r from-rose-400 to-rose-500 text-white"
     default:
       return "bg-gradient-to-r from-gray-400 to-gray-500 text-white"
   }
 }
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(mockOrders)
+  const { data: ordersData, isLoading } = useGetOrders()
+  const [orders, setOrders] = useState<Order[]>([])
   const hasMounted = useHasMounted()
+
+  useEffect(() => {
+    if (ordersData?.orders) {
+      // Transform API data to match Order type (enrichment done server-side)
+      const transformedOrders = ordersData.orders.map((order: any) => ({
+        ...order,
+        customerName: order.customerName || order.userEmail?.split('@')[0] || 'Unknown',
+        customerEmail: order.customerEmail || order.userEmail || 'N/A',
+        orderStatusUpdate: order.orderStatusUpdate || {
+          status: order.status || "pending",
+          paymentStatus: order.status === "paid" ? "paid" : "pending",
+        },
+        items: order.items || [],
+        subtotal: order.subtotal || order.total || 0,
+        tax: order.tax || 0,
+        shipping: order.shipping || 0,
+        total: order.total || 0,
+        shippingAddress: order.shippingAddress || order.address || {},
+        paymentDetails: order.paymentDetails || {
+          razorpayOrderId: order.razorpayOrderId,
+          razorpayPaymentId: order.razorpayPaymentId,
+          verified: true,
+        },
+        paymentMethod: order.paymentMethod || "Razorpay",
+        assignedDeliveryPartner: order.assignedDeliveryPartner,
+        assignedDate: order.assignedDate,
+        orderDate: order.orderDate || order.createdAt,
+        createdAt: order.createdAt,
+      }))
+      setOrders(transformedOrders)
+    }
+  }, [ordersData])
+
   const totalOrders = orders.length
   const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0)
-  const pendingOrders = orders.filter((order) => order.orderStatusUpdate.status === "pending").length
-  const deliveredOrders = orders.filter((order) => order.orderStatusUpdate.status === "delivered").length
+  const pendingOrders = orders.filter((order) => order.orderStatusUpdate?.status === "pending").length
+  const deliveredOrders = orders.filter((order) => order.orderStatusUpdate?.status === "delivered").length
 
  
 
@@ -78,7 +116,7 @@ export default function OrdersPage() {
                   currency: "INR",
                   maximumFractionDigits: 0,
                 })
-              : `$${totalRevenue.toFixed(2)}`
+              : `₹${totalRevenue.toFixed(2)}`
           }
           icon={<DollarSign className="h-9 w-9 text-slate-200" />}
           subtitle="Total sales value"
@@ -118,7 +156,13 @@ export default function OrdersPage() {
         </TabsList>
 
         {/* Orders Tab */}
-        <OrdersListTab orders={orders} getStatusColor={getStatusColor} />
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+          </div>
+        ) : (
+          <OrdersListTab orders={orders} getStatusColor={getStatusColor} setOrders={setOrders} />
+        )}
       
 
         {/* Distributor Assignment Tab */}

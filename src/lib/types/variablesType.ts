@@ -1,7 +1,8 @@
 export type Variables = {
    id?:string;
+  section?: string[];
   catergory?: string[];
-  subCatergory?: string[];
+  subCatergory?: Record<string, string[]>;
   color?: string[];
   occassion?: string[];
   patternAndPrint?: string[];

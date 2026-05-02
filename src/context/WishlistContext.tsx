@@ -102,9 +102,7 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     if (!email) return;
     
     try {
-      await axios.delete(`wishlist/remove`, {
-        data: { email, productId }
-      });
+      await axios.post(`wishlist/remove`, { email, productId });
       
       // Refresh wishlist items
       loadWishlistItemsFromServer(email);

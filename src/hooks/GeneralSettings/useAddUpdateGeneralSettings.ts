@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 
 interface NewsOfferItem {
   id: string;
@@ -25,8 +25,8 @@ interface SettingsResponse {
 }
 
 async function updateGeneralSettingsRequest(data: GeneralSettings) {
-  const response = await axios.post<SettingsResponse>(
-    '/api/general-settings/add-update-general-settings',
+  const response = await apiClient.post<SettingsResponse>(
+    'general-settings/add-update-general-settings',
     data,
     {
       withCredentials: true,

@@ -10,6 +10,9 @@ import ProductImageGallery from '@/components/product/ProductImageGallery';
 import ProductInfo from '@/components/product/ProductInfo';
 import SimilarProductsCarousel from '@/components/product/SimilarProductsCarousel';
 import ReviewsSection from '@/components/product/ReviewsSection';
+import MobileBottomNav from '@/components/MobileBottomNav';
+import NavigationHeader from '@/components/NavigationHeader';
+import Footer from '@/components/Footer';
 import { Product, ProductVariantType } from '@/lib/types/productType';
 import CartLoginModal from '@/components/cart/CartLoginModal';
 import { useCart } from '@/context/CartContext';
@@ -64,41 +67,47 @@ const ProductDetailPage = () => {
 
   if (isLoading && !product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-4">
-        <Loader2 className="h-12 w-12 animate-spin text-pink-500" />
-        <p className="text-gray-600">Loading product details...</p>
+      <div className="min-h-screen bg-white">
+        <NavigationHeader />
+        <div className="mt-24 sm:mt-28 lg:mt-32 flex flex-col items-center justify-center gap-4 p-4">
+          <Loader2 className="h-12 w-12 animate-spin text-pink-500" />
+          <p className="text-gray-600">Loading product details...</p>
+        </div>
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="text-center max-w-md">
-          <div className="flex justify-center mb-4">
-            <AlertCircle className="h-12 w-12 text-rose-500" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Product Not Found</h2>
-          <p className="text-gray-600 mb-6">
-            {error?.message || 'The product you\'re looking for doesn\'t exist or has been removed.'}
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => router.back()}
-              className="flex items-center gap-2"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Go Back
-            </Button>
-            <Button
-              variant="default"
-              onClick={() => window.location.reload()}
-              className="bg-pink-500 hover:bg-pink-600"
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Try Again
-            </Button>
+      <div className="min-h-screen bg-white">
+        <NavigationHeader />
+        <div className="mt-24 sm:mt-28 lg:mt-32 flex items-center justify-center p-4">
+          <div className="text-center max-w-md">
+            <div className="flex justify-center mb-4">
+              <AlertCircle className="h-12 w-12 text-rose-500" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Product Not Found</h2>
+            <p className="text-gray-600 mb-6">
+              {error?.message || 'The product you\'re looking for doesn\'t exist or has been removed.'}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                variant="outline"
+                onClick={() => router.back()}
+                className="flex items-center gap-2"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Go Back
+              </Button>
+              <Button
+                variant="default"
+                onClick={() => window.location.reload()}
+                className="bg-pink-500 hover:bg-pink-600"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Try Again
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -111,10 +120,12 @@ const ProductDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Breadcrumb */}
-        <nav className="mb-8">
+    <>
+      <NavigationHeader />
+      <div className="min-h-screen bg-white pb-16 lg:pb-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-32 sm:mt-36 lg:mt-40">
+          {/* Breadcrumb */}
+          <nav className="mb-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <a href="/" className="hover:text-purple-600">Home</a>
@@ -126,7 +137,7 @@ const ProductDetailPage = () => {
                 Categories
               </a>
               <ChevronRight className="h-4 w-4" />
-              <span className="text-gray-900">{product.name}</span>
+              <span className="hidden sm:inline text-gray-900">{product.name}</span>
             </div>
             
             
@@ -146,9 +157,10 @@ const ProductDetailPage = () => {
             <SimilarProductsCarousel products={similarProducts} />
           </div>
         )}
-        {/* Reviews Section */}
-        <ReviewsSection />
       </div>
+
+      <Footer />
+      <MobileBottomNav />
       
       {/* Cart Login Modal */}
       <CartLoginModal 
@@ -157,6 +169,7 @@ const ProductDetailPage = () => {
         onLoginSuccess={handleLoginSuccess}
       />
     </div>
+    </>
   );
 };
 

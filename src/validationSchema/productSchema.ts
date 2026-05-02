@@ -27,12 +27,16 @@ export const productSchema = z.object({
   _id: z.string().optional(),
   name: z.string().min(1, { message: "Product name is required" }),
   description: z.string().min(1, { message: "Description is required" }),
+  section: z.string().min(1, { message: "Section is required" }),
   category: z.string().min(1, { message: "Category is required" }),
   subcategory: z.string().min(1, { message: "Subcategory is required" }),
   fabric: z.string().min(1, { message: "Fabric is required" }),
   occasion: z.string().min(1, { message: "Occasion is required" }),
   patternAndPrint: z.string().min(1, { message: "Pattern is required" }),
   style: z.string().min(1, { message: "Style is required" }),
+  productType: z.enum(["regular", "onSale", "bestSeller"], {
+    required_error: "Product type is required",
+  }),
   option: z.string().min(1, { message: "Style is required" }),
   variants: z.array(variantSchema).min(1, { message: "Add at least one variant" }),
 });

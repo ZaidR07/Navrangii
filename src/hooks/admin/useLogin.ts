@@ -1,11 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import apiClient from "@/lib/axios";
+import { AxiosError } from "axios";
 import { AdminLoginInput } from "@/validationSchema/loginSchema";
 
 const login = async (values: AdminLoginInput): Promise<string> => {
-  const { data } = await axios.post<{
+  const { data } = await apiClient.post<{
     message: string;
-  }>(`/api/admin/login`, values, {
+  }>(`admin/login`, values, {
     withCredentials: true,
     timeout: 10_000,
   });

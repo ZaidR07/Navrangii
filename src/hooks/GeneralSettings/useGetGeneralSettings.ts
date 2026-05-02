@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 
 interface NewsOfferItem {
   id: string;
@@ -35,8 +35,8 @@ export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
 };
 
 async function getGeneralSettingsRequest() {
-  const response = await axios.get<SettingsResponse>(
-    '/api/general-settings/getgeneral-settings',
+  const response = await apiClient.get<SettingsResponse>(
+    'general-settings/getgeneral-settings',
     {
       withCredentials: true,
     }

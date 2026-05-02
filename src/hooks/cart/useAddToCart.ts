@@ -34,10 +34,11 @@ export const useAddToCart = () => {
   return useMutation<AddToCartResponse, Error, AddToCartParams>({
     mutationFn: addToCart,
     onSuccess: () => {
-      // Invalidate and refetch cart data
+      // Invalidate and refetch cart data and count
       const email = Cookies.get('userEmail');
       if (email) {
         queryClient.invalidateQueries({ queryKey: ['cart', email] });
+        queryClient.invalidateQueries({ queryKey: ['cartCount', email] });
       }
     },
     onError: (error) => {

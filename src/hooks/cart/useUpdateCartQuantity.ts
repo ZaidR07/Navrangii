@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '@/lib/axios';
 
 interface UpdateCartQuantityParams {
@@ -21,14 +21,14 @@ const updateCartQuantity = async ({ email, productId, variantId, size, quantity 
 };
 
 export const useUpdateCartQuantity = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateCartQuantity,
-    onSuccess: (data) => {
-      // Handle success if needed
-      console.log('Cart quantity updated:', data);
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['cart', variables.email] });
+      queryClient.invalidateQueries({ queryKey: ['cartCount', variables.email] });
     },
     onError: (error) => {
-      // Handle error if needed
       console.error('Error updating cart quantity:', error);
     },
   });

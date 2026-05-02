@@ -42,7 +42,7 @@ export interface PaymentDetails {
 }
 
 export interface OrderStatusUpdate {
-  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "return_request" | "returned";
   paymentStatus?: "pending" | "paid" | "failed" | "refunded";
   trackingNumber?: string;
   estimatedDelivery?: string;
@@ -51,19 +51,24 @@ export interface OrderStatusUpdate {
 export interface Order {
   _id: string;
   customerId: string;
-  customerEmail: string;
-  customerName: string;
+  customerEmail?: string;
+  customerName?: string;
+  userEmail?: string;
   items: OrderItem[];
   subtotal: number;
   tax: number;
   shipping: number;
   total: number;
-  orderStatusUpdate:OrderStatusUpdate;
+  orderStatusUpdate?: OrderStatusUpdate;
+  status?: string;
   paymentMethod: string;
   shippingAddress: ShippingAddress;
+  address?: any;
   assignedDeliveryPartner?: DeliveryPartners;
   assignedDate?: string;
   paymentDetails?: PaymentDetails;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   orderDate: string;
   createdAt: string;
 }

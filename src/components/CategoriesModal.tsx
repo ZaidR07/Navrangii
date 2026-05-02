@@ -3,52 +3,23 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import Link from "next/link";
-
-interface Category {
-  id: string;
-  name: string;
-  href: string;
-  image: string;
-  bgColor: string;
-}
-
-const categories: Category[] = [
-  {
-    id: "women",
-    name: "Women's Outfits",
-    href: "/category/WOMEN'S",
-    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=300&h=300&fit=crop&crop=center",
-    bgColor: "bg-pink-100"
-  },
-  {
-    id: "men",
-    name: "Men's Outfits",
-    href: "/category/MEN'S",
-    image: "https://images.unsplash.com/photo-1539109136884-43d0e9d63eee?w=300&h=300&fit=crop&crop=center",
-    bgColor: "bg-blue-100"
-  },
-  {
-    id: "jewelry",
-    name: "Jewelry",
-    href: "/category/JEWELRY",
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=300&h=300&fit=crop&crop=center",
-    bgColor: "bg-yellow-100"
-  },
-  {
-    id: "couples",
-    name: "Couple Suites",
-    href: "/category/COUPLE'S",
-    image: "https://images.unsplash.com/photo-1519669417670-68775a509115?w=300&h=300&fit=crop&crop=center",
-    bgColor: "bg-purple-100"
-  }
-];
+import { useGetVariable } from "@/hooks/variable/useGetVariable";
 
 interface CategoriesModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const sectionColors = [
+  "bg-pink-100", "bg-blue-100", "bg-purple-100", "bg-yellow-100",
+  "bg-green-100", "bg-red-100", "bg-indigo-100", "bg-orange-100",
+];
+
 export default function CategoriesModal({ isOpen, onClose }: CategoriesModalProps) {
+  const { data: variablesData } = useGetVariable();
+
+  const sections = variablesData?.section || [];
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -73,7 +44,7 @@ export default function CategoriesModal({ isOpen, onClose }: CategoriesModalProp
           >
             {/* Header */}
             <div className="relative p-6 pb-4 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-center text-gray-900">Categories</h2>
+              <h2 className="text-2xl font-bold text-center text-gray-900">Shop by Section</h2>
               <button
                 onClick={onClose}
                 className="absolute right-4 top-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -83,30 +54,29 @@ export default function CategoriesModal({ isOpen, onClose }: CategoriesModalProp
               </button>
             </div>
             
-            {/* Categories Grid */}
+            {/* Sections Grid */}
             <div className="flex-1 overflow-y-auto p-4">
               <div className="grid grid-cols-2 gap-4">
-                {categories.map((category) => (
-                  <Link
-                    key={category.id}
-                    href={category.href}
-                    className="group block"
-                    onClick={onClose}
-                  >
-                    <div className="flex flex-col items-center p-3 rounded-lg border border-gray-100 hover:bg-gray-50">
-                      <div className={`relative w-20 h-20 rounded-full ${category.bgColor} overflow-hidden mb-2 group-hover:scale-105 transition-transform duration-200`}>
-                        <img
-                          src={category.image}
-                          alt={category.name}
-                          className="w-full h-full object-cover"
-                        />
+                {sections.map((section: string, idx: number) => {
+                  const bgColor = sectionColors[idx % sectionColors.length];
+                  return (
+                    <Link
+                      key={section}
+                      href={`/products?section=${encodeURIComponent(section)}`}
+                      className="group block"
+                      onClick={onClose}
+                    >
+                      <div className="flex flex-col items-center p-4 rounded-lg border border-gray-100 hover:bg-purple-50 transition-colors">
+                        <div className={`w-16 h-16 rounded-full ${bgColor} flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-200`}>
+                          <span className="text-2xl font-bold text-gray-700">{section.charAt(0)}</span>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 group-hover:text-purple-600 transition-colors text-center">
+                          {section}
+                        </span>
                       </div>
-                      <span className="text-sm font-medium text-gray-900 group-hover:text-purple-600 transition-colors text-center">
-                        {category.name}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </motion.div>

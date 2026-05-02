@@ -2,11 +2,11 @@
 
 import { useMutation, useQueryClient, type UseMutationOptions } from "@tanstack/react-query";
 import { Product } from "@/lib/types/productType";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 
 
 async function createProduct(product: Product): Promise<Product> {
-  const response = await axios.post(`api/product/create`, product, {
+  const response = await apiClient.post(`product/create`, product, {
     withCredentials: true,
   });
   

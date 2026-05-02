@@ -1,10 +1,10 @@
 import { Coupon } from "@/lib/types/couponType";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 
 async function deleteCoupon(id: string): Promise<{ success: boolean }> {
-  const response = await axios.delete(
-    `api/coupon/${id}`,
+  const response = await apiClient.delete(
+    `coupon/${id}`,
     { withCredentials: true }
   );
   if (!response?.data?.success) throw new Error("Failed to delete coupon");

@@ -1,10 +1,10 @@
 import { Product } from "@/lib/types/productType";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 
 async function deleteProduct(productId: string): Promise<{ message: string }> {
-  const response = await axios.delete(
-    `api/product/${productId}`,
+  const response = await apiClient.delete(
+    `product/${productId}`,
     {
       withCredentials: true,
     }

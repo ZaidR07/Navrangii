@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
       "placehold.co",
       "bucket-trex-images.s3.us-east-1.amazonaws.com"
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

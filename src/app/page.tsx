@@ -20,10 +20,13 @@ import { useGetAllProducts } from "@/hooks/product/useGetProduct";
 export default function HomePage() {
   const { data: products = [], isLoading, error: productsError } = useGetAllProducts();
 
-  // Filter products for SALE category (case-insensitive)
   const saleProducts = React.useMemo(() => {
-    return products.filter(product =>
-      product.category && product.category.toUpperCase().includes('SALE')
+    const byType = products.filter((p) => p.productType === "onSale");
+    if (byType.length > 0) return byType;
+
+    // fallback: old behavior (category contains SALE)
+    return products.filter(
+      (product) => product.category && product.category.toUpperCase().includes("SALE")
     );
   }, [products]);
 
@@ -32,7 +35,7 @@ export default function HomePage() {
   const error = productsError?.message || null;
 
   return (
-    <div className="min-h-screen bg-white pb-16 lg:pb-0">
+    <div className="min-h-screen bg-white pb-16 lg:pb-0 overflow-x-hidden">
       <NoticeBar />
       <NavigationHeader />
       <HeroCarousel />

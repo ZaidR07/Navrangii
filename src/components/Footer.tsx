@@ -3,10 +3,15 @@
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Youtube, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 import Image from 'next/image';
+import Link from 'next/link';
 import { useGetGeneralSettings } from "@/hooks/GeneralSettings/useGetGeneralSettings";
+import { useGetVariable } from "@/hooks/variable/useGetVariable";
 
 export default function Footer() {
   const { settings } = useGetGeneralSettings();
+  const { data: variables } = useGetVariable();
+  
+  const sections = variables?.section || [];
   const phone = settings?.phoneNumber?.trim() || "";
   const email = settings?.email?.trim() || "";
   const whatsapp = settings?.whatsapp?.trim() || "";
@@ -34,7 +39,7 @@ export default function Footer() {
                 alt="Navrangi Logo"
                 width={400}
                 height={120}
-                className="h-[100px] w-auto object-contain filter brightness-0 invert"
+                className="h-14 sm:h-16 md:h-20 w-auto object-contain filter brightness-0 invert"
                 priority
               />
             </div>
@@ -65,13 +70,26 @@ export default function Footer() {
           >
             <h3 className="text-lg font-semibold mb-6">Categories</h3>
             <ul className="space-y-3">
-              {["Women's Fashion", "Jewelry Collection", "Couple Outfits", "Family Twinning", "Bridal Wear"].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              {sections.length > 0 ? (
+                sections.map((section) => (
+                  <li key={section}>
+                    <Link 
+                      href={`/products?section=${encodeURIComponent(section)}`} 
+                      className="text-gray-400 hover:text-white transition-colors"
+                    >
+                      {section}
+                    </Link>
+                  </li>
+                ))
+              ) : (
+                ["Women's Fashion", "Jewelry Collection", "Couple Outfits", "Family Twinning", "Bridal Wear"].map((item) => (
+                  <li key={item}>
+                    <Link href="/products" className="text-gray-400 hover:text-white transition-colors">
+                      {item}
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
           </motion.div>
 

@@ -19,7 +19,7 @@ const categories: Category[] = [
     bgColor: "from-rose-400 to-pink-500",
     textColor: "text-white",
     image: "/woman_collection.jpg",
-    href: "/category/WOMEN'S"
+    href: "/products?section=WOMEN'S%20WEAR"
   },
   {
     title: "Men's Collection",
@@ -27,15 +27,15 @@ const categories: Category[] = [
     bgColor: "from-blue-400 to-indigo-500",
     textColor: "text-white",
     image: "/mens_collection.jpg",
-    href: "/category/MEN'S"
+    href: "/products?section=MEN'S%20WEAR"
   },
   {
-    title: "Couple's Collection",
-    subtitle: "Perfect Pairs",
+    title: "Hair Accessories",
+    subtitle: "Style Your Look",
     bgColor: "from-purple-400 to-violet-500",
     textColor: "text-white",
     image: "/couple_collection.jpg",
-    href: "/category/COUPLE'S"
+    href: "/products?section=Hair%20Accessories"
   },
   {
     title: "Jewelry Collection",
@@ -43,7 +43,7 @@ const categories: Category[] = [
     bgColor: "from-yellow-400 to-orange-500",
     textColor: "text-white",
     image: "/jewellery_collection.jpg",
-    href: "/category/JEWELRY"
+    href: "/products?section=JEWELRY"
   }
 ];
 

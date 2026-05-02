@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Minus, Plus } from 'lucide-react';
 import { Product } from '@/lib/types/productType';
-import Image from 'next/image';
 
 interface CartItemProps {
   item: {
@@ -23,6 +22,8 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
   const { product, variant, size, quantity } = item;
   const [itemQuantity, setItemQuantity] = useState(quantity);
   
+  if (!product) return null;
+
   // Use the new variant field directly, fallback to old method if not available
   const selectedVariant = variant || (item.variantId 
     ? product?.variants?.find(v => v._id === item.variantId)
@@ -51,23 +52,21 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col sm:flex-row gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100"
+      className="flex flex-col sm:flex-row gap-3 p-3 bg-white rounded-xl shadow-sm border border-gray-100"
     >
       {/* Product Image */}
-      <div className="flex-shrink-0 w-full h-full sm:w-32 h-40 sm:h-32 relative rounded-lg overflow-hidden bg-gray-100 mx-auto sm:mx-0 aspect-4/5">
-        <Image
-          src={selectedVariant?.thumbnail || selectedVariant?.gallery?.[0] || product?.image || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
-          alt={product?.name}
-          fill
+      <div className="flex-shrink-0 w-full h-full sm:w-24 sm:h-24 relative rounded-lg overflow-hidden bg-gray-100 mx-auto sm:mx-0 aspect-4/5">
+        <img
+          src={selectedVariant?.thumbnail || selectedVariant?.gallery?.[0] || product?.image || '/placeholder.svg'}
+          alt={product?.name || 'Product'}
           className="object-cover w-full h-full"
-          sizes="(max-width: 640px) 80vw, 128px"
         />
       </div>
       
       <div className="flex-grow">
         <div className="flex justify-between">
           <div>
-            <h3 className="font-semibold text-gray-900">{product.name}</h3>
+            <h3 className="font-semibold text-gray-900">{product?.name}</h3>
             {selectedVariant && (
               <p className="text-sm text-gray-600 mt-1">Color: {selectedVariant.color}</p>
             )}
@@ -82,8 +81,8 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
           </button>
         </div>
         
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
             <button 
               className="p-1 border text-gray-800 border-gray-300 rounded-md hover:bg-gray-50"
               onClick={() => handleQuantityChange(itemQuantity - 1)}

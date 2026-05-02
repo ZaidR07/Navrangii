@@ -22,6 +22,7 @@ import {
 
 type ProductBasicsProps = {
   control: Control<ProductFormValues>;
+  sectionOptions: string[];
   categoryOptions: string[];
   subCategoryOptions: string[];
   fabricOptions: string[];
@@ -33,6 +34,7 @@ type ProductBasicsProps = {
 
 export default function ProductBasics({
   control,
+  sectionOptions,
   categoryOptions,
   subCategoryOptions,
   fabricOptions,
@@ -53,7 +55,7 @@ export default function ProductBasics({
       </CardHeader>
 
       <CardContent className="space-y-6">
-        {/* Row 1 – Name + Fabric */}
+        {/* Row 1 – Name + Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormInput
             control={control}
@@ -63,19 +65,27 @@ export default function ProductBasics({
           />
           <FormSelect
             control={control}
+            name="section"
+            label="Section"
+            options={sectionOptions}
+          />
+        </div>
+
+        {/* Row 2 – Fabric + Category */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormSelect
+            control={control}
             name="fabric"
             label="Fabric"
             options={fabricOptions}
           />
+          <FormSelect
+            control={control}
+            name="category"
+            label="Category*"
+            options={categoryOptions}
+          />
         </div>
-
-        {/* Category Dropdown */}
-        <FormSelect
-          control={control}
-          name="category"
-          label="Category*"
-          options={categoryOptions}
-        />
 
         {/* Subcategory, Occasion, Pattern, Style */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,6 +122,53 @@ export default function ProductBasics({
             label="Style"
             options={styleOptions}
             disabled={!styleOptions.length}
+          />
+
+          <FormField
+            control={control}
+            name="productType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product Type*</FormLabel>
+                <FormControl>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label className="flex items-center gap-2 rounded-md border p-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name={field.name}
+                        value="regular"
+                        checked={field.value === "regular"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                      <span className="text-sm">Regular</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 rounded-md border p-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name={field.name}
+                        value="onSale"
+                        checked={field.value === "onSale"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                      <span className="text-sm">On Sale</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 rounded-md border p-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name={field.name}
+                        value="bestSeller"
+                        checked={field.value === "bestSeller"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                      <span className="text-sm">Best Seller</span>
+                    </label>
+                  </div>
+                </FormControl>
+                <FormMessage className=" text-red-600" />
+              </FormItem>
+            )}
           />
         </div>
 

@@ -76,7 +76,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     <AnimatePresence>
       {isOpen && (
         <motion.div 
-          className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-[1000]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -122,7 +122,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500"
                       placeholder="you@example.com"
                       disabled={isLoading}
                     />
@@ -156,7 +156,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                       type="text"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
-                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500"
                       placeholder="123456"
                       disabled={isLoading}
                     />

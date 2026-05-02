@@ -6,7 +6,6 @@ import Header from "@/components/header";
 import { useCurrentAdmin } from "@/hooks/admin/useCurrentAdmin";
 import { useRouter } from "next/navigation";
 import PageLoading from "@/components/page-loading";
-import PageError from "@/components/page-error";
 
 interface AuthCheckWrapperProps {
   children: ReactNode;
@@ -15,23 +14,37 @@ interface AuthCheckWrapperProps {
 export default function AuthCheckWrapper({ children }: AuthCheckWrapperProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
-  const { data:user, isLoading, isError } = useCurrentAdmin();
+  const { data:user, isLoading, isError, error } = useCurrentAdmin();
 
+  useEffect(() => {
+    // Only redirect when query is done and user is definitely not authenticated
+    // Check if error is 401/403 (not admin) vs other errors (network etc)
+    if (!isLoading) {
+      const status = (error as any)?.response?.status;
+      if (!user && isError && (status === 401 || status === 403)) {
+        // Not authenticated - redirect to admin login
+        router.push("/admin");
+      }
+    }
+  }, [isLoading, user, isError, error, router]);
 
-useEffect(() => {
-  // Only redirect if not loading and no user exists (but don't redirect on error)
-  if (!isLoading && !user && !isError) {
-    router.push("/");
-  }
-}, [isLoading, user, isError, router]);
-  
   if (isLoading) {
     return <PageLoading />;
   }
 
-  if (isError) {
-    // Don't show error page, just continue to render UI
-    // Admin auth failed but we can still show the interface
+  // If no user and no explicit auth error, still show loading briefly
+  // (could be a timing issue on first render after refresh)
+  if (!user && !isError) {
+    return <PageLoading />;
+  }
+
+  // Auth error that isn't 401/403 - could be network issue, show the UI
+  if (isError && !user) {
+    const status = (error as any)?.response?.status;
+    if (status === 401 || status === 403) {
+      return <PageLoading />; // Will redirect via useEffect
+    }
+    // Network or other error - still try to show UI
   }
 
   return (
@@ -44,7 +57,7 @@ useEffect(() => {
       {/* Right Side Content */}
       <div className="flex flex-col flex-1 min-w-0">
         {/* Header */}
-        <header className="flex-shrink-0 w-full">
+        <header className="flex-shrink-0 w-full relative z-[60]">
           <Header />
         </header>
 

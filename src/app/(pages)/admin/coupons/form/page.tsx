@@ -67,7 +67,7 @@ export default function CouponForm() {
   const { data: allCoupons, isLoading: isLoadingCoupon } = useGetCoupons()
 
   // Find the specific coupon by ID when in edit mode
-  const existingCoupon = isEditMode && allCoupons ? allCoupons.find((coupon) => coupon._id === couponId) : null
+  const existingCoupon = isEditMode && allCoupons ? allCoupons.find((coupon) => coupon._id?.toString() === couponId) : null
 
   // Populate form with existing data when editing
   useEffect(() => {

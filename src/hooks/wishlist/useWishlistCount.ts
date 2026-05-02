@@ -5,9 +5,14 @@ interface WishlistCountData {
   count: number;
 }
 
+interface WishlistData {
+  email: string;
+  wishlist: Array<{ productId: string }>;
+}
+
 const fetchWishlistCount = async (email: string) => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL!}/wishlist/count/${email}`);
-  return response.data;
+  const response = await axios.get<WishlistData>(`wishlist/${email}`);
+  return { count: response.data?.wishlist?.length || 0 };
 };
 
 export const useWishlistCount = (email: string) => {

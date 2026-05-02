@@ -23,12 +23,11 @@ export const useRemoveFromCart = () => {
   
   return useMutation({
     mutationFn: removeFromCart,
-    onSuccess: (data) => {
-      // Handle success if needed
-      console.log('Product removed from cart:', data);
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['cart', variables.email] });
+      queryClient.invalidateQueries({ queryKey: ['cartCount', variables.email] });
     },
     onError: (error) => {
-      // Handle error if needed
       console.error('Error removing from cart:', error);
     },
   });

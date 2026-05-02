@@ -7,6 +7,7 @@ import LoginModal from '@/components/LoginModal';
 import { Product } from '@/lib/types/productType';
 import { useAddToWishlist } from '@/hooks/wishlist/useAddToWishlist';
 import { useRemoveFromWishlist } from '@/hooks/wishlist/useRemoveFromWishlist';
+import { useWishlist } from '@/hooks/wishlist/useWishlist';
 import Cookies from 'js-cookie';
 
 interface WishlistToggleProps {
@@ -16,23 +17,25 @@ interface WishlistToggleProps {
 }
 
 export default function WishlistToggle({ product, className = '', iconClassName = 'h-5 w-5' }: WishlistToggleProps) {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isWishlisted, setIsWishlisted] = useState(false);
   
-  // Get user email from cookie
-  const userEmail = Cookies.get('userEmail');
+  // Get user email from auth context or cookie
+  const userEmail = user?.email || Cookies.get('userEmail') || '';
   
   // Wishlist hooks
   const { mutate: addToWishlist } = useAddToWishlist();
   const { mutate: removeFromWishlist } = useRemoveFromWishlist();
+  const { data: wishlistData } = useWishlist(userEmail);
   
-  // For now, we'll just use local state
-  // In a real implementation, we would fetch the user's wishlist and check if the product is in it
+  // Check if product is in wishlist
   useEffect(() => {
-    // Placeholder - in a real implementation we would check if product is in wishlist
-    // setIsWishlisted(checkIfInWishlist(product._id));
-  }, [product._id]);
+    if (wishlistData?.wishlist) {
+      const found = wishlistData.wishlist.some((item: any) => item.productId === product._id);
+      setIsWishlisted(found);
+    }
+  }, [wishlistData, product._id]);
   
   const handleToggleWishlist = () => {
     // Check if user is logged in
@@ -55,14 +58,10 @@ export default function WishlistToggle({ product, className = '', iconClassName 
   
   const handleLoginSuccess = () => {
     // Try to add to wishlist again after login
-    const userEmail = Cookies.get('userEmail');
-    if (userEmail) {
-      try {
-        addToWishlist({ email: userEmail, productId: product._id || '' });
-        setIsWishlisted(true);
-      } catch (error) {
-        console.error('Error adding to wishlist after login:', error);
-      }
+    const email = Cookies.get('userEmail') || '';
+    if (email) {
+      addToWishlist({ email, productId: product._id || '' });
+      setIsWishlisted(true);
     }
   };
   

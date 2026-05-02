@@ -37,7 +37,7 @@ export const useGetProfile = (email?: string) => {
       if (!emailFromCookie) {
         throw new Error('No email provided for profile fetch');
       }
-      const response = await apiClient.get(`/user/profile?email=${encodeURIComponent(emailFromCookie)}`);
+      const response = await apiClient.get(`user/profile?email=${encodeURIComponent(emailFromCookie)}`);
       return response.data.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -50,7 +50,7 @@ export const useUpdateProfile = () => {
   
   return useMutation({
     mutationFn: async (profileData: UpdateProfileData) => {
-      const response = await apiClient.put('/user/profile', profileData);
+      const response = await apiClient.put('user/profile', profileData);
       return response.data;
     },
     onSuccess: (_, variables) => {

@@ -18,6 +18,14 @@ interface CoupleProduct {
   category: "casual" | "formal" | "ethnic" | "western";
 }
 
+const getStableReviewsCount = (seed: string) => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return 50 + (hash % 100);
+};
+
 // Helper function to transform ProductType to CoupleProduct
 const transformProduct = (product: ProductType): CoupleProduct => {
   // Get the first variant and first size for display
@@ -38,7 +46,7 @@ const transformProduct = (product: ProductType): CoupleProduct => {
     discount: discount > 0 ? `${discount}% OFF` : "",
     image: firstVariant?.thumbnail || firstVariant?.gallery?.[0] || product.image || "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?w=400&h=500&fit=crop&crop=center",
     rating: 4.5, // Placeholder rating
-    reviews: Math.floor(Math.random() * 100) + 50, // Placeholder reviews
+    reviews: getStableReviewsCount(product._id || product.name),
     category: "casual" // Placeholder category
   };
 };
@@ -77,12 +85,6 @@ const ProductCard = ({ product, index }: { product: CoupleProduct; index: number
             <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
           </div>
         </div>
-        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center group-hover:shadow-lg mt-auto">
-          <span>View Product</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
     </motion.div>
   </Link>
@@ -94,9 +96,9 @@ const MobileProductCard = ({ product, index }: { product: CoupleProduct; index: 
       initial={{ opacity: 0, x: 50 }}
       whileInView={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden shadow-xl cursor-pointer"
+      className="w-full bg-white rounded-2xl overflow-hidden shadow-xl cursor-pointer"
     >
-      <div className="relative h-80 overflow-hidden">
+      <div className="relative h-48 overflow-hidden">
         <img
           src={product.image}
           alt={product.name}
@@ -107,9 +109,9 @@ const MobileProductCard = ({ product, index }: { product: CoupleProduct; index: 
           {product.discount}
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-        <div className="flex items-center justify-between mb-2">
+      <div className="p-3">
+        <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-2">{product.name}</h3>
+        <div className="flex items-center justify-between mb-1">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
@@ -121,12 +123,6 @@ const MobileProductCard = ({ product, index }: { product: CoupleProduct; index: 
             <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
           </div>
         </div>
-        <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-1.5 rounded-md text-sm font-semibold transition-colors flex items-center justify-center">
-          <span>View Product</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
     </motion.div>
   </Link>
@@ -135,16 +131,16 @@ const MobileProductCard = ({ product, index }: { product: CoupleProduct; index: 
 export default function HimHerSection() {
   const { data: products = [], isLoading, error } = useGetAllProducts();
   
-  // Filter products for couple's collection
-  // First check if we have any products with 'COUPLE' in category
-  let coupleProducts = products
-    .filter(product => product.category && product.category.toUpperCase().includes('COUPLE'))
+  let hairProducts = products
+    .filter((product) => {
+      const category = product.category?.toUpperCase() || "";
+      const subcategory = product.subcategory?.toUpperCase() || "";
+      return category.includes("HAIR") || subcategory.includes("HAIR");
+    })
     .map(transformProduct);
-  
-  // If no couple products found, take first 8 products as fallback
-  if (coupleProducts.length === 0 && products.length > 0) {
-    console.warn('No products found with "COUPLE" in category. Showing first 8 products as fallback.');
-    coupleProducts = products.slice(0, 8).map(transformProduct);
+
+  if (hairProducts.length === 0 && products.length > 0) {
+    hairProducts = products.slice(0, 8).map(transformProduct);
   }
   
   if (isLoading) {
@@ -152,7 +148,7 @@ export default function HimHerSection() {
       <section className="py-20 bg-gradient-to-br from-pink-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-xl text-purple-600">Loading couple collections...</p>
+            <p className="text-xl text-purple-600">Loading hair accessories...</p>
           </div>
         </div>
       </section>
@@ -164,7 +160,7 @@ export default function HimHerSection() {
       <section className="py-20 bg-gradient-to-br from-pink-50 to-purple-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-xl text-red-600">Error loading couple collections</p>
+            <p className="text-xl text-red-600">Error loading hair accessories</p>
           </div>
         </div>
       </section>
@@ -182,18 +178,29 @@ export default function HimHerSection() {
           className="text-center mb-16"
         >
           <h2 className="text-2xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-4">
-            <span className="text-purple-600">Him</span> & <span className="text-pink-500">Her</span>
+            <span className="text-purple-600">Hair</span> <span className="text-pink-500">Accessories</span>
           </h2>
           <p className="text-lg md:text-xl lg:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto">
-            Perfect Couple Twinning Collections - Coordinate Your Style Together
+            Clips, Bands, Scrunchies & more - complete your look
           </p>
         </motion.div>
 
-        {/* Mobile Carousel */}
+        {/* Mobile Grid */}
         <div className="lg:hidden mb-8">
-          <div className="flex overflow-x-auto scrollbar-hide gap-6 pb-4">
-            {coupleProducts.map((product, index) => (
-              <MobileProductCard key={product.id} product={product} index={index} />
+          <div className="grid grid-cols-2 gap-4">
+            {hairProducts.slice(0, 8).map((product, index) => (
+              <div
+                key={product.id}
+                className={
+                  hairProducts.length === 1
+                    ? "col-span-2 flex justify-center"
+                    : undefined
+                }
+              >
+                <div className={hairProducts.length === 1 ? "w-full max-w-xs" : "w-full"}>
+                  <MobileProductCard product={product} index={index} />
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -201,20 +208,20 @@ export default function HimHerSection() {
         {/* Desktop Grid */}
         <div className="hidden lg:block">
           <div className="grid lg:grid-cols-4 gap-8 mb-12">
-            {coupleProducts.slice(0, 8).map((product, index) => (
+            {hairProducts.slice(0, 8).map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}
           </div>
 
           {/* View More Button */}
-          {coupleProducts.length > 8 && (
+          {hairProducts.length > 8 && (
             <div className="text-center">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-10 py-4 rounded-full text-lg font-semibold hover:from-purple-700 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                View All Couple Collections
+                View All Hair Accessories
               </motion.button>
             </div>
           )}

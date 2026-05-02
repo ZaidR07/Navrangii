@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from '@/lib/axios';
 interface AddToWishlistParams {
   email: string;
@@ -11,14 +11,14 @@ const addToWishlist = async ({ email, productId }: AddToWishlistParams) => {
 };
 
 export const useAddToWishlist = () => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: addToWishlist,
-    onSuccess: (data) => {
-      // Handle success if needed
-      console.log('Product added to wishlist:', data);
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['wishlist', variables.email] });
+      queryClient.invalidateQueries({ queryKey: ['wishlistCount', variables.email] });
     },
     onError: (error) => {
-      // Handle error if needed
       console.error('Error adding to wishlist:', error);
     },
   });

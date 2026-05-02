@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 import { useGetAllUsers } from "@/hooks/users/useGetAllUser";
 import type { ExtendedUser } from "@/lib/types/userType";
@@ -23,8 +23,14 @@ export default function CustomersPage() {
   const users: ExtendedUser[] = data || [];
   const search = debouncedSearchTerm.toLowerCase();
 
+  useEffect(() => {
+    if (isError) {
+      toast.error("Failed to load customers. Please try again later.");
+    }
+  }, [isError]);
+
   const filteredUsers = users.filter((user) => {
-    const isNotAdmin = user.isAdmin === false;
+    const isNotAdmin = user.isAdmin !== true;
     if (!search) return isNotAdmin;
     const matchesSearch =
       user.name?.toLowerCase().includes(search) ||
@@ -34,11 +40,6 @@ export default function CustomersPage() {
   });
 
   if (isLoading) return <LoaderSpinner message="Loading customers..." />;
-
-  if (isError) {
-    toast.error("Failed to load customers. Please try again later.");
-    // Continue to render UI with empty data
-  }
 
   return (
     <div className="min-h-screen bg-muted/40 p-4 sm:p-6 lg:p-8">

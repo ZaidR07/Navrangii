@@ -86,12 +86,6 @@ const ProductCard = ({ product, index, productId, productData }: { product: Prod
             <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
           </div>
         </div>
-        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center group-hover:shadow-lg mt-auto">
-          <span>View Product</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
     </motion.div>
   </Link>
@@ -109,9 +103,9 @@ const MobileProductCard = ({ product, index, productId, productData }: { product
       initial={{ opacity: 0, x: 50 }}
       whileInView={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="flex-shrink-0 w-72 bg-white rounded-2xl overflow-hidden shadow-xl cursor-pointer"
+      className="w-full bg-white rounded-2xl overflow-hidden shadow-xl cursor-pointer"
     >
-      <div className="relative h-80 overflow-hidden">
+      <div className="relative h-64 overflow-hidden">
         <img
           src={product.image}
           alt={product.name}
@@ -122,9 +116,9 @@ const MobileProductCard = ({ product, index, productId, productData }: { product
           {product.discount}
         </div>
       </div>
-      <div className="p-4">
-        <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2">{product.name}</h3>
-        <div className="flex items-center justify-between mb-2">
+      <div className="p-3">
+        <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-2">{product.name}</h3>
+        <div className="flex items-center justify-between mb-1">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
@@ -136,12 +130,6 @@ const MobileProductCard = ({ product, index, productId, productData }: { product
             <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
           </div>
         </div>
-        <button className="w-full mt-3 bg-purple-600 hover:bg-purple-700 text-white py-1.5 rounded-md text-sm font-semibold transition-colors flex items-center justify-center">
-          <span>View Product</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
     </motion.div>
   </Link>
@@ -185,17 +173,27 @@ export default function SaleSection({ products = [], loading = false, error = nu
           </div>
         )}
 
-        {/* Mobile Carousel */}
+        {/* Mobile Grid */}
         <div className="lg:hidden">
-          <div className="flex overflow-x-auto scrollbar-hide gap-4 pb-4">
-            {products.map((product, index) => (
-              <MobileProductCard 
-                key={index} 
-                product={transformProduct(product)} 
-                index={index} 
-                productId={product._id}
-                productData={product}
-              />
+          <div className="grid grid-cols-2 gap-4">
+            {products.slice(0, 8).map((product, index) => (
+              <div
+                key={index}
+                className={
+                  products.length === 1
+                    ? "col-span-2 flex justify-center"
+                    : undefined
+                }
+              >
+                <div className={products.length === 1 ? "w-full max-w-xs" : "w-full"}>
+                  <MobileProductCard
+                    product={transformProduct(product)}
+                    index={index}
+                    productId={product._id}
+                    productData={product}
+                  />
+                </div>
+              </div>
             ))}
           </div>
         </div>

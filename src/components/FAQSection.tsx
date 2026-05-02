@@ -85,8 +85,8 @@ export default function FAQSection() {
               <HelpCircle className="h-12 w-12 text-white" />
             </div>
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-6xl font-bold text-gray-900 mb-3 sm:mb-4">FAQs</h2>
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-gray-600 max-w-2xl mx-auto px-4">
             Find answers to common questions about Navrangii, our products, and policies
           </p>
         </motion.div>
@@ -105,7 +105,7 @@ export default function FAQSection() {
                 onClick={() => toggleFAQ(faq.id)}
                 className="w-full px-6 py-6 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 rounded-2xl"
               >
-                <span className="text-lg font-semibold text-gray-900 pr-4">
+                <span className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 pr-4">
                   {faq.question}
                 </span>
                 <div className="flex-shrink-0">

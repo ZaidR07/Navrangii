@@ -3,15 +3,31 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/cart/useCart';
+import { useClearCart } from '@/hooks/cart/useClearCart';
 import Cookies from 'js-cookie';
 import { motion } from 'framer-motion';
 import { CheckCircle, CreditCard, Smartphone, Building, DollarSign } from 'lucide-react';
+import { toast } from 'react-toastify';
+import RazorpayScript from '@/components/payment/RazorpayScript';
+
+// Razorpay types
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function PaymentPage() {
   const router = useRouter();
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<'processing' | 'success' | 'failed'>('processing');
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'processing' | 'success' | 'failed'>('idle');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('credit-card');
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [razorpayKey, setRazorpayKey] = useState<string>('');
+  
+  const { data: cartData } = useCart(userEmail || '');
+  const clearCart = useClearCart();
   
   // Check if user is logged in
   useEffect(() => {
@@ -23,12 +39,9 @@ export default function PaymentPage() {
     }
   }, [router]);
   
-  const { data: cartData } = useCart(userEmail || '');
-  
   // Calculate totals
   const cartItems = cartData?.cart || [];
   const subtotal = cartItems.reduce((total, item) => {
-    // Use the variant field directly
     const selectedVariant = item.variant;
     const sizeData = selectedVariant?.sizes?.find((s: any) => s.size === item.size) || selectedVariant?.sizes?.[0];
     const price = sizeData?.sellingPrice || 0;
@@ -38,17 +51,120 @@ export default function PaymentPage() {
   const shipping = subtotal > 999 ? 0 : 99;
   const total = subtotal + shipping;
   
-  // Simulate payment processing
-  useEffect(() => {
-    if (userEmail) {
-      const timer = setTimeout(() => {
-        // Simulate successful payment
-        setPaymentStatus('success');
-      }, 3000);
+  // Create Razorpay order
+  const createOrder = async () => {
+    try {
+      setPaymentStatus('processing');
       
-      return () => clearTimeout(timer);
+      const response = await fetch('/api/payment/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: total,
+          currency: 'INR',
+          receipt: `receipt_${Date.now()}`,
+          notes: {
+            email: userEmail,
+            items: cartItems.length,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.message || 'Failed to create order');
+      }
+
+      setOrderId(data.orderId);
+      setRazorpayKey(data.key || '');
+      return { orderId: data.orderId, key: data.key };
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast.error('Failed to initialize payment');
+      setPaymentStatus('failed');
+      return null;
     }
-  }, [userEmail]);
+  };
+
+  // Handle Razorpay payment
+  const handlePayment = async () => {
+    if (!window.Razorpay) {
+      toast.error('Payment system not loaded. Please try again.');
+      return;
+    }
+    
+    const orderData = await createOrder();
+    if (!orderData) return;
+
+    const { orderId: createdOrderId, key } = orderData;
+    
+    if (!key) {
+      toast.error('Payment configuration error. Please refresh the page.');
+      return;
+    }
+
+    const options = {
+      key: key,
+      amount: total * 100,
+      currency: 'INR',
+      name: 'Darshu Store',
+      description: 'Order Payment',
+      order_id: createdOrderId,
+      handler: async (response: any) => {
+        // Verify payment
+        try {
+          const verifyResponse = await fetch('/api/payment/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              orderDetails: {
+                userEmail,
+                cartItems,
+                subtotal,
+                shipping,
+                total,
+                paymentMethod: selectedPaymentMethod,
+              },
+            }),
+          });
+
+          const verifyData = await verifyResponse.json();
+
+          if (verifyData.success) {
+            // Clear cart after successful payment
+            await clearCart.mutateAsync({ email: userEmail || '' });
+            setPaymentStatus('success');
+            toast.success('Payment successful!');
+          } else {
+            setPaymentStatus('failed');
+            toast.error('Payment verification failed');
+          }
+        } catch (error) {
+          console.error('Error verifying payment:', error);
+          setPaymentStatus('failed');
+          toast.error('Payment verification failed');
+        }
+      },
+      prefill: {
+        email: userEmail || '',
+      },
+      theme: {
+        color: '#7C3AED',
+      },
+      modal: {
+        ondismiss: () => {
+          setPaymentStatus('idle');
+        },
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+    razorpay.open();
+  };
   
   const handleContinueShopping = () => {
     router.push('/');
@@ -76,6 +192,7 @@ export default function PaymentPage() {
   
   return (
     <div className="min-h-screen bg-gray-50 py-8">
+      <RazorpayScript onLoad={() => setRazorpayLoaded(true)} />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Payment</h1>
@@ -83,6 +200,36 @@ export default function PaymentPage() {
         </div>
         
         <div className="bg-white rounded-xl shadow-sm p-6 md:p-8">
+          {paymentStatus === 'idle' && (
+            <div className="text-center py-12">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 mb-6">
+                {getPaymentMethodIcon()}
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Ready to Pay</h2>
+              <p className="text-gray-600 mb-6">Click the button below to proceed with secure payment via Razorpay</p>
+              
+              <div className="max-w-md mx-auto bg-gray-50 rounded-lg p-6 mb-6">
+                <div className="flex items-center justify-center mb-4">
+                  <div className="p-3 rounded-full bg-white shadow-sm mr-4">
+                    {getPaymentMethodIcon()}
+                  </div>
+                  <div className="text-left">
+                    <p className="font-medium text-gray-900">{getPaymentMethodName()}</p>
+                    <p className="text-sm text-gray-600">Amount: ₹{total.toLocaleString()}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <button
+                onClick={handlePayment}
+                disabled={!razorpayLoaded || total <= 0}
+                className="px-8 py-4 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {razorpayLoaded ? 'Pay Now' : 'Loading Payment...'}
+              </button>
+            </div>
+          )}
+          
           {paymentStatus === 'processing' && (
             <div className="text-center py-12">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 mb-6">

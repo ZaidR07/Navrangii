@@ -16,7 +16,7 @@ interface ProductDetailProps {
 const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDetailProps) => {
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart();
+  const { addToCart, clearCart } = useCart();
 
   // Use selected variant or first variant as fallback
   const currentVariant = selectedVariant || product.variants?.[0];
@@ -53,8 +53,13 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
   return (
     <div className="lg:col-span-1 lg:pl-8">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <div className='flex justify-between items-start'>
-          <h1 className="text-3xl inline-block lg:text-2xl 2xl:text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
+        <div className="flex justify-between items-start gap-3 flex-wrap">
+          <div>
+            <h1 className="text-xl sm:text-3xl inline-block lg:text-2xl 2xl:text-3xl font-bold text-gray-900 mb-1">{product.name}</h1>
+            <p className="text-[11px] sm:text-xs text-gray-500">
+              {product.category}{product.subcategory ? ` • ${product.subcategory}` : ""}
+            </p>
+          </div>
           {/* Share Button */}
           <button
             onClick={() => {
@@ -70,10 +75,10 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
                 // You could add a toast notification here
               }
             }}
-            className="p-2 flex items-center bg-white border border-purple-500 rounded-lg hover:bg-purple-50 transition-colors duration-200"
+            className="p-2 sm:px-3 flex items-center bg-white border border-purple-500 rounded-lg hover:bg-purple-50 transition-colors duration-200 shrink-0 sm:ml-0 -ml-1"
             title="Share product"
           >
-            <p className='text-purple-600'>Share&nbsp;</p>
+            <p className="text-purple-600 hidden sm:inline">Share&nbsp;</p>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -134,36 +139,41 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
             </p>
           )}
         </div>
-        {availableSizes.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Size</h3>
-            <div className="flex gap-2">
-              {availableSizes.map((sizeOption: { size: string }) => (
-                <button
-                  key={sizeOption.size}
-                  onClick={() => setSelectedSize(sizeOption.size)}
-                  className={`px-4 py-2 border rounded-lg font-medium transition-colors ${selectedSize === sizeOption.size ? 'border-purple-600 bg-purple-50 text-purple-600' : 'border-gray-300 hover:border-gray-400'}`}
-                >
-                  {sizeOption.size}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-        {availableColors.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-3">Color</h3>
-            <div className="flex gap-2">
-              {availableColors.map((color: string) => (
-                <button
-                  key={color}
-                  onClick={() => handleColorSelect(color)}
-                  className={`w-8 h-8 rounded-full border-2 transition-all ${currentVariant?.color === color ? 'border-purple-600 scale-110' : 'border-gray-300 hover:border-gray-400'}`}
-                  style={{ backgroundColor: color.toLowerCase() }}
-                  aria-label={color}
-                />
-              ))}
-            </div>
+        {(availableSizes.length > 0 || availableColors.length > 0) && (
+          <div className="mb-6 flex flex-row gap-6 items-start">
+            {availableSizes.length > 0 && (
+              <div className="flex-1 min-w-[160px]">
+                <h3 className="text-lg font-semibold mb-3">Size</h3>
+                <div className="flex flex-wrap gap-2">
+                  {availableSizes.map((sizeOption: { size: string }) => (
+                    <button
+                      key={sizeOption.size}
+                      onClick={() => setSelectedSize(sizeOption.size)}
+                      className={`px-4 py-2 border rounded-lg font-medium transition-colors ${selectedSize === sizeOption.size ? 'border-purple-600 bg-purple-50 text-purple-600' : 'border-gray-300 hover:border-gray-400'}`}
+                    >
+                      {sizeOption.size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {availableColors.length > 0 && (
+              <div className="flex-1 min-w-[160px]">
+                <h3 className="text-lg font-semibold mb-3">Color</h3>
+                <div className="flex flex-wrap gap-2">
+                  {availableColors.map((color: string) => (
+                    <button
+                      key={color}
+                      onClick={() => handleColorSelect(color)}
+                      className={`w-8 h-8 rounded-full border-2 transition-all ${currentVariant?.color === color ? 'border-purple-600 scale-110' : 'border-gray-300 hover:border-gray-400'}`}
+                      style={{ backgroundColor: color.toLowerCase() }}
+                      aria-label={color}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
         <div className="mb-6">
@@ -174,9 +184,9 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
             <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 text-gray-800" onClick={() => setQuantity(q => q + 1)}><Plus className="h-4 w-4" /></button>
           </div>
         </div>
-        <div className="flex gap-4 mb-8">
+        <div className="flex gap-3 sm:gap-4 mb-8">
           <button
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold transition-colors flex items-center justify-center gap-2"
             onClick={() => {
               if (!selectedSize) {
                 toast.error('Please select a size');
@@ -198,10 +208,38 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
               });
             }}
           >
-            <ShoppingCart className="h-5 w-5" />
+            <ShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
             Add to Cart
           </button>
-          <button className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors">Buy Now</button>
+          <button
+            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 sm:py-3 px-3 sm:px-6 rounded-lg text-[13px] sm:text-base font-semibold transition-colors"
+            onClick={() => {
+              if (!selectedSize) {
+                toast.error('Please select a size');
+                return;
+              }
+              if (!currentVariant) {
+                toast.error('Please select a color variant');
+                return;
+              }
+              if (!product._id) {
+                toast.error('Product information is incomplete');
+                return;
+              }
+              // Store buy now item and go to checkout (don't add to cart)
+              const buyNowItem = {
+                productId: product._id,
+                variantId: currentVariant._id || '',
+                size: selectedSize,
+                quantity: quantity,
+                product: product,
+                variant: currentVariant,
+                price: currentPrice
+              };
+              localStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+              window.location.href = '/checkout?buyNow=true';
+            }}
+          >Buy Now</button>
         </div>
         <div className="flex flex-row flex-wrap lg:flex-nowrap mb-8">
           <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><Truck className="h-5 w-5 text-green-600" /><div><p className="font-medium text-sm">Free Shipping</p><p className="text-xs text-gray-600">On orders above ₹999</p></div></div>

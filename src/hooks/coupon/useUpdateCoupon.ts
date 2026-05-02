@@ -1,6 +1,6 @@
 import { Coupon, CouponFormData } from "@/lib/types/couponType";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 
 async function updateCoupon({
   id,
@@ -9,8 +9,8 @@ async function updateCoupon({
   id: string;
   data: Partial<CouponFormData>;
 }): Promise<Coupon> {
-  const response = await axios.put(
-    `api/coupon/${id}`,
+  const response = await apiClient.put(
+    `coupon/${id}`,
     data,
     { withCredentials: true }
   );

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Product } from '@/lib/types/productType';
-import axios from 'axios';
+import apiClient from '@/lib/axios';
 
 // API service function
 async function updateProduct(product: Product): Promise<Product> {
@@ -8,19 +8,19 @@ async function updateProduct(product: Product): Promise<Product> {
     throw new Error('Product ID is required for update');
   }
 
-  const response = await axios.put(
-    `api/product/update`,
+  const response = await apiClient.put(
+    `product/update`,
     product,
     {
       withCredentials: true,
     }
   );
 
-  if (!response || !response.data || !response.data.data) {
-    throw new Error(`Failed to update product`);
+  if (!response || !response.data || !response.data.updatedProduct) {
+    throw new Error(response?.data?.message || 'Failed to update product');
   }
 
-  return response.data.data;
+  return response.data.updatedProduct;
 }
 
 export function useUpdateProduct() {

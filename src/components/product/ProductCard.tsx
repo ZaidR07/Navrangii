@@ -14,6 +14,14 @@ interface ProductCardProps {
   linkHref?: string;
 }
 
+const getStableReviewsCount = (seed: string) => {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return 50 + (hash % 100);
+};
+
 export default function ProductCard({ 
   product, 
   index = 0,
@@ -32,7 +40,7 @@ export default function ProductCard({
   
   // For rating, we'll use a default value since it's not in our product data
   const rating = 4.5;
-  const reviews = Math.floor(Math.random() * 100) + 50;
+  const reviews = getStableReviewsCount(product._id || product.name);
   
   // State for undo functionality
   const [showUndo, setShowUndo] = useState(false);
@@ -71,7 +79,7 @@ export default function ProductCard({
       whileHover={{ scale: 1.05 }}
       className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col"
     >
-      <div className="relative h-96 overflow-hidden">
+      <div className="relative h-80 overflow-hidden">
         <img
           src={product?.image || firstVariant?.thumbnail || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
           alt={product?.name || 'Product'}
@@ -116,10 +124,10 @@ export default function ProductCard({
         )}
       </div>
       
-      <div className="p-5 flex-grow flex flex-col">
-        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">{product?.name || 'Product'}</h3>
+      <div className="p-4 flex-grow flex flex-col">
+        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{product?.name || 'Product'}</h3>
         
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col gap-3">
           <div className="flex items-center">
             {[...Array(5)].map((_, i) => (
               <Star 
@@ -127,7 +135,7 @@ export default function ProductCard({
                 className={`h-4 w-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
               />
             ))}
-            <span className="text-sm text-gray-600 ml-2">({reviews})</span>
+            <span className="text-sm text-gray-600 ml-2">({reviews} reviews)</span>
           </div>
           <div className="flex items-baseline">
             <span className="text-xl font-bold text-purple-600 mr-2">₹{price.toLocaleString()}</span>
@@ -136,13 +144,6 @@ export default function ProductCard({
             )}
           </div>
         </div>
-        
-        <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center group-hover:shadow-lg mt-auto">
-          <span className="mr-2">View Product</span>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
       </div>
     </motion.div>
   );

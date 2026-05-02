@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { Product } from '@/lib/types/productType';
-import axios, { AxiosError } from 'axios';
+import apiClient from '@/lib/axios';
+import { AxiosError } from 'axios';
 
 // API service function for fetching all products
 export async function fetchAllProducts(): Promise<Product[]> {
   try {
-    const response = await axios.get('/api/product/all', {
+    const response = await apiClient.get('product/all', {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
@@ -37,7 +38,7 @@ export async function fetchSimilarProducts(category?: string, subcategory?: stri
     if (subcategory) params.append('subcategory', subcategory);
     if (excludeId) params.append('excludeId', excludeId);
     
-    const response = await axios.get(`/api/product/similar?${params.toString()}`, {
+    const response = await apiClient.get(`product/similar?${params.toString()}`, {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +65,7 @@ export async function fetchProductById(id: string): Promise<Product> {
   }
 
   try {
-    const response = await axios.get(`/api/product/${id}`, {
+    const response = await apiClient.get(`product/${id}`, {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json',

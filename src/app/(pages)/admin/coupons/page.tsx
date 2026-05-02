@@ -281,9 +281,21 @@ export default function CouponsPage() {
                       <div className="text-sm">
                         <div className="flex items-center gap-1 text-purple-800">
                           <Calendar className="h-3 w-3" />
-                          {new Date(coupon.startDate).toLocaleDateString()}
+                          {(() => {
+                            const date = new Date(coupon.startDate);
+                            const day = date.getDate().toString().padStart(2, '0');
+                            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                            const year = date.getFullYear();
+                            return `${day}/${month}/${year}`;
+                          })()}
                         </div>
-                        <div className="text-purple-600">to {new Date(coupon.endDate).toLocaleDateString()}</div>
+                        <div className="text-purple-600">to {(() => {
+                          const date = new Date(coupon.endDate);
+                          const day = date.getDate().toString().padStart(2, '0');
+                          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                          const year = date.getFullYear();
+                          return `${day}/${month}/${year}`;
+                        })()}</div>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -306,7 +318,7 @@ export default function CouponsPage() {
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                         
-                          <DropdownMenuItem onClick={() => router.push(`/coupons/form?id=${coupon._id}`)}>
+                          <DropdownMenuItem onClick={() => router.push(`/admin/coupons/form?id=${coupon._id?.toString()}`)}>
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>

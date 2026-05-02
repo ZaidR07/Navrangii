@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 export async function GET(
   req: NextRequest,
@@ -20,7 +21,7 @@ export async function GET(
     // Get user's wishlist
     const wishlist = await db.collection("wishlists").findOne({ userId: email });
 
-    if (!wishlist) {
+    if (!wishlist || !wishlist.products || wishlist.products.length === 0) {
       return NextResponse.json(
         {
           success: true,
@@ -30,10 +31,61 @@ export async function GET(
       );
     }
 
+    // Populate product data for each wishlist item
+    const populatedItems = await Promise.all(
+      wishlist.products.map(async (productId: string) => {
+        let productObjectId;
+        try {
+          productObjectId = new ObjectId(productId);
+        } catch {
+          productObjectId = productId;
+        }
+
+        // Use aggregation with $lookup to populate variants from productVariants collection
+        const products = await db.collection("products").aggregate([
+          { $match: { _id: productObjectId } },
+          {
+            $lookup: {
+              from: "productVariants",
+              localField: "variants",
+              foreignField: "_id",
+              as: "variants",
+            },
+          },
+          {
+            $addFields: {
+              variants: { $ifNull: ["$variants", []] },
+            },
+          },
+        ]).toArray();
+
+        const product = products[0];
+
+        if (!product) {
+          return { productId, product: null };
+        }
+
+        // Convert ObjectId to string for frontend
+        const productData = {
+          ...product,
+          _id: product._id.toString(),
+          variants: (product.variants || []).map((v: any) => ({
+            ...v,
+            _id: v._id?.toString?.() || v._id,
+          })),
+        };
+
+        return {
+          productId,
+          product: productData,
+        };
+      })
+    );
+
     return NextResponse.json(
       {
         success: true,
-        wishlist: wishlist.products || [],
+        wishlist: populatedItems,
       },
       { status: 200 }
     );

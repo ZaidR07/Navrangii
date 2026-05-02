@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 import { Variables } from "@/lib/types/variablesType";
 
 export function useGetVariable() {
@@ -7,7 +7,7 @@ export function useGetVariable() {
     queryKey: ["variables"],
     queryFn: async () => {
 
-      const res = await axios.get('/api/variables/listofvariables', {
+      const res = await apiClient.get('variables/listofvariables', {
         withCredentials: true,
       });
 

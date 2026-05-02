@@ -51,8 +51,9 @@
     --primary-foreground: 0 0% 100%;
   }
 }
-html {
+html, body {
  font-family: "Roboto Slab", serif;
+ overflow-x: hidden;
 }
 
 

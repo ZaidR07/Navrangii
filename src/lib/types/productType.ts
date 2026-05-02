@@ -18,12 +18,14 @@ export interface Product {
   _id?:               string;
   name:              string;
   description:       string;
+  section:           string;
   category:          string;
   subcategory:       string;
   fabric:            string;
   occasion:          string;
   patternAndPrint:   string;
   style:             string; 
+  productType?:       "regular" | "onSale" | "bestSeller";
   options?:          string; 
   variants?:         ProductVariantType[];
   image?:            string;

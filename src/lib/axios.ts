@@ -41,9 +41,9 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
+      // Clear stale user data but don't auto-redirect
+      // Let each page/layout handle its own redirect logic
       localStorage.removeItem('user');
-      window.location.href = '/login';
     }
     return Promise.reject(error);
   }

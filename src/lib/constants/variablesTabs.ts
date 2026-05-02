@@ -1,14 +1,9 @@
 import { variablesFormValues } from "@/validationSchema/variablesSchema";
-import { Calendar, Package, Palette, Ruler, Shirt, Tag, Wrench } from "lucide-react";
+import { Calendar, Layers, Package, Palette, Ruler, Shirt, Wrench } from "lucide-react";
 
 export const fieldConfig = [
-  { key: "catergory" as keyof variablesFormValues, label: "Category", icon: Package, description: "Main product categories" },
-  {
-    key: "subCatergory" as keyof variablesFormValues,
-    label: "Sub Category",
-    icon: Tag,
-    description: "Subcategories and variants",
-  },
+  { key: "section" as keyof variablesFormValues, label: "Section", icon: Layers, description: "Product sections (e.g. Men, Women, Couple)" },
+  { key: "catergory" as keyof variablesFormValues, label: "Category", icon: Package, description: "Main product categories with subcategories" },
   { key: "color" as keyof variablesFormValues, label: "Colors", icon: Palette, description: "Available color options" },
   { key: "occassion" as keyof variablesFormValues, label: "Occasions", icon: Calendar, description: "Events and occasions" },
   {

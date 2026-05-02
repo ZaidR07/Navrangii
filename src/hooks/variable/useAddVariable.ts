@@ -1,10 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import apiClient from "@/lib/axios";
 import { Variables } from "@/lib/types/variablesType";
 
 async function updateVariables(variables: Variables): Promise<Variables> {
-  const response = await axios.put(
-    `api/variables/update`,
+  const response = await apiClient.put(
+    `variables/update`,
     variables,
     {
       withCredentials: true,

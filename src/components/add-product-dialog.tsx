@@ -64,12 +64,14 @@ export default function ProductDialog({
         : {
             name: "",
             description: "",
+            section: "",
             category: "Men",
             subcategory: "T-Shirt",
             fabric: "Cotton",
             occasion: "Casual",
             patternAndPrint: "Solid",
             style: "A-Line",
+            productType: "regular",
             variants: [EMPTY_VARIANT],
           },
   });
@@ -112,14 +114,19 @@ export default function ProductDialog({
       console.log("Variable data:", variable);
       
 
+  const sectionOptions = variable?.section ?? [];
   const categoryOptions = variable?.catergory ?? [];
-  const subCategoryOptions = variable?.subCatergory ?? [];
+  const subCatergoryMap = variable?.subCatergory ?? {};
   const fabricOptions = variable?.fabric ?? [];
   const occasionOptions = variable?.occassion ?? [];
   const patternOptions = variable?.patternAndPrint ?? [];
   const styleOptions = variable?.style ?? [];
   const colorOptions = variable?.color ?? [];
   const option = variable?.option ?? [];
+
+  // Get subcategory options based on selected category
+  const selectedCategory = form.watch("category");
+  const subCategoryOptions = (selectedCategory && subCatergoryMap[selectedCategory]) || [];
 
   if (isLoadingVariable)
     return <div className="p-6">Loading product configuration...</div>;
@@ -218,6 +225,7 @@ export default function ProductDialog({
 
             <ProductBasics
               control={control}
+              sectionOptions={sectionOptions}
               categoryOptions={categoryOptions}
               subCategoryOptions={subCategoryOptions}
               fabricOptions={fabricOptions}
