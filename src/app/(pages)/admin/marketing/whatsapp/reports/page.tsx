@@ -67,13 +67,13 @@ export default function WhatsAppReportsPage() {
     switch (status) {
       case "sent":
       case "delivered":
-        return <Badge className="bg-green-100 text-green-700"><CheckCircle className="h-3 w-3 mr-1" /> {status}</Badge>
+        return <Badge className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200"><CheckCircle className="h-3 w-3 mr-1" /> {status}</Badge>
       case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-700"><Clock className="h-3 w-3 mr-1" /> Pending</Badge>
+        return <Badge className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-200"><Clock className="h-3 w-3 mr-1" /> Pending</Badge>
       case "failed":
-        return <Badge className="bg-red-100 text-red-700"><XCircle className="h-3 w-3 mr-1" /> Failed</Badge>
+        return <Badge className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200"><XCircle className="h-3 w-3 mr-1" /> Failed</Badge>
       default:
-        return <Badge className="bg-gray-100 text-gray-700">{status}</Badge>
+        return <Badge className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300">{status}</Badge>
     }
   }
 

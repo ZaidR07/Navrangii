@@ -25,7 +25,7 @@ export interface Product {
   occasion:          string;
   patternAndPrint:   string;
   style:             string; 
-  productType?:       "regular" | "onSale" | "bestSeller";
+  productType?:       "regular" | "onSale" | "bestSeller" | "newArrival";
   options?:          string; 
   variants?:         ProductVariantType[];
   image?:            string;

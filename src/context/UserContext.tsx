@@ -83,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     Cookies.remove('userEmail');
   };
   
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!user || !!Cookies.get('userEmail');
   
   return (
     <AuthContext.Provider 

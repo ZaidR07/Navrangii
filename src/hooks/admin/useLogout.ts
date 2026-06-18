@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/axios';
 import { AxiosError } from 'axios';
 import { useRouter } from 'next/navigation';
@@ -18,13 +18,15 @@ const logout = async (): Promise<string> => {
 
 export function useLogout() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation<string, AxiosError<{ message: string }>, void>({
     mutationFn: logout,
     onSuccess: () => {
       // optional: clear accessToken if stored in localStorage
       localStorage.removeItem("accessToken");
-      router.push("/");
+      queryClient.removeQueries({ queryKey: ["currentAdmin"] });
+      router.push("/admin");
     },
   });
 }

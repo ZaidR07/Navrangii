@@ -34,7 +34,7 @@ export const productSchema = z.object({
   occasion: z.string().min(1, { message: "Occasion is required" }),
   patternAndPrint: z.string().min(1, { message: "Pattern is required" }),
   style: z.string().min(1, { message: "Style is required" }),
-  productType: z.enum(["regular", "onSale", "bestSeller"], {
+  productType: z.enum(["regular", "onSale", "bestSeller", "newArrival"], {
     required_error: "Product type is required",
   }),
   option: z.string().min(1, { message: "Style is required" }),

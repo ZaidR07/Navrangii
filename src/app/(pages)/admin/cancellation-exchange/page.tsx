@@ -29,6 +29,7 @@ interface OrderRequest {
   updatedAt: string;
   order?: any;
   refundAmount?: number;
+  originalOrderStatus?: string;
 }
 
 const statusSteps: { value: RequestStatus; label: string; icon: any }[] = [
@@ -88,12 +89,12 @@ export default function CancellationExchangePage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-purple-100 rounded-lg">
+          <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
             <RefreshCw className="h-6 w-6 text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Cancellation & Exchange</h1>
-            <p className="text-sm text-gray-600">Review cancellation and return/exchange requests</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Cancellation & Exchange</h1>
+            <p className="text-sm text-gray-600 dark:text-slate-400">Review cancellation and return/exchange requests</p>
           </div>
         </div>
         <button
@@ -105,11 +106,11 @@ export default function CancellationExchangePage() {
       </div>
 
       <div className="flex items-center gap-2 mb-4">
-        <label className="text-sm text-gray-600">Filter:</label>
+        <label className="text-sm text-gray-600 dark:text-slate-400">Filter:</label>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as any)}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+          className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg text-sm"
         >
           <option value="all">All</option>
           {statusSteps.map((s) => (
@@ -127,26 +128,26 @@ export default function CancellationExchangePage() {
       ) : (
         <div className="space-y-4">
           {filtered.length === 0 ? (
-            <div className="bg-white border rounded-lg p-10 text-center text-gray-500">No requests</div>
+            <div className="bg-white dark:bg-slate-800 border rounded-lg p-10 text-center text-gray-500 dark:text-slate-400">No requests</div>
           ) : (
             filtered.map((req) => (
-              <div key={req._id} className="bg-white border rounded-lg p-4">
+              <div key={req._id} className="bg-white dark:bg-slate-800 border rounded-lg p-4">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-gray-900">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
                         {req.type === "cancellation" ? "Cancellation" : "Return / Exchange"}
                       </span>
-                      <span className="text-xs text-gray-500">•</span>
-                      <span className="text-xs text-gray-500">{new Date(req.createdAt).toLocaleString()}</span>
+                      <span className="text-xs text-gray-500 dark:text-slate-400">•</span>
+                      <span className="text-xs text-gray-500 dark:text-slate-400">{new Date(req.createdAt).toLocaleString()}</span>
                     </div>
-                    <div className="mt-1 text-sm text-gray-700">
+                    <div className="mt-1 text-sm text-gray-700 dark:text-slate-300">
                       <span className="font-medium">Order:</span> {req.orderNumber || req.orderId}
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 dark:text-slate-300">
                       <span className="font-medium">Customer:</span> {req.customerName || "N/A"} ({req.userEmail || "N/A"})
                     </div>
-                    <div className="mt-2 text-sm text-gray-700">
+                    <div className="mt-2 text-sm text-gray-700 dark:text-slate-300">
                       <span className="font-medium">Reason:</span> {req.reason}
                     </div>
 
@@ -171,11 +172,11 @@ export default function CancellationExchangePage() {
                   </div>
 
                   <div className="flex flex-col gap-2 w-full md:w-64">
-                    <div className="text-xs text-gray-500">Status</div>
+                    <div className="text-xs text-gray-500 dark:text-slate-400">Status</div>
                     <select
                       value={req.status}
                       onChange={(e) => updateStatus(req._id, e.target.value as RequestStatus)}
-                      className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                      className="px-3 py-2 border border-gray-200 dark:border-slate-700 rounded-lg text-sm"
                     >
                       {statusSteps.map((s) => (
                         <option key={s.value} value={s.value}>
@@ -184,8 +185,16 @@ export default function CancellationExchangePage() {
                       ))}
                     </select>
                     {typeof req.refundAmount === "number" && (
-                      <div className="text-xs text-gray-600">
-                        Refund amount: <span className="font-semibold">₹{req.refundAmount.toLocaleString()}</span>
+                      <div className="text-xs text-gray-600 dark:text-slate-400 space-y-1">
+                        <div>
+                          Order status at request: <span className="font-semibold capitalize">{req.originalOrderStatus || "N/A"}</span>
+                        </div>
+                        <div>
+                          Refund amount: <span className="font-semibold">₹{req.refundAmount.toLocaleString()}</span>
+                          {req.type === "cancellation" && ["shipped", "delivered"].includes(req.originalOrderStatus || "") && (
+                            <span className="text-amber-600 dark:text-amber-400 ml-1">(₹200 deducted)</span>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>

@@ -6,6 +6,7 @@ import { Star, Minus, Plus, Truck, RotateCcw, Shield, ShoppingCart } from 'lucid
 import { Product, ProductVariantType } from '@/lib/types/productType';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'react-toastify';
+import { useCurrentAdmin } from '@/hooks/admin/useCurrentAdmin';
 
 interface ProductDetailProps {
   product: Product;
@@ -17,6 +18,8 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const { addToCart, clearCart } = useCart();
+  const { data: currentAdmin } = useCurrentAdmin();
+  const isAdminUser = currentAdmin?.isAdmin === true;
 
   // Use selected variant or first variant as fallback
   const currentVariant = selectedVariant || product.variants?.[0];
@@ -186,8 +189,13 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
         </div>
         <div className="flex gap-3 sm:gap-4 mb-8">
           <button
-            className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold transition-colors flex items-center justify-center gap-2"
+            className={`flex-1 py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base font-semibold transition-colors flex items-center justify-center gap-2 ${isAdminUser ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700 text-white'}`}
+            disabled={isAdminUser}
             onClick={() => {
+              if (isAdminUser) {
+                toast.error('Admin accounts cannot purchase products.');
+                return;
+              }
               if (!selectedSize) {
                 toast.error('Please select a size');
                 return;
@@ -212,8 +220,13 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
             Add to Cart
           </button>
           <button
-            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 sm:py-3 px-3 sm:px-6 rounded-lg text-[13px] sm:text-base font-semibold transition-colors"
+            className={`flex-1 py-2 sm:py-3 px-3 sm:px-6 rounded-lg text-[13px] sm:text-base font-semibold transition-colors ${isAdminUser ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}
+            disabled={isAdminUser}
             onClick={() => {
+              if (isAdminUser) {
+                toast.error('Admin accounts cannot purchase products.');
+                return;
+              }
               if (!selectedSize) {
                 toast.error('Please select a size');
                 return;
@@ -241,6 +254,11 @@ const ProductInfo = ({ product, selectedVariant, setSelectedVariant }: ProductDe
             }}
           >Buy Now</button>
         </div>
+        {isAdminUser && (
+          <p className="-mt-4 mb-6 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+            Admin accounts can browse products, but purchasing is disabled.
+          </p>
+        )}
         <div className="flex flex-row flex-wrap lg:flex-nowrap mb-8">
           <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><Truck className="h-5 w-5 text-green-600" /><div><p className="font-medium text-sm">Free Shipping</p><p className="text-xs text-gray-600">On orders above ₹999</p></div></div>
           <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg flex-1 min-w-[150px]"><RotateCcw className="h-5 w-5 text-blue-600" /><div><p className="font-medium text-sm">Easy Returns</p><p className="text-xs text-gray-600">15 days return policy</p></div></div>

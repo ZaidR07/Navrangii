@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
     const product = await req.json();
 
     const requiredFields = [
+      "section",
       "category",
       "name",
       "description",

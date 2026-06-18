@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import { Product as ProductType } from "@/lib/types/productType";
 import Link from "next/link";
+import { useGetProductReviewsAggregate } from "@/hooks/product/useGetProductReviewsAggregate";
 
 interface Product {
   name: string;
@@ -12,6 +13,7 @@ interface Product {
   discount: string;
   image: string;
   rating: number;
+  reviewCount: number;
 }
 
 // Helper function to transform ProductType to SaleSection Product
@@ -31,8 +33,9 @@ const transformProduct = (product: ProductType): Product => {
     price: firstSize?.sellingPrice ? `₹${firstSize.sellingPrice.toLocaleString()}` : "₹0",
     originalPrice: firstSize?.marketPrice ? `₹${firstSize.marketPrice.toLocaleString()}` : "₹0",
     discount: discount > 0 ? `${discount}% OFF` : "",
-    image: firstVariant?.thumbnail || firstVariant?.gallery?.[0] || product.image || "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=300&h=400&fit=crop&crop=center",
-    rating: 4.5 // Placeholder rating
+    image: firstVariant?.thumbnail || firstVariant?.gallery?.[0] || product.image || "/placeholder.svg",
+    rating: 0,
+    reviewCount: 0,
   };
 };
 
@@ -79,7 +82,7 @@ const ProductCard = ({ product, index, productId, productData }: { product: Prod
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
             ))}
-            <span className="text-sm text-gray-600 ml-2">({product.rating})</span>
+            <span className="text-sm text-gray-600 ml-2">{product.reviewCount > 0 ? `(${product.reviewCount})` : ""}</span>
           </div>
           <div className="flex items-baseline">
             <span className="text-xl font-bold text-purple-600 mr-2">{product.price}</span>
@@ -123,7 +126,7 @@ const MobileProductCard = ({ product, index, productId, productData }: { product
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
             ))}
-            <span className="text-xs text-gray-600 ml-1">({product.rating})</span>
+            <span className="text-xs text-gray-600 ml-1">{product.reviewCount > 0 ? `(${product.reviewCount})` : ""}</span>
           </div>
           <div className="flex items-baseline">
             <span className="text-lg font-bold text-purple-600 mr-1">{product.price}</span>
@@ -142,6 +145,27 @@ interface SaleSectionProps {
 }
 
 export default function SaleSection({ products = [], loading = false, error = null }: SaleSectionProps) {
+  const productIds = products.map((p) => p._id).filter(Boolean) as string[];
+  const { data: reviewsData } = useGetProductReviewsAggregate(productIds);
+
+  const getProductRating = (productId?: string) => {
+    if (!productId || !reviewsData?.[productId]) return { rating: 0, reviewCount: 0 };
+    return {
+      rating: reviewsData[productId].avgRating,
+      reviewCount: reviewsData[productId].reviewCount,
+    };
+  };
+
+  const transformProductWithReviews = (product: ProductType) => {
+    const base = transformProduct(product);
+    const real = getProductRating(product._id);
+    return {
+      ...base,
+      rating: real.rating,
+      reviewCount: real.reviewCount,
+    };
+  };
+
   return (
     <section className="py-16 bg-gradient-to-r from-purple-100 to-violet-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -187,7 +211,7 @@ export default function SaleSection({ products = [], loading = false, error = nu
               >
                 <div className={products.length === 1 ? "w-full max-w-xs" : "w-full"}>
                   <MobileProductCard
-                    product={transformProduct(product)}
+                    product={transformProductWithReviews(product)}
                     index={index}
                     productId={product._id}
                     productData={product}
@@ -204,7 +228,7 @@ export default function SaleSection({ products = [], loading = false, error = nu
             {products.slice(0, 8).map((product, index) => (
               <ProductCard 
                 key={index} 
-                product={transformProduct(product)} 
+                product={transformProductWithReviews(product)} 
                 index={index} 
                 productId={product._id} 
                 productData={product}

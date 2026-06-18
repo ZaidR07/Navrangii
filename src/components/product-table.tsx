@@ -223,7 +223,7 @@ export function ProductTable({
                           trigger={
                             <Button className="w-full sm:w-auto">
                               <Edit3 className="mr-2 h-4 w-4" />
-                              <span className="hidden sm:inline text-black">Edit Product</span>
+                              <span className="hidden sm:inline text-black dark:text-white">Edit Product</span>
                             </Button>
                           }
                           initialProduct={product}

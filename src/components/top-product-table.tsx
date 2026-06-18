@@ -4,8 +4,6 @@ import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ProductCarouselProps } from "@/lib/types/reactComponentsProps";
 import { Package, TrendingUp, DollarSign } from "lucide-react";
-import { Badge } from "./ui/badge";
-
 export function TopProductTable({ products }: ProductCarouselProps) {
   return (
       <div className="w-full bg-white dark:bg-slate-800 p-6">
@@ -39,15 +37,11 @@ export function TopProductTable({ products }: ProductCarouselProps) {
                     </div>
                     <div className="flex flex-col">
                       <span>{product.name}</span>
-                      <Badge variant="secondary" className="mt-1 w-fit text-xs">Featured</Badge>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="text-right text-purple-700 dark:text-purple-400">
-                  {product.totalSell.toLocaleString("en-IN", {
-                    style: "currency",
-                    currency: "INR",
-                  })}
+                  {product.totalSell.toLocaleString("en-IN")}
                 </TableCell>
                 <TableCell className="text-right text-green-700 dark:text-green-400">
                   {product.totalAmount.toLocaleString("en-IN", {

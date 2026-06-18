@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { useGetAllProducts } from '@/hooks/product/useGetProduct';
 import { Product as ProductType } from '@/lib/types/productType';
 import Link from "next/link";
+import { useGetProductReviewsAggregate } from "@/hooks/product/useGetProductReviewsAggregate";
 
 interface CoupleProduct {
   id: string;
@@ -17,14 +18,6 @@ interface CoupleProduct {
   reviews: number;
   category: "casual" | "formal" | "ethnic" | "western";
 }
-
-const getStableReviewsCount = (seed: string) => {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-  return 50 + (hash % 100);
-};
 
 // Helper function to transform ProductType to CoupleProduct
 const transformProduct = (product: ProductType): CoupleProduct => {
@@ -44,10 +37,10 @@ const transformProduct = (product: ProductType): CoupleProduct => {
     price: firstSize?.sellingPrice ? `₹${firstSize.sellingPrice.toLocaleString()}` : "₹0",
     originalPrice: firstSize?.marketPrice ? `₹${firstSize.marketPrice.toLocaleString()}` : "₹0",
     discount: discount > 0 ? `${discount}% OFF` : "",
-    image: firstVariant?.thumbnail || firstVariant?.gallery?.[0] || product.image || "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?w=400&h=500&fit=crop&crop=center",
-    rating: 4.5, // Placeholder rating
-    reviews: getStableReviewsCount(product._id || product.name),
-    category: "casual" // Placeholder category
+    image: firstVariant?.thumbnail || firstVariant?.gallery?.[0] || product.image || "/placeholder.svg",
+    rating: 0,
+    reviews: 0,
+    category: "casual" as const,
   };
 };
 
@@ -78,7 +71,7 @@ const ProductCard = ({ product, index }: { product: CoupleProduct; index: number
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
             ))}
-            <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
+            <span className="text-sm text-gray-600 ml-2">{product.reviews > 0 ? `(${product.reviews})` : ""}</span>
           </div>
           <div className="flex items-baseline">
             <span className="text-xl font-bold text-purple-600 mr-2">{product.price}</span>
@@ -116,7 +109,7 @@ const MobileProductCard = ({ product, index }: { product: CoupleProduct; index: 
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
             ))}
-            <span className="text-xs text-gray-600 ml-1">({product.reviews})</span>
+            <span className="text-xs text-gray-600 ml-1">{product.reviews > 0 ? `(${product.reviews})` : ""}</span>
           </div>
           <div className="flex items-baseline">
             <span className="text-lg font-bold text-purple-600 mr-1">{product.price}</span>
@@ -130,18 +123,29 @@ const MobileProductCard = ({ product, index }: { product: CoupleProduct; index: 
 
 export default function HimHerSection() {
   const { data: products = [], isLoading, error } = useGetAllProducts();
-  
-  let hairProducts = products
-    .filter((product) => {
-      const category = product.category?.toUpperCase() || "";
-      const subcategory = product.subcategory?.toUpperCase() || "";
-      return category.includes("HAIR") || subcategory.includes("HAIR");
-    })
-    .map(transformProduct);
 
-  if (hairProducts.length === 0 && products.length > 0) {
-    hairProducts = products.slice(0, 8).map(transformProduct);
+  let hairProductsRaw = products.filter((product) => {
+    const category = product.category?.toUpperCase() || "";
+    const subcategory = product.subcategory?.toUpperCase() || "";
+    return category.includes("HAIR") || subcategory.includes("HAIR");
+  });
+
+  if (hairProductsRaw.length === 0 && products.length > 0) {
+    hairProductsRaw = products.slice(0, 8);
   }
+
+  const productIds = hairProductsRaw.map((p) => p._id).filter(Boolean) as string[];
+  const { data: reviewsData } = useGetProductReviewsAggregate(productIds);
+
+  let hairProducts = hairProductsRaw.map(transformProduct).map((p) => {
+    const real = reviewsData?.[p.id];
+    return {
+      ...p,
+      rating: real?.avgRating || 0,
+      reviews: real?.reviewCount || 0,
+    };
+  });
+
   
   if (isLoading) {
     return (

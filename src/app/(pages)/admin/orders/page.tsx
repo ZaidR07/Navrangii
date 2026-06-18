@@ -14,7 +14,6 @@ import KPICard from "@/components/kpl-card"
 
 import { useGetOrders } from "@/hooks/order/useGetOrders"
 import OrdersListTab from "@/components/orders-list"
-import DistributorAssignment from "@/components/delivery-partner-assignment"
 
 
 
@@ -70,8 +69,6 @@ export default function OrdersPage() {
           verified: true,
         },
         paymentMethod: order.paymentMethod || "Razorpay",
-        assignedDeliveryPartner: order.assignedDeliveryPartner,
-        assignedDate: order.assignedDate,
         orderDate: order.orderDate || order.createdAt,
         createdAt: order.createdAt,
       }))
@@ -140,18 +137,12 @@ export default function OrdersPage() {
 
       {/* Tabs */}
       <Tabs defaultValue="orders" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-purple-100 to-violet-100">
+        <TabsList className="grid w-full grid-cols-1 bg-gradient-to-r from-purple-100 to-violet-100 dark:from-purple-900/30 dark:to-violet-900/30">
           <TabsTrigger
             value="orders"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
           >
             Orders Overview
-          </TabsTrigger>
-          <TabsTrigger
-            value="assignment"
-            className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white"
-          >
-            Distributor Assignment
           </TabsTrigger>
         </TabsList>
 
@@ -165,8 +156,6 @@ export default function OrdersPage() {
         )}
       
 
-        {/* Distributor Assignment Tab */}
-       <DistributorAssignment orders={orders} getStatusColor={getStatusColor} setOrders={setOrders}/>
       </Tabs>
     </div>
   )

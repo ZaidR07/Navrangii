@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, CreditCard, Smartphone, Building, DollarSign } from 'lucide-react';
 import { toast } from 'react-toastify';
 import RazorpayScript from '@/components/payment/RazorpayScript';
+import { useCurrentAdmin } from '@/hooks/admin/useCurrentAdmin';
 
 // Razorpay types
 declare global {
@@ -25,9 +26,18 @@ export default function PaymentPage() {
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [razorpayKey, setRazorpayKey] = useState<string>('');
+  const { data: currentAdmin } = useCurrentAdmin();
   
   const { data: cartData } = useCart(userEmail || '');
   const clearCart = useClearCart();
+  const isAdminUser = currentAdmin?.isAdmin === true;
+
+  useEffect(() => {
+    if (isAdminUser) {
+      toast.error('Admin accounts cannot purchase products.');
+      router.replace('/admin/dashboard');
+    }
+  }, [isAdminUser, router]);
   
   // Check if user is logged in
   useEffect(() => {
@@ -48,8 +58,19 @@ export default function PaymentPage() {
     return total + (price * item.quantity);
   }, 0);
   
-  const shipping = subtotal > 999 ? 0 : 99;
+  const shipping = 0;
   const total = subtotal + shipping;
+
+  if (isAdminUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting admin account...</p>
+        </div>
+      </div>
+    );
+  }
   
   // Create Razorpay order
   const createOrder = async () => {

@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Package, Heart, User, MapPin, Phone, Mail, Edit3, CheckCircle, Truck, Clock, AlertCircle, ShoppingCart, X, CreditCard, Home, FileText, ChevronRight, HelpCircle } from "lucide-react";
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
@@ -583,7 +583,7 @@ const OrdersContent = () => {
                   </button>
                 </div>
                 <div className="flex flex-col gap-2">
-                  {['pending', 'confirmed'].includes(order.paymentStatus === 'paid' || order.paymentStatus === 'success' ? 'confirmed' : (order.status || 'pending')) && (
+                  {['pending', 'confirmed'].includes(order.paymentStatus === 'paid' || order.paymentStatus === 'success' ? 'confirmed' : (order.status || 'pending')) && order.status !== 'cancelled' && order.orderStatusUpdate?.status !== 'cancelled' && (
                     <button 
                       onClick={() => handleCancelClick(order)}
                       className="text-xs text-red-500 hover:text-red-700 font-medium px-3 py-1 border border-red-200 rounded-md hover:bg-red-50"
@@ -694,7 +694,7 @@ const OrdersContent = () => {
 
       {/* Order Details Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="!max-w-md w-full max-h-[85vh] overflow-y-auto bg-white p-0 gap-0 mx-auto rounded-xl">
+        <DialogContent className="!max-w-md lg:!max-w-3xl w-full !top-36 lg:!top-40 !translate-y-0 !max-h-[calc(100vh-10rem)] lg:!max-h-[calc(100vh-11rem)] overflow-y-auto bg-white p-0 gap-0 mx-auto rounded-xl text-gray-900">
           <DialogHeader className="sr-only">
             <DialogTitle>Order Details</DialogTitle>
           </DialogHeader>
@@ -706,104 +706,110 @@ const OrdersContent = () => {
             const date = new Date(selectedOrder.createdAt);
             return (
               <>
-                <div className="sticky top-0 bg-white z-10 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                <div className="sticky top-0 bg-white z-10 px-4 lg:px-6 py-3 border-b border-gray-200 flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-500">Order Details</span>
                   <button onClick={() => setModalOpen(false)} className="text-gray-400 hover:text-gray-600 p-1"><X className="h-5 w-5" /></button>
                 </div>
-                <div className="p-4 space-y-4">
-                  {/* Product */}
-                  <div className="flex gap-3 pb-3 border-b border-gray-100">
-                    <div className="w-16 h-16 bg-gray-50 rounded overflow-hidden flex-shrink-0 border">
-                      <img src={first?.variant?.thumbnail || first?.product?.image || first?.imageUrl || "/placeholder.svg"} alt={first?.product?.name || first?.productName || "Product"} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xs font-semibold text-gray-900 leading-snug">{first?.product?.name || first?.productName || "Product"}</h3>
-                      <p className="text-xs text-gray-400 mt-0.5">Qty: {first?.quantity || 1}</p>
-                      <p className="text-sm font-bold text-gray-900 mt-1">₹{selectedOrder.total?.toLocaleString() || 0}</p>
-                    </div>
-                  </div>
-
-                  {/* Status Card */}
-                  <div className="border border-gray-200 rounded-lg p-3">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
-                      <Clock className="h-3 w-3" /> {cfg.label}
-                    </span>
-                  </div>
-
-                  {/* Timeline */}
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-900 mb-3">Order Timeline</h3>
-                    <div className="space-y-0">
-                      {tl.map((s, i) => (
-                        <div key={s.id} className="flex gap-3">
-                          <div className="flex flex-col items-center">
-                            <div className={`w-2.5 h-2.5 rounded-full ${s.isError ? 'bg-red-500' : s.done ? 'bg-green-500' : 'bg-gray-300'}`} />
-                            {i < tl.length - 1 && <div className={`w-0.5 flex-1 min-h-[20px] ${s.done ? (s.isError ? 'bg-red-400' : 'bg-green-400') : 'bg-gray-200'}`} />}
-                          </div>
-                          <div className="pb-3">
-                            <p className={`text-sm font-medium ${s.done ? (s.isError ? 'text-red-600' : 'text-gray-900') : 'text-gray-400'}`}>{s.label}</p>
-                            <p className={`text-xs mt-0.5 ${s.done ? (s.isError ? 'text-red-500' : 'text-gray-500') : 'text-gray-400'}`}>{s.desc}</p>
-                            {s.id === 'pending' && s.done && (
-                              <p className="text-xs text-gray-400 mt-0.5">{date.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})}</p>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Address */}
-                  <div className="border-t border-gray-100 pt-3">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2"><Home className="h-4 w-4 text-gray-600" /> Delivery Address</h3>
-                    <div className="text-sm text-gray-600 leading-relaxed pl-6">
-                      <p className="font-medium text-gray-900">{selectedOrder.customerName || addr.fullName || 'N/A'}</p>
-                      <p>{addr.addressLine1 || addr.address || 'N/A'}</p>
-                      <p>{addr.city}, {addr.state} {addr.postalCode || addr.pin || addr.zipCode || ''}</p>
-                      <p>{addr.country || 'India'}</p>
-                    </div>
-                  </div>
-
-                  {/* Price Details */}
-                  <div className="bg-gray-50 rounded-lg p-3 space-y-1.5">
-                    <h3 className="text-sm font-semibold text-gray-900 mb-2">Price Details</h3>
-                    <div className="flex justify-between text-sm text-gray-600">
-                      <span>Selling Price</span>
-                      <span>₹{(selectedOrder.subtotal || selectedOrder.total || 0).toLocaleString()}</span>
-                    </div>
-                    {selectedOrder.discount > 0 && (
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>Discount</span>
-                        <span>-₹{selectedOrder.discount.toLocaleString()}</span>
+                <div className="p-4 lg:p-6 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-2 lg:gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-4">
+                    {/* Product */}
+                    <div className="flex gap-3 pb-3 border-b border-gray-100">
+                      <div className="w-20 h-20 lg:w-24 lg:h-24 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border">
+                        <img src={first?.variant?.thumbnail || first?.product?.image || first?.imageUrl || "/placeholder.svg"} alt={first?.product?.name || first?.productName || "Product"} className="w-full h-full object-cover" />
                       </div>
-                    )}
-                    {selectedOrder.shipping > 0 && (
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm lg:text-base font-semibold text-gray-900 leading-snug">{first?.product?.name || first?.productName || "Product"}</h3>
+                        <p className="text-xs text-gray-400 mt-1">Qty: {first?.quantity || 1}</p>
+                        <p className="text-base lg:text-lg font-bold text-gray-900 mt-2">₹{selectedOrder.total?.toLocaleString() || 0}</p>
+                      </div>
+                    </div>
+
+                    {/* Status Card */}
+                    <div className="border border-gray-200 rounded-lg p-3">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100">
+                        <Clock className="h-3 w-3" /> {cfg.label}
+                      </span>
+                    </div>
+
+                    {/* Timeline */}
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3">Order Timeline</h3>
+                      <div className="space-y-0">
+                        {tl.map((s, i) => (
+                          <div key={s.id} className="flex gap-3">
+                            <div className="flex flex-col items-center">
+                              <div className={`w-2.5 h-2.5 rounded-full ${s.isError ? 'bg-red-500' : s.done ? 'bg-green-500' : 'bg-gray-300'}`} />
+                              {i < tl.length - 1 && <div className={`w-0.5 flex-1 min-h-[20px] ${s.done ? (s.isError ? 'bg-red-400' : 'bg-green-400') : 'bg-gray-200'}`} />}
+                            </div>
+                            <div className="pb-3">
+                              <p className={`text-sm font-medium ${s.done ? (s.isError ? 'text-red-600' : 'text-gray-900') : 'text-gray-400'}`}>{s.label}</p>
+                              <p className={`text-xs mt-0.5 ${s.done ? (s.isError ? 'text-red-500' : 'text-gray-500') : 'text-gray-400'}`}>{s.desc}</p>
+                              {s.id === 'pending' && s.done && (
+                                <p className="text-xs text-gray-400 mt-0.5">{date.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'})}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-4">
+                    {/* Address */}
+                    <div className="border border-gray-200 rounded-lg p-4">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2"><Home className="h-4 w-4 text-gray-600" /> Delivery Address</h3>
+                      <div className="text-sm text-gray-600 leading-relaxed pl-6">
+                        <p className="font-medium text-gray-900">{selectedOrder.customerName || addr.fullName || 'N/A'}</p>
+                        <p>{addr.addressLine1 || addr.address || 'N/A'}</p>
+                        <p>{addr.city}, {addr.state} {addr.postalCode || addr.pin || addr.zipCode || ''}</p>
+                        <p>{addr.country || 'India'}</p>
+                      </div>
+                    </div>
+
+                    {/* Price Details */}
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                      <h3 className="text-sm font-semibold text-gray-900 mb-2">Price Details</h3>
                       <div className="flex justify-between text-sm text-gray-600">
-                        <span>Shipping</span>
-                        <span>₹{selectedOrder.shipping.toLocaleString()}</span>
+                        <span>Selling Price</span>
+                        <span>₹{(selectedOrder.subtotal || selectedOrder.total || 0).toLocaleString()}</span>
                       </div>
-                    )}
-                    <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
-                      <span>Total Amount</span>
-                      <span className="text-green-600">₹{selectedOrder.total?.toLocaleString() || 0}</span>
+                      {selectedOrder.discount > 0 && (
+                        <div className="flex justify-between text-sm text-green-600">
+                          <span>Discount</span>
+                          <span>-₹{selectedOrder.discount.toLocaleString()}</span>
+                        </div>
+                      )}
+                      {selectedOrder.shipping > 0 && (
+                        <div className="flex justify-between text-sm text-gray-600">
+                          <span>Shipping</span>
+                          <span>₹{selectedOrder.shipping.toLocaleString()}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
+                        <span>Total Amount</span>
+                        <span className="text-green-600">₹{selectedOrder.total?.toLocaleString() || 0}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Payment */}
-                  <div className="flex items-center justify-between py-2 border border-gray-200 rounded-lg px-3">
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                      <CreditCard className="h-4 w-4" />
-                      Paid by {selectedOrder.paymentMethod === 'online' ? 'Online Payment' : selectedOrder.paymentMethod || 'Online Payment'}
+                    {/* Payment */}
+                    <div className="flex items-center justify-between py-3 border border-gray-200 rounded-lg px-4">
+                      <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
+                        <CreditCard className="h-4 w-4" />
+                        Paid by {selectedOrder.paymentMethod === 'online' ? 'Online Payment' : selectedOrder.paymentMethod || 'Online Payment'}
+                      </div>
+                      <button
+                        onClick={() => generateInvoice(selectedOrder)}
+                        className="text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center gap-1"
+                      >
+                        Download Invoice <FileText className="h-4 w-4" />
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => generateInvoice(selectedOrder)}
-                      className="text-blue-600 text-sm font-medium hover:text-blue-800 flex items-center gap-1"
-                    >
-                      Download Invoice <FileText className="h-4 w-4" />
-                    </button>
                   </div>
 
                   {/* Close */}
-                  <button onClick={() => setModalOpen(false)} className="w-full bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800">
+                  <button onClick={() => setModalOpen(false)} className="w-full lg:col-span-2 bg-gray-900 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-gray-800">
                     Close
                   </button>
                 </div>
@@ -818,18 +824,31 @@ const OrdersContent = () => {
 
 function ProfilePageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialTab = (searchParams?.get('tab') as 'profile' | 'orders' | 'wishlist') || 'profile';
   const [activeTab, setActiveTab] = useState<'profile' | 'orders' | 'wishlist'>(initialTab);
   const [isEditing, setIsEditing] = useState(false);
-  
-  const { user } = useAuth();
-  
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+
   // Fetch user profile data using React Query
-  // Email will be retrieved from cookie by the hook
   const { data: userProfile, isLoading, isError, error } = useGetProfile();
-  
+
   // Mutation for updating profile
   const { mutate: updateProfile } = useUpdateProfile();
+
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.replace('/');
+    }
+  }, [authLoading, isAuthenticated, router]);
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      </div>
+    );
+  }
 
   const handleUpdateProfile = (data: Partial<UserProfile>) => {
     console.log('Updating profile with data:', data);

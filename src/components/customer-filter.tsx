@@ -26,7 +26,7 @@ export const Filters: React.FC<FiltersProps> = ({
                 placeholder="Search customers by name, email, or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white border-white text-slate-800 focus-visible:ring-purple-700 dark:text-black"
+                className="pl-10 bg-white dark:bg-slate-800 border-white dark:border-slate-700 text-slate-800 dark:text-white focus-visible:ring-purple-700"
               />
             </div>
  

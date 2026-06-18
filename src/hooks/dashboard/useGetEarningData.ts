@@ -1,24 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-// import axios from "axios";
+import axios from "axios";
 import { EarningsDatum } from "@/lib/types/pieDiagramsType";
-import { yearlyEarnings } from "@/lib/constants/pieDiagramsData";
 
 // API call
 const fetchStats = async (): Promise<EarningsDatum[]> => {
-  //   const response = await axios.post('/api/get-products'); // If your API expects POST
-  //   if (!response.data?.product) {
-  //     throw new Error('No products found');
-  //   }
-  //   return response.data.product;
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return yearlyEarnings;
+  const response = await axios.get("/api/admin/dashboard/earnings");
+  if (!response.data?.success) {
+    throw new Error(response.data?.message || "Failed to fetch earnings");
+  }
+  return response.data.data;
 };
 
 // Hook
 export function useGetEarningData() {
-  return useQuery< EarningsDatum[], Error>({
+  return useQuery<EarningsDatum[], Error>({
     queryKey: ["earning"],
     queryFn: fetchStats,
-    staleTime: 1000 * 60 * 5, // optional: cache for 5 min
+    staleTime: 1000 * 60 * 5,
   });
 }

@@ -4,8 +4,7 @@ import React, { useState, useMemo, useRef, useEffect } from "react";
 import ModeToggle from "./mode-toggle";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { LogOut, Loader2, Bell, ShoppingCart, UserPlus, Package, CreditCard, CheckCircle, Clock, AlertCircle, Trash2, CheckCheck } from "lucide-react";
-import { useLogout } from "@/hooks/admin/useLogout";
+import { Bell, ShoppingCart, UserPlus, Package, CreditCard, CheckCircle, Clock, AlertCircle, Trash2, CheckCheck } from "lucide-react";
 import { useCurrentAdmin } from "@/hooks/admin/useCurrentAdmin";
 import { useGetAllUsers } from "@/hooks/users/useGetAllUser";
 import { useGetOrders } from "@/hooks/order/useGetOrders";
@@ -25,54 +24,59 @@ interface Notification {
   data?: any;
 }
 
+const NOTIFICATIONS_READ_KEY = "navrangii_notifications_read";
+
+const getReadNotificationIds = (): string[] => {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(NOTIFICATIONS_READ_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveReadNotificationIds = (ids: string[]) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(NOTIFICATIONS_READ_KEY, JSON.stringify(ids));
+};
+
 const generateNotifications = (orders: Order[], users: ExtendedUser[]): Notification[] => {
   const notifications: Notification[] = [];
 
-  // Order notifications
+  // Order notifications - show orders from last 7 days
   orders.forEach((order) => {
     const orderDate = new Date(order.createdAt || order.orderDate);
     const now = new Date();
-    const hoursAgo = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60));
+    const daysAgo = Math.floor((now.getTime() - orderDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (hoursAgo < 48) {
+    if (daysAgo < 7) {
       notifications.push({
         id: `order-new-${order._id}`,
         type: "order",
         title: "New Order Received",
         message: `Order #${order._id.slice(-6).toUpperCase()} from ${order.customerName || order.userEmail?.split('@')[0] || 'Unknown'} for ₹${order.total.toLocaleString()}`, 
         timestamp: order.createdAt || order.orderDate,
-        read: hoursAgo > 24,
+        read: false,
         data: order,
       });
-
-      if (order.orderStatusUpdate?.status === "shipped") {
-        notifications.push({
-          id: `order-shipped-${order._id}`,
-          type: "order",
-          title: "Order Shipped",
-          message: `Order #${order._id.slice(-6).toUpperCase()} has been shipped`,
-          timestamp: order.createdAt,
-          read: false,
-          data: order,
-        });
-      }
     }
   });
 
-  // User notifications
-  users.slice(0, 5).forEach((user) => {
+  // User notifications - show new users from last 7 days
+  users.forEach((user) => {
     const userDate = new Date(user.createdAt || Date.now());
     const now = new Date();
-    const hoursAgo = Math.floor((now.getTime() - userDate.getTime()) / (1000 * 60 * 60));
+    const daysAgo = Math.floor((now.getTime() - userDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (hoursAgo < 72) {
+    if (daysAgo < 7) {
       notifications.push({
         id: `user-new-${user._id}`,
         type: "user",
         title: "New Customer",
         message: `${user.name || user.email} just joined`,
         timestamp: user.createdAt || new Date().toISOString(),
-        read: hoursAgo > 48,
+        read: false,
         data: user,
       });
     }
@@ -124,27 +128,27 @@ const formatTimestamp = (timestamp: string) => {
 };
 
 export default function Header() {
-  const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const { data: user, isLoading } = useCurrentAdmin();
   const { data: users = [] } = useGetAllUsers();
   const { data: ordersData } = useGetOrders();
   const orders = ordersData?.orders || [];
   const [isOpen, setIsOpen] = useState(false);
+  const [notificationVersion, setNotificationVersion] = useState(0);
   // Generate notifications from data
   const generatedNotifications = useMemo(() => {
     return generateNotifications(orders, users);
   }, [orders, users]);
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const handleLogout = () => logout();
-
-  // Sync state with generated notifications on first load
-  useEffect(() => {
-    if (generatedNotifications.length > 0 && notifications.length === 0) {
-      setNotifications(generatedNotifications);
-    }
-  }, [generatedNotifications]);
+  // Merge generated notifications with persisted read state
+  const notifications = useMemo(() => {
+    const readIds = getReadNotificationIds();
+    return generatedNotifications.map((n) => ({
+      ...n,
+      read: readIds.includes(n.id),
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generatedNotifications, notificationVersion]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -160,61 +164,69 @@ export default function Header() {
   }, []);
 
   const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-    );
+    const readIds = getReadNotificationIds();
+    if (!readIds.includes(id)) {
+      saveReadNotificationIds([...readIds, id]);
+      setNotificationVersion((v) => v + 1);
+    }
   };
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    const allIds = notifications.map((n) => n.id);
+    saveReadNotificationIds(allIds);
+    setNotificationVersion((v) => v + 1);
   };
 
+  const deletedIdsRef = React.useRef<Set<string>>(new Set());
   const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    deletedIdsRef.current.add(id);
+    setNotificationVersion((v) => v + 1);
   };
 
   return (
-    <header className="flex items-center justify-between w-full px-6 py-4 bg-gradient-to-r from-violet-500/20 to-purple-500/20 backdrop-blur-lg border-b border-purple-200/30 dark:border-purple-700/30 shadow-sm">
-      {/* Left Side - Empty */}
-      <div className="flex items-center gap-4">
-      </div>
-
-      {/* Mobile Centered Welcome */}
-      <div className="sm:hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-        <div className="text-center">
-          <p className="text-xs font-medium bg-gradient-to-r from-purple-600 to-violet-600 bg-clip-text text-transparent">
-            Welcome
-          </p>
-          <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            {isLoading ? 'Loading...' : user?.email || 'User'}
+    <header className="flex items-center justify-between w-full px-5 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 ">
+      {/* Left Side - Admin Brand / Page Context */}
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="hidden sm:flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-purple-600 to-violet-600 text-white shadow-sm">
+          <span className="text-sm font-bold">A</span>
+        </div>
+        <div className="min-w-0">
+          <h1 className="text-base font-semibold text-slate-900 dark:text-white truncate">
+            Admin Panel
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+            Manage your store
           </p>
         </div>
       </div>
 
       {/* Right Side Controls */}
-      <div className="flex items-center gap-4 ml-auto" ref={dropdownRef}>
-        {/* Welcome Text */}
-        <div className="hidden sm:flex flex-col text-right">
-          <span className="text-sm font-semibold text-purple-700 dark:text-purple-300">
-            Welcome back,
-          </span>
-          <span className="text-lg font-bold text-slate-900 dark:text-white">
-            {isLoading ? 'Loading...' : user?.email || 'User'}
+      <div className="flex items-center gap-2 sm:gap-3" ref={dropdownRef}>
+        {/* User Info */}
+        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center text-white text-xs font-medium">
+            {user?.email?.charAt(0).toUpperCase() || 'A'}
+          </div>
+          <span className="text-sm text-slate-700 dark:text-slate-200 max-w-[140px] truncate">
+            {isLoading ? '...' : user?.email?.split('@')[0] || 'Admin'}
           </span>
         </div>
+
+        {/* Divider */}
+        <div className="hidden sm:block w-px h-6 bg-slate-200 dark:bg-slate-700" />
 
         {/* Notifications Popup */}
         <div className="relative">
           <Button
             variant="ghost"
             size="icon"
-            className="text-slate-600 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-400 relative"
+            className="text-slate-500 hover:text-purple-600 hover:bg-purple-50 dark:text-slate-400 dark:hover:text-purple-400 dark:hover:bg-purple-900/20 relative h-9 w-9"
             aria-label="Notifications"
             onClick={() => setIsOpen(!isOpen)}
           >
-            <Bell className="h-6 w-6 fill-purple-600 text-purple-600 dark:fill-purple-400 dark:text-purple-400" />
+            <Bell className="h-[18px] w-[18px]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 bg-rose-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-rose-500 text-white text-[10px] rounded-full flex items-center justify-center font-semibold">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}
@@ -224,57 +236,55 @@ export default function Header() {
           <AnimatePresence>
             {isOpen && (
               <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                initial={{ opacity: 0, y: -8, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-slate-950 rounded-xl shadow-2xl border border-purple-100 dark:border-purple-800 z-[100] overflow-hidden"
+                exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                transition={{ duration: 0.15 }}
+                className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 z-[100] overflow-hidden"
               >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800 bg-gradient-to-r from-purple-50/50 to-transparent dark:from-purple-900/20">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-2">
-                    <Bell className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    <span className="font-semibold text-slate-900 dark:text-white">Notifications</span>
+                    <Bell className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                    <span className="font-semibold text-sm text-slate-900 dark:text-white">Notifications</span>
                     {unreadCount > 0 && (
-                      <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs">
+                      <span className="px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400 text-[10px] font-semibold">
                         {unreadCount}
-                      </Badge>
+                      </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={markAllAsRead}
-                      disabled={unreadCount === 0}
-                      className="text-xs h-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20"
-                    >
-                      <CheckCheck className="h-3 w-3 mr-1" />
-                      All read
-                    </Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={markAllAsRead}
+                    disabled={unreadCount === 0}
+                    className="text-xs h-7 px-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <CheckCheck className="h-3 w-3 mr-1" />
+                    Mark all read
+                  </Button>
                 </div>
 
                 {/* Notifications List */}
-                <div className="max-h-[400px] overflow-y-auto">
-                  {notifications.length === 0 ? (
+                <div className="max-h-[360px] overflow-y-auto">
+                  {notifications.filter((n) => !deletedIdsRef.current.has(n.id)).length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3">
-                        <Bell className="h-6 w-6 text-slate-400" />
+                      <div className="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-2">
+                        <Bell className="h-5 w-5 text-slate-400" />
                       </div>
                       <p className="text-sm text-slate-500 dark:text-slate-400">No notifications</p>
                     </div>
                   ) : (
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {notifications.slice(0, 8).map((notification: Notification) => (
+                      {notifications.filter((n) => !deletedIdsRef.current.has(n.id)).slice(0, 8).map((notification: Notification) => (
                         <div
                           key={notification.id}
-                          className={`group flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors cursor-pointer ${
-                            !notification.read ? "bg-purple-50/50 dark:bg-purple-900/10" : ""
+                          className={`group flex items-start gap-3 p-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${
+                            !notification.read ? "bg-slate-50/80 dark:bg-slate-800/30" : ""
                           }`}
                           onClick={() => markAsRead(notification.id)}
                         >
-                          <div className={`p-1.5 rounded-lg shrink-0 ${getNotificationBadge(notification.type)}`}>
+                          <div className={`p-1.5 rounded-md shrink-0 ${getNotificationBadge(notification.type)}`}>
                             {getNotificationIcon(notification.type)}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -292,7 +302,7 @@ export default function Header() {
                                 {formatTimestamp(notification.timestamp)}
                               </span>
                               {!notification.read && (
-                                <span className="w-1.5 h-1.5 bg-purple-500 rounded-full" />
+                                <span className="w-1.5 h-1.5 bg-rose-500 rounded-full" />
                               )}
                             </div>
                           </div>
@@ -301,7 +311,7 @@ export default function Header() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-6 w-6 text-purple-500 hover:text-purple-600"
+                                className="h-6 w-6 text-slate-400 hover:text-purple-600"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   markAsRead(notification.id);
@@ -329,10 +339,10 @@ export default function Header() {
                 </div>
 
                 {/* Footer */}
-                {notifications.length > 8 && (
-                  <div className="p-3 border-t border-slate-100 dark:border-slate-800 text-center">
+                {notifications.filter((n) => !deletedIdsRef.current.has(n.id)).length > 8 && (
+                  <div className="px-4 py-2 border-t border-slate-100 dark:border-slate-800 text-center">
                     <span className="text-xs text-slate-500 dark:text-slate-400">
-                      +{notifications.length - 8} more notifications
+                      +{notifications.length - 8} more
                     </span>
                   </div>
                 )}
@@ -343,20 +353,6 @@ export default function Header() {
 
         <ModeToggle />
 
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400"
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          aria-label="Logout"
-        >
-          {isLoggingOut ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <LogOut className="h-5 w-5" />
-          )}
-        </Button>
       </div>
     </header>
   );

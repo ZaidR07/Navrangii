@@ -40,6 +40,34 @@ export async function POST(req: NextRequest) {
     // Connect to database and save order
     const { db } = await connectToDB();
 
+    const orderCustomerEmail = orderDetails?.customerEmail || orderDetails?.userEmail;
+    if (orderCustomerEmail) {
+      const adminAccount = await db.collection("admin").findOne({ email: orderCustomerEmail });
+      const customerAccount = await db.collection("users").findOne({ email: orderCustomerEmail });
+
+      if (adminAccount || customerAccount?.isAdmin) {
+        return NextResponse.json(
+          { success: false, message: "Admin accounts cannot complete purchases" },
+          { status: 403 }
+        );
+      }
+    }
+
+    // Normalize cartItems into items with price for consistent aggregation
+    const rawItems = orderDetails?.cartItems || orderDetails?.items || [];
+    const normalizedItems = rawItems.map((item: any) => {
+      const sizes = item.variant?.sizes || [];
+      const matchedSize = sizes.find((s: any) => s.size === item.size);
+      const price = matchedSize?.sellingPrice || sizes[0]?.sellingPrice || 0;
+      return {
+        product: item.product,
+        variant: item.variant,
+        size: item.size,
+        quantity: item.quantity,
+        price,
+      };
+    });
+
     const orderData = {
       orderId: `ORD-${Date.now()}`,
       razorpayOrderId: razorpay_order_id,
@@ -50,7 +78,21 @@ export async function POST(req: NextRequest) {
       paymentStatus: "paid",
       status: "confirmed",
       paymentMethod: orderDetails?.paymentMethod || "online",
-      ...orderDetails,
+      orderStatusUpdate: {
+        status: "confirmed",
+        paymentStatus: "paid",
+      },
+      items: normalizedItems,
+      subtotal: orderDetails?.subtotal || 0,
+      shipping: orderDetails?.shipping || 0,
+      total: orderDetails?.total || 0,
+      tax: orderDetails?.tax || 0,
+      customerName: orderDetails?.customerName || '',
+      customerEmail: orderDetails?.customerEmail || '',
+      userEmail: orderDetails?.userEmail || '',
+      shippingAddress: orderDetails?.shippingAddress || null,
+      discount: orderDetails?.discount || 0,
+      couponCode: orderDetails?.couponCode || null,
       createdAt: new Date(),
     };
 

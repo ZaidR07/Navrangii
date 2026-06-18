@@ -11,6 +11,7 @@ import Cookies from 'js-cookie';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import RazorpayScript from '@/components/payment/RazorpayScript';
+import { useCurrentAdmin } from '@/hooks/admin/useCurrentAdmin';
 
 // Razorpay types
 declare global {
@@ -35,6 +36,7 @@ function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isBuyNow = searchParams.get('buyNow') === 'true';
+  const { data: currentAdmin } = useCurrentAdmin();
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [selectedAddress, setSelectedAddress] = useState<any>(null);
   const [buyNowItem, setBuyNowItem] = useState<any>(null);
@@ -79,6 +81,14 @@ function CheckoutContent() {
   const { data: cartData, isLoading: cartLoading } = useCart(userEmail || '');
   const { data: coupons = [] } = useGetCoupons();
   const clearCart = useClearCart();
+  const isAdminUser = currentAdmin?.isAdmin === true;
+
+  useEffect(() => {
+    if (isAdminUser) {
+      toast.error('Admin accounts cannot purchase products.');
+      router.replace('/admin/dashboard');
+    }
+  }, [isAdminUser, router]);
   
   // Determine items to display (cart or buy now)
   const cartItems = isBuyNow && buyNowItem 
@@ -101,8 +111,19 @@ function CheckoutContent() {
     return total + (price * item.quantity);
   }, 0);
  
-  const shipping = subtotal > 999 ? 0 : 99;
+  const shipping = 99;
   const total = subtotal + shipping - discount;
+
+  if (isAdminUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Redirecting admin account...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Create Razorpay order
   const createOrder = async () => {
@@ -300,7 +321,7 @@ function CheckoutContent() {
                     type="email"
                     value={userEmail || ''}
                     readOnly
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50"
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-900"
                   />
                 </div>
 
@@ -311,7 +332,7 @@ function CheckoutContent() {
                       type="text"
                       value={contactName}
                       onChange={(e) => setContactName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-gray-900"
                     />
                   </div>
                   <div>
@@ -320,7 +341,7 @@ function CheckoutContent() {
                       type="tel"
                       value={contactPhone}
                       onChange={(e) => setContactPhone(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-200 rounded-lg"
+                      className="w-full px-4 py-2 border border-gray-200 rounded-lg text-gray-900"
                     />
                   </div>
                 </div>
@@ -370,7 +391,7 @@ function CheckoutContent() {
                         setCouponError('');
                       }}
                       placeholder="Enter coupon code"
-                      className="flex-1 px-4 py-2 border border-gray-200 rounded-lg bg-white uppercase"
+                      className="flex-1 px-4 py-2 border border-gray-200 rounded-lg bg-white text-gray-900 uppercase"
                     />
                     <button
                       type="button"
@@ -488,7 +509,7 @@ function CheckoutContent() {
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
-                  <span className="text-gray-900 font-medium">{shipping === 0 ? 'FREE' : `₹${shipping}`}</span>
+                  <span className="text-gray-900 font-medium">₹{shipping}</span>
                 </div>
                 <div className="border-t pt-3 mt-3 flex justify-between items-center">
                   <span className="text-gray-900 font-semibold">Total</span>
@@ -812,7 +833,7 @@ const OrderReview = ({ cartItems, subtotal, shipping, total, deliveryAddress }: 
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-gray-600">Shipping</span>
-          <span>{shipping === 0 ? 'FREE' : `₹${shipping}`}</span>
+          <span>₹{shipping}</span>
         </div>
         <div className="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
           <span>Total</span>

@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation';
 import { CartItem as CartItemType } from '@/hooks/cart/useCart';
 import { Coupon } from '@/lib/types/couponType';
 import { useAuth } from '@/context/UserContext';
+import { useCurrentAdmin } from '@/hooks/admin/useCurrentAdmin';
 
 import NavigationHeader from '@/components/NavigationHeader';
 import Footer from '@/components/Footer';
@@ -28,6 +29,8 @@ export default function CartPage() {
   const [userEmail, setUserEmail] = useState('');
   const router = useRouter();
   const { user } = useAuth();
+  const { data: currentAdmin } = useCurrentAdmin();
+  const isAdminUser = currentAdmin?.isAdmin === true;
   
   const { data: coupons = [] } = useGetCoupons();
   
@@ -35,6 +38,12 @@ export default function CartPage() {
     const emailFromAuthOrCookie = user?.email || Cookies.get('userEmail') || '';
     setUserEmail(emailFromAuthOrCookie);
   }, [user?.email]);
+
+  useEffect(() => {
+    if (isAdminUser) {
+      router.replace('/admin/dashboard');
+    }
+  }, [isAdminUser, router]);
   
   const { data: cartData, isLoading, isError, refetch } = useCart(userEmail);
   const removeMutation = useRemoveFromCart();
@@ -78,7 +87,7 @@ export default function CartPage() {
   };
   
   const discount = calculateDiscount();
-  const shipping = subtotal > 999 ? 0 : 99;
+  const shipping = 99;
   const total = subtotal - discount + shipping;
   
   const handleLoginRequired = () => {
@@ -439,7 +448,7 @@ export default function CartPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Shipping</span>
-                      <span className="font-medium">{shipping === 0 ? 'FREE' : `₹${shipping}`}</span>
+                      <span className="font-medium">₹{shipping}</span>
                     </div>
                     {appliedCoupon && (
                     <div className="flex justify-between text-green-600">
@@ -457,14 +466,20 @@ export default function CartPage() {
                   </div>
                   
                   <button 
-                    onClick={() => router.push('/checkout')}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors"
+                    onClick={() => {
+                      if (isAdminUser) {
+                        return;
+                      }
+                      router.push('/checkout');
+                    }}
+                    disabled={isAdminUser}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     Proceed to Checkout
                   </button>
                   
                   <p className="text-xs text-gray-500 mt-4 text-center">
-                    Shipping & taxes calculated at checkout
+                    Free shipping on orders above ₹999
                   </p>
                 </div>
               </div>

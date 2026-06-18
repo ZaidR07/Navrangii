@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import apiClient from "@/lib/axios";
 import { AxiosError } from "axios";
 import { AdminLoginInput } from "@/validationSchema/loginSchema";
@@ -15,8 +15,13 @@ const login = async (values: AdminLoginInput): Promise<string> => {
 };
 
 export function useLogin() {
+  const queryClient = useQueryClient();
+
   return useMutation<string, AxiosError<{ message: string }>, AdminLoginInput>({
     mutationFn: login,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["currentAdmin"] });
+    },
     retry: (failureCount, error) => {
       const status = error.response?.status;
       if (status === 404 || status === 401) return false;

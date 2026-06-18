@@ -26,14 +26,13 @@ export async function GET(_req: NextRequest) {
 
     const enriched = requests.map((r: any) => {
       const order = orderMap.get(r.orderId?.toString());
-      const orderStatus =
-        order?.orderStatusUpdate?.status || order?.status || "pending";
+      const orderStatusAtRequest = r.originalOrderStatus || order?.orderStatusUpdate?.status || order?.status || "pending";
 
       let refundAmount: number | undefined;
       if (order) {
         const total = Number(order.total || 0);
-        // If it's a cancellation AND the order was already shipped/delivered, deduct 200
-        if (r.type === 'cancellation' && ["shipped", "delivered"].includes(orderStatus)) {
+        // If it's a cancellation AND the order was already shipped/delivered at the time of request, deduct 200
+        if (r.type === 'cancellation' && ["shipped", "delivered"].includes(orderStatusAtRequest)) {
           refundAmount = Math.max(total - 200, 0);
         } else {
           // Returns and pre-shipment cancellations get full refund
@@ -50,12 +49,13 @@ export async function GET(_req: NextRequest) {
         order: order
           ? {
               _id: order._id.toString(),
-              status: orderStatus,
+              status: order?.orderStatusUpdate?.status || order?.status || "pending",
               total: order.total,
               razorpayPaymentId: order.razorpayPaymentId || order.paymentDetails?.razorpayPaymentId,
               userEmail: order.userEmail,
             }
           : null,
+        originalOrderStatus: r.originalOrderStatus,
         refundAmount,
       };
     });

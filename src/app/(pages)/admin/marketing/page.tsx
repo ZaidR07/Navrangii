@@ -13,8 +13,8 @@ export default function MarketingPage() {
             <MessageSquare className="h-6 w-6 text-blue-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Marketing</h1>
-            <p className="text-sm text-gray-600">Choose a WhatsApp module to continue.</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Marketing</h1>
+            <p className="text-sm text-gray-600 dark:text-slate-400">Choose a WhatsApp module to continue.</p>
           </div>
         </div>
 
@@ -23,9 +23,9 @@ export default function MarketingPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Send className="h-5 w-5 text-green-600" />
-                <h2 className="text-lg font-semibold text-gray-900">WhatsApp</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">WhatsApp</h2>
               </div>
-              <p className="text-sm text-gray-600">Run campaigns and view message delivery reports.</p>
+              <p className="text-sm text-gray-600 dark:text-slate-400">Run campaigns and view message delivery reports.</p>
             </div>
 
             <div className="flex gap-3">

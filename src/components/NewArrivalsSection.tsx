@@ -5,6 +5,7 @@ import { Star } from "lucide-react";
 import { useGetAllProducts } from '@/hooks/product/useGetProduct';
 import { Product as ProductType } from '@/lib/types/productType';
 import Link from "next/link";
+import { useGetProductReviewsAggregate } from "@/hooks/product/useGetProductReviewsAggregate";
 
 interface NewArrivalProduct {
   id: string;
@@ -16,14 +17,6 @@ interface NewArrivalProduct {
   rating: number;
   reviews: number;
 }
-
-const getStableReviewsCount = (seed: string) => {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-  return 50 + (hash % 100);
-};
 
 // Helper function to transform ProductType to NewArrivalProduct
 const transformProduct = (product: ProductType): NewArrivalProduct => {
@@ -43,9 +36,9 @@ const transformProduct = (product: ProductType): NewArrivalProduct => {
     price: firstSize?.sellingPrice ? `₹${firstSize.sellingPrice.toLocaleString()}` : "₹0",
     originalPrice: firstSize?.marketPrice ? `₹${firstSize.marketPrice.toLocaleString()}` : "₹0",
     discount: discount > 0 ? `${discount}% OFF` : "",
-    image: firstVariant?.thumbnail || firstVariant?.gallery?.[0] || product.image || "https://images.unsplash.com/photo-1516726817505-f5ed825624d8?w=400&h=500&fit=crop&crop=center",
-    rating: 4.5, // Placeholder rating
-    reviews: getStableReviewsCount(product._id || product.name),
+    image: firstVariant?.thumbnail || firstVariant?.gallery?.[0] || product.image || "/placeholder.svg",
+    rating: 0,
+    reviews: 0,
   };
 };
 
@@ -78,7 +71,7 @@ const ProductCard = ({ product, index }: { product: NewArrivalProduct; index: nu
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
             ))}
-            <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
+            <span className="text-sm text-gray-600 ml-2">{product.reviews > 0 ? `(${product.reviews})` : ""}</span>
           </div>
           <div className="flex items-baseline">
             <span className="text-xl font-bold text-purple-600 mr-2">{product.price}</span>
@@ -120,7 +113,7 @@ const MobileProductCard = ({ product, index }: { product: NewArrivalProduct; ind
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
             ))}
-            <span className="text-xs text-gray-600 ml-1">({product.reviews})</span>
+            <span className="text-xs text-gray-600 ml-1">{product.reviews > 0 ? `(${product.reviews})` : ""}</span>
           </div>
           <div className="flex items-baseline">
             <span className="text-lg font-bold text-purple-600 mr-1">{product.price}</span>
@@ -137,14 +130,36 @@ const MobileProductCard = ({ product, index }: { product: NewArrivalProduct; ind
 export default function NewArrivalsSection() {
   const { data: products = [], isLoading, error } = useGetAllProducts();
   
-  const latestProducts = [...products]
+  // Priority: explicit newArrival productType, then fallback to newest by createdAt
+  const newArrivalProducts = [...products]
+    .filter((p) => p.productType === "newArrival")
     .sort((a, b) => {
       const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
       return bt - at;
-    })
-    .slice(0, 8)
-    .map(transformProduct);
+    });
+
+  const otherRecentProducts = [...products]
+    .filter((p) => p.productType !== "newArrival")
+    .sort((a, b) => {
+      const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bt - at;
+    });
+
+  const latestProductsRaw = [...newArrivalProducts, ...otherRecentProducts].slice(0, 8);
+
+  const productIds = latestProductsRaw.map((p) => p._id).filter(Boolean) as string[];
+  const { data: reviewsData } = useGetProductReviewsAggregate(productIds);
+
+  const latestProducts = latestProductsRaw.map(transformProduct).map((p) => {
+    const real = reviewsData?.[p.id];
+    return {
+      ...p,
+      rating: real?.avgRating || 0,
+      reviews: real?.reviewCount || 0,
+    };
+  });
 
   const displayProducts = latestProducts;
   

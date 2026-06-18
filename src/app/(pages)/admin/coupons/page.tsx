@@ -118,8 +118,8 @@ export default function CouponsPage() {
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">Error Loading Coupons</h3>
-            <p className="text-slate-600 mb-4">Failed to load coupon data. Please try again.</p>
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Error Loading Coupons</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">Failed to load coupon data. Please try again.</p>
             <Button onClick={() => window.location.reload()}>Retry</Button>
           </CardContent>
         </Card>
@@ -180,7 +180,7 @@ export default function CouponsPage() {
       </div>
 
       {/* Filters */}
-      <Card className="mb-6 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border-white/20">
+      <Card className="mb-6 bg-gradient-to-r from-violet-500/10 to-purple-500/10 backdrop-blur-sm border-white/20 dark:border-slate-700">
         <CardContent className="p-4 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -191,7 +191,7 @@ export default function CouponsPage() {
                   placeholder="Search coupons by code or description..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-white border-white text-slate-800 focus-visible:ring-purple-700"
+                  className="pl-10 bg-white dark:bg-slate-800 border-white text-slate-800 dark:text-slate-200 focus-visible:ring-purple-700"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -211,7 +211,7 @@ export default function CouponsPage() {
       </Card>
 
       {/* Coupons Table */}
-      <Card className="bg-gradient-to-r from-violet-500/5 to-purple-500/5 backdrop-blur-sm border-white/20">
+      <Card className="bg-gradient-to-r from-violet-500/5 to-purple-500/5 backdrop-blur-sm border-white/20 dark:border-slate-700">
         <CardHeader>
           <CardTitle className="bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
             Coupon Overview
@@ -222,27 +222,27 @@ export default function CouponsPage() {
             <Table>
               <TableHeader>
                 <TableRow className="border-purple-200/50">
-                  <TableHead className="text-purple-700 font-semibold">Code</TableHead>
-                  <TableHead className="text-purple-700 font-semibold">Description</TableHead>
-                  <TableHead className="text-purple-700 font-semibold">Discount</TableHead>
-                  <TableHead className="text-purple-700 font-semibold">Usage</TableHead>
-                  <TableHead className="text-purple-700 font-semibold">Validity</TableHead>
-                  <TableHead className="text-purple-700 font-semibold">Status</TableHead>
-                  <TableHead className="text-purple-700 font-semibold">Actions</TableHead>
+                  <TableHead className="text-purple-700 dark:text-purple-400 font-semibold">Code</TableHead>
+                  <TableHead className="text-purple-700 dark:text-purple-400 font-semibold">Description</TableHead>
+                  <TableHead className="text-purple-700 dark:text-purple-400 font-semibold">Discount</TableHead>
+                  <TableHead className="text-purple-700 dark:text-purple-400 font-semibold">Usage</TableHead>
+                  <TableHead className="text-purple-700 dark:text-purple-400 font-semibold">Validity</TableHead>
+                  <TableHead className="text-purple-700 dark:text-purple-400 font-semibold">Status</TableHead>
+                  <TableHead className="text-purple-700 dark:text-purple-400 font-semibold">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredCoupons.map((coupon) => (
-                  <TableRow key={coupon._id} className="border-purple-100/50 hover:bg-purple-50/30">
+                  <TableRow key={coupon._id} className="border-purple-100/50 hover:bg-purple-50/30 dark:hover:bg-purple-900/20">
                     <TableCell>
-                      <div className="font-mono font-semibold text-purple-900 bg-purple-100 px-2 py-1 rounded text-sm">
+                      <div className="font-mono font-semibold text-purple-900 dark:text-purple-200 bg-purple-100 px-2 py-1 rounded text-sm">
                         {coupon.code}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="max-w-xs">
-                        <p className="text-purple-900 font-medium truncate">{coupon.description}</p>
-                        <p className="text-sm text-purple-600">Min. order: ₹{coupon.minimumOrderAmount}</p>
+                        <p className="text-purple-900 dark:text-purple-200 font-medium truncate">{coupon.description}</p>
+                        <p className="text-sm text-purple-600 dark:text-purple-400">Min. order: ₹{coupon.minimumOrderAmount}</p>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -252,22 +252,22 @@ export default function CouponsPage() {
                         ) : (
                           <DollarSign className="h-4 w-4 text-blue-600" />
                         )}
-                        <span className="font-semibold text-purple-900">
+                        <span className="font-semibold text-purple-900 dark:text-purple-200">
                           {coupon.discountType === "percentage"
                             ? `${coupon.discountValue}%`
                             : `₹${coupon.discountValue}`}
                         </span>
                       </div>
                       {coupon.maximumDiscountAmount && (
-                        <p className="text-xs text-purple-600">Max: ₹{coupon.maximumDiscountAmount}</p>
+                        <p className="text-xs text-purple-600 dark:text-purple-400">Max: ₹{coupon.maximumDiscountAmount}</p>
                       )}
                     </TableCell>
                     <TableCell>
                       <div className="text-center">
-                        <div className="font-semibold text-purple-900">
+                        <div className="font-semibold text-purple-900 dark:text-purple-200">
                           {coupon.usedCount} / {coupon.usageLimit}
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                        <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 mt-1">
                           <div
                             className="bg-gradient-to-r from-purple-400 to-purple-500 h-2 rounded-full"
                             style={{
@@ -279,7 +279,7 @@ export default function CouponsPage() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        <div className="flex items-center gap-1 text-purple-800">
+                        <div className="flex items-center gap-1 text-purple-800 dark:text-purple-300">
                           <Calendar className="h-3 w-3" />
                           {(() => {
                             const date = new Date(coupon.startDate);
@@ -289,7 +289,7 @@ export default function CouponsPage() {
                             return `${day}/${month}/${year}`;
                           })()}
                         </div>
-                        <div className="text-purple-600">to {(() => {
+                        <div className="text-purple-600 dark:text-purple-400">to {(() => {
                           const date = new Date(coupon.endDate);
                           const day = date.getDate().toString().padStart(2, '0');
                           const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -314,7 +314,7 @@ export default function CouponsPage() {
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 shadow-lg rounded-lg ">
+                        <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 shadow-lg rounded-lg">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                         
@@ -340,15 +340,15 @@ export default function CouponsPage() {
           {filteredCoupons.length === 0 && coupons && coupons.length > 0 && (
             <div className="text-center py-12">
               <Search className="h-12 w-12 text-purple-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">No coupons found</h3>
-              <p className="text-slate-500 mb-4">Try adjusting your search terms or filters</p>
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">No coupons found</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-4">Try adjusting your search terms or filters</p>
               <Button
                 onClick={() => {
                   setSearchTerm("")
                   setStatusFilter("all")
                 }}
                 variant="outline"
-                className="border-purple-200 text-purple-600 hover:bg-purple-50"
+                className="border-purple-200 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20"
               >
                 Clear Filters
               </Button>
@@ -358,8 +358,8 @@ export default function CouponsPage() {
           {coupons && coupons.length === 0 && (
             <div className="text-center py-12">
               <Tag className="h-12 w-12 text-purple-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">No coupons found</h3>
-              <p className="text-slate-500 mb-4">Get started by creating your first coupon</p>
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-300 mb-2">No coupons found</h3>
+              <p className="text-slate-500 dark:text-slate-400 mb-4">Get started by creating your first coupon</p>
               <Button
                 onClick={() => router.push("/admin/coupons/form")}
                 className="bg-gradient-to-r from-purple-600 to-purple-700 text-white"
@@ -374,7 +374,7 @@ export default function CouponsPage() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!couponToDelete} onOpenChange={() => setCouponToDelete(null)}>
-        <AlertDialogContent className="bg-white dark:bg-slate-800 shadow-lg rounded-lg  ">
+        <AlertDialogContent className="bg-white dark:bg-slate-800 shadow-lg rounded-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <Trash2 className="h-5 w-5 text-red-600" />
@@ -382,7 +382,7 @@ export default function CouponsPage() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               This action will permanently delete the coupon{" "}
-              <span className="font-semibold text-slate-800">&quot;{couponToDelete?.code}&quot;</span>. This cannot be undone.
+              <span className="font-semibold text-slate-800 dark:text-slate-200">&quot;{couponToDelete?.code}&quot;</span>. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

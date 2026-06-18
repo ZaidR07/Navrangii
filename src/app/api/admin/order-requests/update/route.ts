@@ -42,12 +42,14 @@ export async function POST(req: NextRequest) {
 
     // If moving to refunded, process Razorpay refund (for online paid orders)
     if (status === "refunded" && order) {
-      const orderStatus = order?.orderStatusUpdate?.status || order?.status || "pending";
+      // Use the original order status at the time the request was submitted,
+      // NOT the current order status (which may have been changed to "cancelled" immediately)
+      const orderStatusAtRequest = request.originalOrderStatus || order?.orderStatusUpdate?.status || order?.status || "pending";
       const total = Number(order.total || 0);
       
       // Calculate refund amount based on updated rules:
       // Deduct 200 ONLY for cancellations of shipped/delivered orders
-      const refundAmount = (request.type === "cancellation" && ["shipped", "delivered"].includes(orderStatus)) 
+      const refundAmount = (request.type === "cancellation" && ["shipped", "delivered"].includes(orderStatusAtRequest)) 
         ? Math.max(total - 200, 0) 
         : total;
 

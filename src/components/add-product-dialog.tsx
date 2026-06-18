@@ -2,7 +2,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useFieldArray, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PlusCircle } from "lucide-react";
@@ -36,6 +36,59 @@ import { AxiosError } from "axios";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
+const mapProductToFormValues = (product?: Product): ProductFormValues => {
+  if (!product) {
+    return {
+      name: "",
+      description: "",
+      section: "",
+      category: "",
+      subcategory: "",
+      fabric: "",
+      occasion: "",
+      patternAndPrint: "",
+      style: "",
+      productType: "regular",
+      option: "",
+      variants: [EMPTY_VARIANT],
+    };
+  }
+
+  let option = "";
+
+  if (product.options) {
+    try {
+      const parsed = JSON.parse(product.options);
+      option = typeof parsed === "string" ? parsed : String(parsed ?? "");
+    } catch {
+      option = product.options;
+    }
+  }
+
+  return {
+    _id: product._id,
+    name: product.name ?? "",
+    description: product.description ?? "",
+    section: product.section ?? "",
+    category: product.category ?? "",
+    subcategory: product.subcategory ?? "",
+    fabric: product.fabric ?? "",
+    occasion: product.occasion ?? "",
+    patternAndPrint: product.patternAndPrint ?? "",
+    style: product.style ?? "",
+    productType: product.productType ?? "regular",
+    option,
+    variants:
+      product.variants?.map((v) => ({
+        _id: v._id,
+        color: v.color,
+        thumbnail: v.thumbnail ?? "",
+        gallery: v.gallery ?? [],
+        sizes: v.sizes ?? [],
+      })) ?? [EMPTY_VARIANT],
+  };
+};
+
 export default function ProductDialog({
   initialProduct,
   trigger,
@@ -49,31 +102,7 @@ export default function ProductDialog({
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
-    defaultValues:
-      isEdit && initialProduct
-        ? {
-            ...initialProduct,
-            variants: initialProduct.variants?.map((v) => ({
-              id: v._id,
-              color: v.color,
-              thumbnail: v.thumbnail ?? "",
-              gallery: v.gallery ?? [],
-              sizes: v.sizes ?? [],
-            })) ?? [EMPTY_VARIANT],
-          }
-        : {
-            name: "",
-            description: "",
-            section: "",
-            category: "Men",
-            subcategory: "T-Shirt",
-            fabric: "Cotton",
-            occasion: "Casual",
-            patternAndPrint: "Solid",
-            style: "A-Line",
-            productType: "regular",
-            variants: [EMPTY_VARIANT],
-          },
+    defaultValues: mapProductToFormValues(initialProduct),
   });
 
   const { control, handleSubmit, reset, watch, formState } = form;
@@ -128,6 +157,12 @@ export default function ProductDialog({
   const selectedCategory = form.watch("category");
   const subCategoryOptions = (selectedCategory && subCatergoryMap[selectedCategory]) || [];
 
+  useEffect(() => {
+    if (open && isEdit) {
+      reset(mapProductToFormValues(initialProduct));
+    }
+  }, [open, isEdit, initialProduct, reset]);
+
   if (isLoadingVariable)
     return <div className="p-6">Loading product configuration...</div>;
   if (isError || !variable)
@@ -141,17 +176,20 @@ export default function ProductDialog({
   const variants = data.variants.map(mapVariantToPayload);
 
   if (isEdit && initialProduct) {
+    const updatePayload: Product = {
+      ...initialProduct,
+      ...data,
+      variants,
+      subcategory: data.subcategory,
+      description: data.description ?? "",
+      options: data.option ? JSON.stringify(data.option) : undefined,
+    };
     updateProduct(
-      {
-        ...initialProduct,
-        ...data,
-        variants,
-        subcategory: data.subcategory,
-      },
+      updatePayload,
       {
         onSuccess: () => {
           setOpen(false);
-          reset();
+          reset(mapProductToFormValues(initialProduct));
           setServerError(null);
           toast.success("Product updated successfully!", { position: "top-right" });
         },
@@ -194,7 +232,7 @@ export default function ProductDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
 
-      <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-y-auto scrollbar-hide border-0 shadow-xl shadow-purple-300">
+      <DialogContent className="sm:max-w-4xl max-h-[95vh] overflow-y-auto scrollbar-hide border-0 shadow-none p-4">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Edit Product" : "Create New Product"}
@@ -209,7 +247,7 @@ export default function ProductDialog({
         <Form {...form}>
           <form
             onSubmit={handleSubmit(onSubmit, onError)}
-            className="space-y-8 py-4"
+            className="space-y-5 py-2"
           >
             {Object.keys(errors).length > 0 && (
               <div className="text-red-500 bg-red-100 px-4 py-2 rounded">
@@ -271,7 +309,7 @@ export default function ProductDialog({
                 className="border-red-600 text-red-500 border"
                 onClick={() => {
                   setOpen(false);
-                  reset();
+                  reset(mapProductToFormValues(initialProduct));
                   setServerError(null);
                 }}
               >

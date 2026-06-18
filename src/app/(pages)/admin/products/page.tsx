@@ -63,7 +63,7 @@ export default function ProductManagementPage() {
 
   /* local state --------------------------------------------- */
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<"all">("all");
+  const [category, setCategory] = useState<string>("all");
 
   // debounce the search term so we only filter after typing pauses
   const [debounced] = useDebounce(search.trim(), 500);
@@ -180,11 +180,11 @@ export default function ProductManagementPage() {
                 placeholder="Search products…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 bg-white border-white text-slate-800 focus-visible:ring-purple-700 dark:text-black"
+                className="flex-1 bg-white dark:bg-slate-800 border-white dark:border-slate-700 text-slate-800 dark:text-white focus-visible:ring-purple-700"
               />
               <Select
                 value={category}
-                onValueChange={() => setCategory("all")}
+                onValueChange={(value) => setCategory(value)}
               >
                 <SelectTrigger className="min-w-[9rem] bg-gradient-to-r from-purple-500 to-purple-600 border-white text-white">
                   <SelectValue placeholder="Category" />

@@ -55,51 +55,51 @@ export default function UsersPage() {
       {/* Search */}
       <div className="mb-6">
         <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search by name, email, or phone..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-white dark:bg-slate-800"
           />
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-100 dark:border-slate-700/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-purple-100 rounded-lg">
               <Users className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Users</p>
-              <p className="text-xl font-bold text-gray-900">{visitors.length}</p>
+              <p className="text-sm text-gray-500 dark:text-slate-400">Total Users</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{visitors.length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-100 dark:border-slate-700/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
               <UserCheck className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Active Users</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-gray-500 dark:text-slate-400">Active Users</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">
                 {visitors.filter((v) => v.isActive !== false).length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-4 border border-gray-100 dark:border-slate-700/50">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
               <Calendar className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">New This Month</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-gray-500 dark:text-slate-400">New This Month</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">
                 {visitors.filter((v) => {
                   if (!v.createdAt) return false;
                   const d = new Date(v.createdAt);
@@ -114,46 +114,46 @@ export default function UsersPage() {
 
       {/* Table */}
       {filteredVisitors.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-          <Users className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-8 text-center">
+          <Users className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-500" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
             {visitors.length === 0 ? "No users found" : "No users match your search"}
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
             {visitors.length === 0
               ? "Users who visit the website but haven't placed orders will appear here"
               : "Try adjusting your search terms"}
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-slate-700/50">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
+              <thead className="bg-gray-50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                     Email
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                     Phone
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                     Registered
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                     Last Login
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
                     Status
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
                 {filteredVisitors.map((visitor) => (
-                  <tr key={visitor._id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={visitor._id} className="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-full bg-purple-100 flex items-center justify-center">
@@ -162,29 +162,29 @@ export default function UsersPage() {
                           </span>
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">
+                          <p className="text-sm font-medium text-gray-900 dark:text-white">
                             {visitor.name || "—"}
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5 text-sm text-gray-600">
-                        <Mail className="h-3.5 w-3.5 text-gray-400" />
+                      <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-slate-400">
+                        <Mail className="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" />
                         {visitor.email}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400">
                       {visitor.phone ? (
                         <div className="flex items-center gap-1.5">
-                          <Phone className="h-3.5 w-3.5 text-gray-400" />
+                          <Phone className="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" />
                           {visitor.phone}
                         </div>
                       ) : (
                         "—"
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400">
                       {visitor.createdAt
                         ? (() => {
                             const date = new Date(visitor.createdAt);
@@ -195,7 +195,7 @@ export default function UsersPage() {
                           })()
                         : "—"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400">
                       {visitor.lastLogin
                         ? (() => {
                             const date = new Date(visitor.lastLogin);
@@ -210,8 +210,8 @@ export default function UsersPage() {
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                           visitor.isActive !== false
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
+                            ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200"
+                            : "bg-gray-100 dark:bg-slate-700 text-gray-800 dark:text-slate-200"
                         }`}
                       >
                         {visitor.isActive !== false ? "Active" : "Inactive"}

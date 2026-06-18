@@ -33,7 +33,7 @@ function ProductsPageContent() {
   
   // Filter products based on search and parameters
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
+    let result = products.filter((product) => {
       // Search filter
       const searchParam = searchParams.get('search');
       if (searchParam) {
@@ -43,7 +43,7 @@ function ProductsPageContent() {
         const matchesSubcategory = product.subcategory?.toLowerCase().includes(query);
         const matchesFabric = product.fabric?.toLowerCase().includes(query);
         const matchesDescription = product.description?.toLowerCase().includes(query);
-        
+
         if (!matchesName && !matchesCategory && !matchesSubcategory && !matchesFabric && !matchesDescription) {
           return false;
         }
@@ -53,30 +53,42 @@ function ProductsPageContent() {
       if (sectionParam && product.section !== sectionParam) {
         return false;
       }
-      
+
       // Category filter
       if (categoryParam && product.category !== categoryParam) {
         return false;
       }
-      
+
       // Subcategory filter
       if (subcategoryParam && product.subcategory !== subcategoryParam) {
         return false;
       }
 
-      // Product type filter (onSale/bestSeller/regular)
+      // Product type filter (onSale/bestSeller/regular/newArrival)
       if (productTypeParam && product.productType !== productTypeParam) {
         return false;
       }
-      
+
       return true;
     });
+
+    // Sort by newest first when sort=new
+    if (sortParam === 'new') {
+      result = [...result].sort((a, b) => {
+        const at = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bt - at;
+      });
+    }
+
+    return result;
   }, [
-    products, 
+    products,
     sectionParam,
     categoryParam,
     subcategoryParam,
     productTypeParam,
+    sortParam,
     searchParams
   ]);
 

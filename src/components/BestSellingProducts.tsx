@@ -6,8 +6,16 @@ import Link from "next/link";
 import WishlistToggle from '@/components/wishlist/WishlistToggle';
 import { useGetAllProducts } from '@/hooks/product/useGetProduct';
 import { Product as ProductType } from '@/lib/types/productType';
+import { useGetProductReviewsAggregate } from "@/hooks/product/useGetProductReviewsAggregate";
 
-const ProductCard = ({ product, index }: { product: ProductType; index: number }) => {
+interface ProductCardProps {
+  product: ProductType;
+  index: number;
+  rating: number;
+  reviewCount: number;
+}
+
+const ProductCard = ({ product, index, rating, reviewCount }: ProductCardProps) => {
   const variant = product.variants?.[0];
   const size = variant?.sizes?.[0];
   const sellingPrice = size?.sellingPrice || 0;
@@ -47,8 +55,9 @@ const ProductCard = ({ product, index }: { product: ProductType; index: number }
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`h-4 w-4 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                <Star key={i} className={`h-4 w-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
               ))}
+              <span className="text-xs text-gray-600 ml-1">{reviewCount > 0 ? `(${reviewCount})` : ""}</span>
             </div>
             <div className="flex items-baseline">
               <span className="text-xl font-bold text-purple-600 mr-2">₹{sellingPrice.toLocaleString()}</span>
@@ -63,7 +72,7 @@ const ProductCard = ({ product, index }: { product: ProductType; index: number }
   );
 };
 
-const MobileProductCard = ({ product, index }: { product: ProductType; index: number }) => {
+const MobileProductCard = ({ product, index, rating, reviewCount }: ProductCardProps) => {
   const variant = product.variants?.[0];
   const size = variant?.sizes?.[0];
   const sellingPrice = size?.sellingPrice || 0;
@@ -102,8 +111,9 @@ const MobileProductCard = ({ product, index }: { product: ProductType; index: nu
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`h-3 w-3 ${i < 4 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                <Star key={i} className={`h-3 w-3 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
               ))}
+              <span className="text-xs text-gray-600 ml-1">{reviewCount > 0 ? `(${reviewCount})` : ""}</span>
             </div>
             <div className="flex items-baseline">
               <span className="text-lg font-bold text-purple-600 mr-1">₹{sellingPrice.toLocaleString()}</span>
@@ -123,6 +133,9 @@ export default function BestSellingProducts() {
 
   const bestSellerProducts = products.filter((p) => p.productType === "bestSeller");
   const displayProducts = (bestSellerProducts.length > 0 ? bestSellerProducts : products).slice(0, 8);
+
+  const productIds = displayProducts.map((p) => p._id).filter(Boolean) as string[];
+  const { data: reviewsData } = useGetProductReviewsAggregate(productIds);
 
   if (isLoading) {
     return (
@@ -168,7 +181,7 @@ export default function BestSellingProducts() {
                 }
               >
                 <div className={displayProducts.length === 1 ? "w-full max-w-xs" : "w-full"}>
-                  <MobileProductCard product={product} index={index} />
+                  <MobileProductCard product={product} index={index} rating={reviewsData?.[product._id || ""]?.avgRating || 0} reviewCount={reviewsData?.[product._id || ""]?.reviewCount || 0} />
                 </div>
               </div>
             ))}
@@ -179,18 +192,18 @@ export default function BestSellingProducts() {
         <div className="hidden lg:block">
           <div className="grid lg:grid-cols-4 gap-8">
             {displayProducts.map((product, index) => (
-              <ProductCard key={product._id || index} product={product} index={index} />
+              <ProductCard key={product._id || index} product={product} index={index} rating={reviewsData?.[product._id || ""]?.avgRating || 0} reviewCount={reviewsData?.[product._id || ""]?.reviewCount || 0} />
             ))}
           </div>
           
           {/* View More Button */}
           {products.length > 8 && (
             <div className="text-center mt-8">
-              <Link href="/products">
+              <Link href="/products?productType=bestSeller">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="bg-white text-purple-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg border-2 border-white hover:border-purple-200"
+                  className="bg-gradient-to-r from-indigo-600 to-blue-500 text-white px-10 py-4 rounded-full text-lg font-semibold hover:from-indigo-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
                   View All Best Sellers
                 </motion.button>

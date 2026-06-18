@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Menu, ChevronLeft, LayoutDashboard, Users, Package, ShoppingCart,
-  CreditCard, MessageCircleWarning, Truck, Tag, Settings, Bell, User, BadgeIndianRupee, UserCheck, RefreshCw, MessageSquare
+  CreditCard, MessageCircleWarning, Truck, Tag, Settings, Bell, User, BadgeIndianRupee, UserCheck, RefreshCw, MessageSquare, LogOut, Loader2
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { NavItem } from "@/lib/types/headerOptionType";
+import { useLogout } from "@/hooks/admin/useLogout";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: SidebarProps) {
+  const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [isHovered, setIsHovered] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -104,7 +106,7 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
           transition-all duration-300 ease-in-out
           border-r border-slate-200 dark:border-slate-700
           bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900
-          shadow-xl md:shadow-md
+          
           ${collapsed ? "w-20" : "w-60"}
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         `}
@@ -116,8 +118,8 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
             </div>
             {!collapsed && (
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-purple-700 leading-tight">Admin</span>
-                <span className="text-[10px] text-gray-500 uppercase tracking-wider">Dashboard</span>
+                <span className="text-xl font-bold text-purple-700 dark:text-purple-400 leading-tight">Admin</span>
+                <span className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-wider">Dashboard</span>
               </div>
             )}
           </div>
@@ -164,7 +166,7 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
                   onClick={() => setIsMarketingExpanded((v) => !v)}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-left ${
                     pathname.startsWith("/admin/marketing")
-                      ? "bg-purple-100 text-purple-700"
+                      ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
                       : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                   }`}
                 >
@@ -178,7 +180,7 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
                       href="/admin/marketing/whatsapp/campaign"
                       className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
                         pathname === "/admin/marketing/whatsapp/campaign"
-                          ? "bg-purple-100 text-purple-700"
+                          ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300"
                           : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                       }`}
                     >
@@ -222,6 +224,23 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
           </div>
         </nav>
 
+        {/* Logout */}
+        <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-700">
+          <button
+            onClick={() => logout()}
+            disabled={isLoggingOut}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-left ${
+              collapsed ? "justify-center" : ""
+            } text-gray-700 hover:bg-rose-50 hover:text-rose-600 dark:text-gray-300 dark:hover:bg-rose-900/20 dark:hover:text-rose-400`}
+          >
+            {isLoggingOut ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <LogOut className="h-5 w-5" />
+            )}
+            {!collapsed && <span>Logout</span>}
+          </button>
+        </div>
       </aside>
     </>
   );
@@ -244,7 +263,7 @@ function NavLink({ href, label, icon, isActive, isCollapsed, onHover, isHovered 
         className={`
           flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200
           ${isCollapsed ? "justify-center" : ""}
-          ${isActive ? "bg-purple-100 text-purple-700" : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"}
+          ${isActive ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300" : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"}
         `}
       >
         {icon}

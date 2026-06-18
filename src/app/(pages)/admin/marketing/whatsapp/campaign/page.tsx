@@ -84,7 +84,7 @@ export default function WhatsAppCampaignPage() {
   const maxChars = 5000
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -92,58 +92,58 @@ export default function WhatsAppCampaignPage() {
             variant="ghost"
             size="sm"
             onClick={() => router.push("/admin/marketing")}
-            className="mb-4 text-gray-600 hover:text-gray-900"
+            className="mb-4 text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:text-white"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button> */}
-          <h1 className="text-2xl font-bold text-gray-900">Campaign</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Campaign</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
             Send a message to multiple numbers with optional delay.
           </p>
         </div>
 
         {/* Campaign Form */}
-        <div className="bg-white rounded-lg shadow-sm border">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border dark:border-slate-700">
           {/* Campaign Name */}
-          <div className="p-6 border-b border-gray-100">
-            <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+          <div className="p-6 border-b border-gray-100 dark:border-slate-700/50">
+            <Label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">
               Campaign Name
             </Label>
             <Input
               placeholder="My Campaign"
               value={form.campaignName}
               onChange={(e) => setForm({ ...form, campaignName: e.target.value })}
-              className="mt-2 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+              className="mt-2 border-gray-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500"
             />
           </div>
 
-          <div className="p-6 border-b border-gray-100">
+          <div className="p-6 border-b border-gray-100 dark:border-slate-700/50">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <Label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">
                     Enter Mobile Number
                   </Label>
-                  <span className="text-xs text-gray-400">({numbers.length} numbers)</span>
+                  <span className="text-xs text-gray-400 dark:text-slate-500">({numbers.length} numbers)</span>
                 </div>
                 <Textarea
                   placeholder="Enter numbers (one per line, or separated by comma)"
-                  className="min-h-[140px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
+                  className="min-h-[140px] border-gray-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 resize-none"
                   value={form.mobileNumbers}
                   onChange={(e) => setForm({ ...form, mobileNumbers: e.target.value })}
                 />
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-gray-400 dark:text-slate-500 mt-2">
                   Supports comma, semicolon, or newline.
                 </p>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  <Label className="text-xs font-semibold text-gray-500 dark:text-slate-400 uppercase tracking-wide">
                     Enter Your Message
                   </Label>
-                  <span className={`text-xs ${charCount > maxChars ? 'text-red-500' : 'text-gray-400'}`}>
+                  <span className={`text-xs ${charCount > maxChars ? 'text-red-500' : 'text-gray-400 dark:text-slate-500'}`}>
                     ({charCount}/{maxChars})
                   </span>
                 </div>
@@ -151,7 +151,7 @@ export default function WhatsAppCampaignPage() {
                 <div className="relative">
                   <Textarea
                     placeholder="Type your message..."
-                    className="min-h-[140px] border-gray-200 focus:border-blue-500 focus:ring-blue-500 resize-none pr-12"
+                    className="min-h-[140px] border-gray-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500 resize-none pr-12"
                     maxLength={maxChars}
                     value={form.message}
                     onChange={(e) => setForm({ ...form, message: e.target.value })}
@@ -171,7 +171,7 @@ export default function WhatsAppCampaignPage() {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-2 top-2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-2 top-2 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
                     onClick={() => {
                       const el = document.getElementById("campaign-file") as HTMLInputElement | null;
                       el?.click();
@@ -182,7 +182,7 @@ export default function WhatsAppCampaignPage() {
                 </div>
 
                 {selectedFileName ? (
-                  <div className="mt-2 text-xs text-gray-400 truncate">
+                  <div className="mt-2 text-xs text-gray-400 dark:text-slate-500 truncate">
                     {selectedFileName}
                   </div>
                 ) : null}

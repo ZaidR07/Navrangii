@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
       photoUrls,
       videoUrl,
       status: "requested",
+      originalOrderStatus: order.orderStatusUpdate?.status || order.status || "pending",
       createdAt,
       updatedAt: createdAt,
     });

@@ -35,8 +35,6 @@ export default function PaymentsPage() {
           verified: true,
         },
         paymentMethod: order.paymentMethod || "Razorpay",
-        assignedDeliveryPartner: order.assignedDeliveryPartner,
-        assignedDate: order.assignedDate,
         orderDate: order.orderDate || order.createdAt,
         createdAt: order.createdAt,
       }))
@@ -84,7 +82,7 @@ export default function PaymentsPage() {
         );
       default:
         return (
-          <span className="flex items-center gap-1 text-gray-600 bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
+          <span className="flex items-center gap-1 text-gray-600 dark:text-slate-400 bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-full text-sm font-medium">
             <Clock className="h-4 w-4" /> Unknown
           </span>
         );
@@ -119,7 +117,7 @@ export default function PaymentsPage() {
         );
       default:
         return (
-          <span className="flex items-center gap-1 text-gray-600 bg-gray-100 px-3 py-1 rounded-full text-sm font-medium">
+          <span className="flex items-center gap-1 text-gray-600 dark:text-slate-400 bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-full text-sm font-medium">
             {method}
           </span>
         );
@@ -135,8 +133,8 @@ export default function PaymentsPage() {
             <CreditCard className="h-6 w-6 text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-            <p className="text-sm text-gray-600">View all order payments and payment details</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Payments</h1>
+            <p className="text-sm text-gray-600 dark:text-slate-400">View all order payments and payment details</p>
           </div>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
@@ -154,15 +152,15 @@ export default function PaymentsPage() {
             placeholder="Search by order ID, customer, or payment method..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-500" />
+          <Filter className="h-4 w-4 text-gray-500 dark:text-slate-400" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
             <option value="all">All Status</option>
             <option value="paid">Paid</option>
@@ -179,41 +177,41 @@ export default function PaymentsPage() {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
         </div>
       ) : (
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-gray-50 dark:bg-slate-800/50 border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order No</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Mobile</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Razorpay ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount (₹)</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Order No</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Customer Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Customer Mobile</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Razorpay ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Payment Method</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">Amount (₹)</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 dark:divide-slate-700">
               {filteredOrders.map((order, index) => (
-                <tr key={order._id} className="hover:bg-gray-50 transition-colors">
+                <tr key={order._id} className="hover:bg-gray-50 dark:bg-slate-800/50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-medium text-gray-900">#{(index + 1).toString().padStart(3, '0')}</span>
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">#{(index + 1).toString().padStart(3, '0')}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <p className="text-sm font-medium text-gray-900">{order.customerName}</p>
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">{order.customerName}</p>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <p className="text-sm text-gray-600">{order.shippingAddress?.phone || 'N/A'}</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">{order.shippingAddress?.phone || 'N/A'}</p>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-mono text-gray-600">
+                    <span className="text-sm font-mono text-gray-600 dark:text-slate-400">
                       {order.paymentDetails?.razorpayPaymentId || order.paymentDetails?.razorpayOrderId || 'N/A'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {getPaymentMethodBadge(order.paymentMethod)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
                     {(() => {
                       const date = new Date(order.createdAt);
                       const day = date.getDate().toString().padStart(2, '0');
@@ -223,13 +221,13 @@ export default function PaymentsPage() {
                     })()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-semibold text-gray-900">₹{order.total.toFixed(2)}</span>
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">₹{order.total.toFixed(2)}</span>
                   </td>
                 </tr>
               ))}
               {/* Total Row */}
-              <tr className="bg-gray-100 font-semibold">
-                <td colSpan={6} className="px-6 py-4 text-right text-gray-900">
+              <tr className="bg-gray-100 dark:bg-slate-700 font-semibold">
+                <td colSpan={6} className="px-6 py-4 text-right text-gray-900 dark:text-white">
                   Total Amount:
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -244,8 +242,8 @@ export default function PaymentsPage() {
 
         {filteredOrders.length === 0 && (
           <div className="text-center py-12">
-            <CreditCard className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No payments found</p>
+            <CreditCard className="h-12 w-12 text-gray-300 dark:text-slate-500 mx-auto mb-4" />
+            <p className="text-gray-500 dark:text-slate-400">No payments found</p>
           </div>
         )}
       </div>

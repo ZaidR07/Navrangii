@@ -151,7 +151,7 @@ export default function CouponForm() {
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-slate-600">Loading coupon data...</p>
+            <p className="text-slate-600 dark:text-slate-400">Loading coupon data...</p>
           </CardContent>
         </Card>
       </div>
@@ -165,8 +165,8 @@ export default function CouponForm() {
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
             <XCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-800 mb-2">Coupon Not Found</h3>
-            <p className="text-slate-600 mb-4">The coupon you&apos;re trying to edit doesn&apos;t exist.</p>
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-2">Coupon Not Found</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-4">The coupon you&apos;re trying to edit doesn&apos;t exist.</p>
             <Button onClick={() => router.push("/admin/coupons")}>Back to Coupons</Button>
           </CardContent>
         </Card>
@@ -204,9 +204,9 @@ export default function CouponForm() {
             <Card className="bg-gradient-to-r from-violet-500/5 to-purple-500/5 backdrop-blur-sm border-white/20">
               <CardHeader>
                 <CardTitle className="bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-purple-700" />
+                  <Tag className="h-5 w-5 text-purple-700 dark:text-purple-400" />
                   Basic Information
-                  {isEditMode && <Badge className="bg-blue-100 text-blue-700 ml-auto">Editing Mode</Badge>}
+                  {isEditMode && <Badge className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 ml-auto">Editing Mode</Badge>}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -217,11 +217,11 @@ export default function CouponForm() {
                     name="code"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-purple-700 font-medium">Coupon Code *</FormLabel>
+                        <FormLabel className="text-purple-700 dark:text-purple-400 font-medium">Coupon Code *</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="e.g., WELCOME10"
-                            className="bg-white border-purple-200 focus-visible:ring-purple-500 font-mono"
+                            className="bg-white dark:bg-slate-800 border-purple-200 dark:border-purple-800 focus-visible:ring-purple-500 font-mono"
                             {...field}
                             onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                           />
@@ -239,10 +239,10 @@ export default function CouponForm() {
                     name="status"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-purple-700 font-medium">Status *</FormLabel>
+                        <FormLabel className="text-purple-700 dark:text-purple-400 font-medium">Status *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="bg-white border-purple-200 focus:ring-purple-500">
+                            <SelectTrigger className="bg-white dark:bg-slate-800 border-purple-200 dark:border-purple-800 focus:ring-purple-500">
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                           </FormControl>
@@ -275,11 +275,11 @@ export default function CouponForm() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-purple-700 font-medium">Description *</FormLabel>
+                      <FormLabel className="text-purple-700 dark:text-purple-400 font-medium">Description *</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Describe what this coupon offers to customers..."
-                          className="bg-white border-purple-200 focus-visible:ring-purple-500 min-h-[80px]"
+                          className="bg-white dark:bg-slate-800 border-purple-200 dark:border-purple-800 focus-visible:ring-purple-500 min-h-[80px]"
                           {...field}
                         />
                       </FormControl>
@@ -295,7 +295,7 @@ export default function CouponForm() {
             {/* Discount Configuration */}
             <Card className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 border-green-200">
               <CardHeader>
-                <CardTitle className="text-green-800 flex items-center gap-2">
+                <CardTitle className="text-green-800 dark:text-green-300 flex items-center gap-2">
                   {discountType === "percentage" ? <Percent className="h-5 w-5" /> : <DollarSign className="h-5 w-5" />}
                   Discount Configuration
                 </CardTitle>
@@ -308,10 +308,10 @@ export default function CouponForm() {
                     name="discountType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-green-700 font-medium">Discount Type *</FormLabel>
+                        <FormLabel className="text-green-700 dark:text-green-400 font-medium">Discount Type *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="bg-white border-green-200 focus:ring-green-500">
+                            <SelectTrigger className="bg-white dark:bg-slate-800 border-green-200 dark:border-green-800 focus:ring-green-500">
                               <SelectValue placeholder="Select discount type" />
                             </SelectTrigger>
                           </FormControl>
@@ -343,7 +343,7 @@ export default function CouponForm() {
                     name="discountValue"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-green-700 font-medium">
+                        <FormLabel className="text-green-700 dark:text-green-400 font-medium">
                           Discount Value * {discountType === "percentage" ? "(%)" : "(₹)"}
                         </FormLabel>
                         <FormControl>
@@ -353,7 +353,7 @@ export default function CouponForm() {
                             max={discountType === "percentage" ? "100" : "50000"}
                             step={discountType === "percentage" ? "0.01" : "1"}
                             placeholder={discountType === "percentage" ? "e.g., 10" : "e.g., 100"}
-                            className="bg-white border-green-200 focus-visible:ring-green-500"
+                            className="bg-white dark:bg-slate-800 border-green-200 dark:border-green-800 focus-visible:ring-green-500"
                             {...field}
                             onChange={(e) => field.onChange(Number.parseFloat(e.target.value) || 0)}
                           />
@@ -373,13 +373,13 @@ export default function CouponForm() {
                     name="minimumOrderAmount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-green-700 font-medium">Minimum Order Amount (₹) *</FormLabel>
+                        <FormLabel className="text-green-700 dark:text-green-400 font-medium">Minimum Order Amount (₹) *</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
                             min="0"
                             placeholder="e.g., 500"
-                            className="bg-white border-green-200 focus-visible:ring-green-500"
+                            className="bg-white dark:bg-slate-800 border-green-200 dark:border-green-800 focus-visible:ring-green-500"
                             {...field}
                             onChange={(e) => field.onChange(Number.parseFloat(e.target.value) || 0)}
                           />
@@ -398,13 +398,13 @@ export default function CouponForm() {
                       name="maximumDiscountAmount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-green-700 font-medium">Maximum Discount Amount (₹)</FormLabel>
+                          <FormLabel className="text-green-700 dark:text-green-400 font-medium">Maximum Discount Amount (₹)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
                               min="0"
                               placeholder="e.g., 500"
-                              className="bg-white border-green-200 focus-visible:ring-green-500"
+                              className="bg-white dark:bg-slate-800 border-green-200 dark:border-green-800 focus-visible:ring-green-500"
                               {...field}
                               onChange={(e) => field.onChange(Number.parseFloat(e.target.value) || 0)}
                             />
@@ -412,7 +412,7 @@ export default function CouponForm() {
                           <FormMessage className="text-red-600 flex items-center gap-1">
                             {form.formState.errors.maximumDiscountAmount && <XCircle className="h-3 w-3" />}
                           </FormMessage>
-                          <p className="text-sm text-green-600">
+                          <p className="text-sm text-green-600 dark:text-green-400">
                             <Info className="h-3 w-3 inline mr-1" />
                             Leave empty for no maximum limit
                           </p>
@@ -427,7 +427,7 @@ export default function CouponForm() {
             {/* Usage & Validity */}
             <Card className="bg-gradient-to-r from-blue-50/50 to-cyan-50/50 border-blue-200">
               <CardHeader>
-                <CardTitle className="text-blue-800 flex items-center gap-2">
+                <CardTitle className="text-blue-800 dark:text-blue-300 flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
                   Usage & Validity
                 </CardTitle>
@@ -439,7 +439,7 @@ export default function CouponForm() {
                   name="usageLimit"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-blue-700 font-medium">Usage Limit *</FormLabel>
+                      <FormLabel className="text-blue-700 dark:text-blue-400 font-medium">Usage Limit *</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Input
@@ -447,7 +447,7 @@ export default function CouponForm() {
                             min="1"
                             max="10000"
                             placeholder="e.g., 100"
-                            className="bg-white border-blue-200 focus-visible:ring-blue-500"
+                            className="bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-800 focus-visible:ring-blue-500"
                             {...field}
                             onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 1)}
                           />
@@ -459,7 +459,7 @@ export default function CouponForm() {
                       <FormMessage className="text-red-600 flex items-center gap-1">
                         {form.formState.errors.usageLimit && <XCircle className="h-3 w-3" />}
                       </FormMessage>
-                      <p className="text-sm text-blue-600">Maximum number of times this coupon can be used</p>
+                      <p className="text-sm text-blue-600 dark:text-blue-400">Maximum number of times this coupon can be used</p>
                     </FormItem>
                   )}
                 />
@@ -471,11 +471,11 @@ export default function CouponForm() {
                     name="startDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-blue-700 font-medium">Start Date *</FormLabel>
+                        <FormLabel className="text-blue-700 dark:text-blue-400 font-medium">Start Date *</FormLabel>
                         <FormControl>
                           <Input
                             type="date"
-                            className="bg-white border-blue-200 focus-visible:ring-blue-500"
+                            className="bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-800 focus-visible:ring-blue-500"
                             {...field}
                           />
                         </FormControl>
@@ -492,11 +492,11 @@ export default function CouponForm() {
                     name="endDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-blue-700 font-medium">End Date *</FormLabel>
+                        <FormLabel className="text-blue-700 dark:text-blue-400 font-medium">End Date *</FormLabel>
                         <FormControl>
                           <Input
                             type="date"
-                            className="bg-white border-blue-200 focus-visible:ring-blue-500"
+                            className="bg-white dark:bg-slate-800 border-blue-200 dark:border-blue-800 focus-visible:ring-blue-500"
                             {...field}
                           />
                         </FormControl>
@@ -512,9 +512,9 @@ export default function CouponForm() {
 
             {/* Form Preview */}
             {watchedValues.code && (
-              <Card className="bg-gradient-to-r from-slate-50 to-gray-50 border-slate-200">
+              <Card className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-slate-700 border-slate-200 dark:border-slate-700">
                 <CardHeader>
-                  <CardTitle className="text-slate-800 flex items-center gap-2">
+                  <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-2">
                     <CheckCircle className="h-5 w-5" />
                     Preview
                   </CardTitle>
@@ -524,7 +524,7 @@ export default function CouponForm() {
                     <div>
                       <p>
                         <strong>Code:</strong>{" "}
-                        <span className="font-mono bg-purple-100 px-2 py-1 rounded">{watchedValues.code}</span>
+                        <span className="font-mono bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">{watchedValues.code}</span>
                       </p>
                       <p>
                         <strong>Discount:</strong>{" "}
@@ -563,7 +563,7 @@ export default function CouponForm() {
               </Card>
             )}
 
-            <Separator className="bg-purple-200" />
+            <Separator className="bg-purple-200 dark:bg-purple-800" />
 
             {/* Form Actions */}
             <div className="flex flex-col sm:flex-row gap-4 justify-end">
@@ -572,7 +572,7 @@ export default function CouponForm() {
                 variant="outline"
                 onClick={handleCancel}
                 disabled={isSubmitting}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 bg-transparent"
+                className="border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700/50 bg-transparent"
               >
                 Cancel
               </Button>
@@ -581,7 +581,7 @@ export default function CouponForm() {
                 variant="outline"
                 onClick={handleReset}
                 disabled={isSubmitting}
-                className="border-purple-300 text-purple-700 hover:bg-purple-50 bg-transparent"
+                className="border-purple-300 text-purple-700 dark:text-purple-400 hover:bg-purple-50 bg-transparent"
               >
                 {isEditMode ? "Reset Changes" : "Reset Form"}
               </Button>

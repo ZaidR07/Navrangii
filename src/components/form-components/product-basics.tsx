@@ -46,17 +46,17 @@ export default function ProductBasics({
   const category = useWatch({ control, name: "category" });
 
   return (
-    <Card>
-      <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-lg px-6 py-4">
+    <Card className="pt-0 gap-3">
+      <CardHeader className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-t-lg px-4 py-3">
         <CardTitle className="text-white">Product Basics</CardTitle>
         <CardDescription className="text-purple-100">
           Enter the fundamental details for your product.
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Row 1 – Name + Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormInput
             control={control}
             name="name"
@@ -72,7 +72,7 @@ export default function ProductBasics({
         </div>
 
         {/* Row 2 – Fabric + Category */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormSelect
             control={control}
             name="fabric"
@@ -88,7 +88,7 @@ export default function ProductBasics({
         </div>
 
         {/* Subcategory, Occasion, Pattern, Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormSelect
             control={control}
             name="subcategory"
@@ -131,8 +131,8 @@ export default function ProductBasics({
               <FormItem>
                 <FormLabel>Product Type*</FormLabel>
                 <FormControl>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <label className="flex items-center gap-2 rounded-md border p-3 cursor-pointer">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <label className="flex items-center gap-2 rounded-md border p-2 cursor-pointer">
                       <input
                         type="radio"
                         name={field.name}
@@ -143,7 +143,7 @@ export default function ProductBasics({
                       <span className="text-sm">Regular</span>
                     </label>
 
-                    <label className="flex items-center gap-2 rounded-md border p-3 cursor-pointer">
+                    <label className="flex items-center gap-2 rounded-md border p-2 cursor-pointer">
                       <input
                         type="radio"
                         name={field.name}
@@ -154,7 +154,7 @@ export default function ProductBasics({
                       <span className="text-sm">On Sale</span>
                     </label>
 
-                    <label className="flex items-center gap-2 rounded-md border p-3 cursor-pointer">
+                    <label className="flex items-center gap-2 rounded-md border p-2 cursor-pointer">
                       <input
                         type="radio"
                         name={field.name}
@@ -163,6 +163,17 @@ export default function ProductBasics({
                         onChange={(e) => field.onChange(e.target.value)}
                       />
                       <span className="text-sm">Best Seller</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 rounded-md border p-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name={field.name}
+                        value="newArrival"
+                        checked={field.value === "newArrival"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                      <span className="text-sm">New Arrival</span>
                     </label>
                   </div>
                 </FormControl>
@@ -181,7 +192,7 @@ export default function ProductBasics({
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  rows={4}
+                  rows={3}
                   placeholder="Describe the product, its features, and what makes it special..."
                   {...field}
                 />

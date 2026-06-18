@@ -34,7 +34,6 @@ function getErrorMessage(error: AxiosError): string {
   mutate(values, {
     onSuccess: (message:string) => {
       toast.success(message || "Successfully logged in");
-      router.push("/admin/dashboard");
     },
     onError: (error: AxiosError) => {
       toast.error(getErrorMessage(error));

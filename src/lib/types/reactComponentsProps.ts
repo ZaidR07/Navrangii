@@ -57,8 +57,3 @@ export interface OrdersListTabProps {
   getStatusColor: (status: Order["orderStatusUpdate"]) => string;
 }
 
-export interface DeliveryPartnerAssignmentProps {
-  orders: Order[]
-  getStatusColor: (status: Order["orderStatusUpdate"]) => string
-  setOrders: React.Dispatch<React.SetStateAction<Order[]>>
-}

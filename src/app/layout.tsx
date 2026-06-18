@@ -9,6 +9,8 @@ import { AuthProvider } from "@/context/UserContext";
 import { CartProvider } from "@/context/CartContext";
 import CartPopup from "@/components/cart/CartPopup";
 import BackToTopButton from "@/components/BackToTopButton";
+import BotpressChatbot from "@/components/BotpressChatbot";
+import RouteAccessGuard from "@/components/RouteAccessGuard";
 
 export const metadata: Metadata = {
   title: "Navrangi",
@@ -23,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="light" suppressHydrationWarning>
       <body
-        className={`antialiased dark:text-white`}
+        className="antialiased"
       >
         <style>{`
           .ReactQueryDevtools button {
@@ -60,19 +62,11 @@ export default function RootLayout({
               <CartProvider>
                 <Theme>
                   <ToastContainer position="top-center" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick rtl={false} pauseOnFocusLoss draggable pauseOnHover />
-                  {children}
+                  <RouteAccessGuard>{children}</RouteAccessGuard>
                   <BackToTopButton />
                   <CartPopup />
                   
-                  {/* Botpress Chatbot */}
-                  <script 
-                    src="https://cdn.botpress.cloud/webchat/v3.4/inject.js" 
-                    defer
-                  />
-                  <script 
-                    src="https://files.bpcontent.cloud/2025/11/27/12/20251127123627-306P5VYY.js" 
-                    defer
-                  />
+                  <BotpressChatbot />
                 </Theme>
               </CartProvider>
             </WishlistProvider>

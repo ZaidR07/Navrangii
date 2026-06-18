@@ -86,15 +86,15 @@ export default function AdminReviewsPage() {
             <MessageSquare className="h-6 w-6 text-purple-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Product Reviews</h1>
-            <p className="text-sm text-gray-600">Manage and moderate customer feedback</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Product Reviews</h1>
+            <p className="text-sm text-gray-600 dark:text-slate-400">Manage and moderate customer feedback</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <select 
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-2 border border-gray-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
             <option value="all">All Reviews</option>
             <option value="pending">Pending</option>
@@ -109,36 +109,36 @@ export default function AdminReviewsPage() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
         </div>
       ) : filteredReviews.length === 0 ? (
-        <div className="bg-white rounded-xl border border-dashed border-gray-300 p-12 text-center">
-          <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No reviews found matching the filter.</p>
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-dashed border-gray-300 dark:border-slate-600 p-12 text-center">
+          <MessageSquare className="h-12 w-12 text-gray-300 dark:text-slate-500 mx-auto mb-3" />
+          <p className="text-gray-500 dark:text-slate-400">No reviews found matching the filter.</p>
         </div>
       ) : (
         <div className="grid gap-4">
           {filteredReviews.map((review) => (
-            <div key={review._id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div key={review._id} className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-200'}`} />
+                        <Star key={i} className={`h-4 w-4 ${i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-200 dark:text-slate-600'}`} />
                       ))}
                     </div>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-400 dark:text-slate-500">
                       {new Date(review.createdAt).toLocaleString()}
                     </span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                      review.status === 'approved' ? 'bg-green-100 text-green-700' :
-                      review.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                      'bg-amber-100 text-amber-700'
+                      review.status === 'approved' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-200' :
+                      review.status === 'rejected' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-200' :
+                      'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-200'
                     }`}>
                       {review.status}
                     </span>
                   </div>
-                  <p className="text-gray-900 font-medium mb-1">{review.userName}</p>
-                  <p className="text-xs text-gray-500 mb-3">{review.userEmail}</p>
-                  <p className="text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                  <p className="text-gray-900 dark:text-white font-medium mb-1">{review.userName}</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-400 mb-3">{review.userEmail}</p>
+                  <p className="text-gray-700 dark:text-slate-300 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-gray-100 dark:border-slate-700/50">
                     "{review.comment}"
                   </p>
                 </div>
@@ -155,14 +155,14 @@ export default function AdminReviewsPage() {
                   {review.status !== 'rejected' && (
                     <button 
                       onClick={() => updateStatus(review._id, 'rejected')}
-                      className="flex items-center justify-center gap-2 px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm"
+                      className="flex items-center justify-center gap-2 px-4 py-2 border border-red-600 text-red-600 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm"
                     >
                       <XCircle className="h-4 w-4" /> Reject
                     </button>
                   )}
                   <button 
                     onClick={() => deleteReview(review._id)}
-                    className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                    className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-slate-400 rounded-lg hover:bg-gray-50 dark:bg-slate-800/50 transition-colors text-sm"
                   >
                     <Trash2 className="h-4 w-4" /> Delete
                   </button>

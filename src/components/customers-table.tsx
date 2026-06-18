@@ -75,9 +75,9 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
     return <LoaderSpinner message="Loading customers..." />;
   }
   return (
-    <Card className="border-gray-200">
+    <Card className="border-gray-200 dark:border-slate-700">
       <CardHeader>
-        <CardTitle className="text-gray-900">
+        <CardTitle className="text-gray-900 dark:text-white">
           Customer Overview
         </CardTitle>
       </CardHeader>
@@ -85,23 +85,23 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
         <div className="overflow-x-auto rounded-lg">
           <Table>
             <TableHeader>
-              <TableRow className="border-gray-200">
-                <TableHead className="text-gray-900 font-semibold">
+              <TableRow className="border-gray-200 dark:border-slate-700">
+                <TableHead className="text-gray-900 dark:text-white font-semibold">
                   Customer
                 </TableHead>
-                <TableHead className="text-gray-900 font-semibold">
+                <TableHead className="text-gray-900 dark:text-white font-semibold">
                   Contact
                 </TableHead>
-                <TableHead className="text-gray-900 font-semibold">
+                <TableHead className="text-gray-900 dark:text-white font-semibold">
                   Orders
                 </TableHead>
-                <TableHead className="text-gray-900 font-semibold">
+                <TableHead className="text-gray-900 dark:text-white font-semibold">
                   Total Spent
                 </TableHead>
-                <TableHead className="text-gray-900 font-semibold">
+                <TableHead className="text-gray-900 dark:text-white font-semibold">
                   Last Order
                 </TableHead>
-                <TableHead className="text-gray-900 font-semibold">
+                <TableHead className="text-gray-900 dark:text-white font-semibold">
                   Actions
                 </TableHead>
               </TableRow>
@@ -114,29 +114,29 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                 return (
                   <TableRow
                     key={user._id}
-                    className="border-gray-200 hover:bg-gray-50"
+                    className="border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50"
                   >
                     <TableCell>
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 dark:text-white">
                         {user.name || user.email?.split('@')[0] || 'Unknown'}
                       </div>
                     </TableCell>
-                    <TableCell className="text-gray-900">
+                    <TableCell className="text-gray-900 dark:text-white">
                       {user.phone || 'N/A'}
                     </TableCell>
-                    <TableCell className="text-gray-900">
+                    <TableCell className="text-gray-900 dark:text-white">
                       {totalOrders}
                     </TableCell>
-                    <TableCell className="font-semibold text-gray-900">
+                    <TableCell className="font-semibold text-gray-900 dark:text-white">
                       ₹{totalSpent.toFixed(2)}
                     </TableCell>
                     <TableCell>
                       {lastOrder ? (
                         <div>
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-gray-900 dark:text-white">
                             #{lastOrder._id}
                           </div>
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-slate-400">
                             {(() => {
                             const date = new Date(lastOrder.createdAt);
                             const day = date.getDate().toString().padStart(2, '0');
@@ -155,7 +155,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                           </Badge>
                         </div>
                       ) : (
-                        <span className="text-gray-500 text-sm">No orders</span>
+                        <span className="text-gray-500 dark:text-slate-400 text-sm">No orders</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -170,68 +170,68 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                             View
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white">
+                        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto bg-white dark:bg-slate-800">
                           <DialogHeader>
-                            <DialogTitle className="text-gray-900">
+                            <DialogTitle className="text-gray-900 dark:text-white">
                               Customer Details - {user.name || user.email?.split('@')[0] || 'Unknown'}
                             </DialogTitle>
                           </DialogHeader>
                           <div className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <Card className="border-gray-200">
+                              <Card className="border-gray-200 dark:border-slate-700">
                                 <CardHeader>
-                                  <CardTitle className="text-gray-900 text-lg flex items-center gap-2">
+                                  <CardTitle className="text-gray-900 dark:text-white text-lg flex items-center gap-2">
                                     <Users className="h-5 w-5" />
                                     Customer Information
                                   </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-3 text-sm">
                                   <div className="flex items-center gap-2">
-                                    <strong className="text-gray-900">Name:</strong>
+                                    <strong className="text-gray-900 dark:text-white">Name:</strong>
                                     <span>{user.name || user.email?.split('@')[0] || 'Unknown'}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <Mail className="h-4 w-4 text-gray-600" />
-                                    <strong className="text-gray-900">Email:</strong>
+                                    <Mail className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+                                    <strong className="text-gray-900 dark:text-white">Email:</strong>
                                     <span>{user.email}</span>
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <Phone className="h-4 w-4 text-gray-600" />
-                                    <strong className="text-gray-900">Phone:</strong>
+                                    <Phone className="h-4 w-4 text-gray-600 dark:text-slate-400" />
+                                    <strong className="text-gray-900 dark:text-white">Phone:</strong>
                                     <span>{user.phone || 'N/A'}</span>
                                   </div>
                                 </CardContent>
                               </Card>
 
-                              <Card className="border-gray-200">
+                              <Card className="border-gray-200 dark:border-slate-700">
                                 <CardHeader>
-                                  <CardTitle className="text-gray-900 text-lg flex items-center gap-2">
+                                  <CardTitle className="text-gray-900 dark:text-white text-lg flex items-center gap-2">
                                     <ShoppingCart className="h-5 w-5" />
                                     Order Statistics
                                   </CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-3 text-sm">
                                   <div className="flex justify-between">
-                                    <span className="text-gray-900">Total Orders:</span>
+                                    <span className="text-gray-900 dark:text-white">Total Orders:</span>
                                     <span className="font-medium">{totalOrders}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-900">Total Spent:</span>
+                                    <span className="text-gray-900 dark:text-white">Total Spent:</span>
                                     <span className="font-medium">₹{totalSpent.toFixed(2)}</span>
                                   </div>
                                   <div className="flex justify-between">
-                                    <span className="text-gray-900">Average Order:</span>
+                                    <span className="text-gray-900 dark:text-white">Average Order:</span>
                                     <span className="font-medium">₹{(totalSpent / totalOrders || 0).toFixed(2)}</span>
                                   </div>
                                 </CardContent>
                               </Card>
                             </div>
 
-                            <Separator className="bg-gray-200" />
+                            <Separator className="bg-gray-200 dark:bg-slate-700" />
 
                             {/* Order History */}
                             <div>
-                              <h3 className="font-semibold mb-4 text-gray-900 text-lg flex items-center gap-2">
+                              <h3 className="font-semibold mb-4 text-gray-900 dark:text-white text-lg flex items-center gap-2">
                                 <Package className="h-5 w-5" />
                                 Order History ({getUserOrders(user).length})
                               </h3>
@@ -239,15 +239,15 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                 {getUserOrders(user).map((order) => (
                                   <Card
                                     key={order._id}
-                                    className="bg-gradient-to-r from-slate-50 to-gray-50 border-slate-200"
+                                    className="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-800 dark:to-slate-700 border-slate-200 dark:border-slate-700"
                                   >
                                     <CardContent className="p-4">
                                       <div className="flex justify-between items-start mb-3">
                                         <div>
-                                          <h4 className="font-semibold text-gray-900">
+                                          <h4 className="font-semibold text-gray-900 dark:text-white">
                                             #{order._id}
                                           </h4>
-                                          <p className="text-sm text-gray-600">
+                                          <p className="text-sm text-gray-600 dark:text-slate-400">
                                             {(() => {
                                             const date = new Date(order.createdAt);
                                             const day = date.getDate().toString().padStart(2, '0');
@@ -268,7 +268,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                               .toUpperCase() +
                                               (order.orderStatusUpdate?.status || 'pending').slice(1)}
                                           </Badge>
-                                          <p className="text-sm font-semibold text-gray-900 mt-1">
+                                          <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">
                                             ₹{order.total.toFixed(2)}
                                           </p>
                                         </div>
@@ -291,14 +291,14 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                                     }
                                                     alt={item.product?.name || "Product"}
                                                     fill
-                                                    className="object-cover rounded border border-gray-200"
+                                                    className="object-cover rounded border border-gray-200 dark:border-slate-700"
                                                   />
                                                 </div>
                                                 <div className="text-xs">
-                                                  <p className="font-medium text-gray-900 truncate max-w-20">
+                                                  <p className="font-medium text-gray-900 dark:text-white truncate max-w-20">
                                                     {item.product?.name || "-"}
                                                   </p>
-                                                  <p className="text-gray-600">
+                                                  <p className="text-gray-600 dark:text-slate-400">
                                                     {item.variant?.color || "-"} •{" "}
                                                     {item.size || "-"}
                                                   </p>
@@ -306,7 +306,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                               </div>
                                             ))}
                                             {items.length > 3 && (
-                                              <div className="flex items-center text-sm text-gray-600">
+                                              <div className="flex items-center text-sm text-gray-600 dark:text-slate-400">
                                                 +{items.length - 3} more
                                               </div>
                                             )}
@@ -314,18 +314,18 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                         );
                                       })()}
                                       <div className="mt-3 flex justify-between items-center text-sm">
-                                        <span className="text-gray-600">
+                                        <span className="text-gray-600 dark:text-slate-400">
                                           {(Array.isArray(order.items) ? order.items.length : 0)} item
                                           {(Array.isArray(order.items) ? order.items.length : 0) !== 1 ? "s" : ""}
                                         </span>
-                                        <div className="flex items-center gap-2 text-gray-600">
+                                        <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                                           <MapPin className="h-3 w-3" />
                                           {order.shippingAddress.city},{" "}
                                           {order.shippingAddress.state}
                                         </div>
                                       </div>
                                       {order.orderStatusUpdate?.trackingNumber && (
-                                        <div className="mt-2 text-xs text-gray-600">
+                                        <div className="mt-2 text-xs text-gray-600 dark:text-slate-400">
                                           <strong>Tracking:</strong>{" "}
                                           {order.orderStatusUpdate.trackingNumber}
                                         </div>
@@ -334,7 +334,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                   </Card>
                                 ))}
                                 {getUserOrders(user).length === 0 && (
-                                  <div className="text-center py-8 text-gray-500">
+                                  <div className="text-center py-8 text-gray-500 dark:text-slate-400">
                                     <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
                                     <p>No orders found for this customer</p>
                                   </div>

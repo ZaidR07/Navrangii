@@ -171,6 +171,7 @@ export async function PUT(req: NextRequest) {
       {
         $set: {
           name: product.name,
+          section: product.section,
           category: product.category,
           subcategory: product.subcategory,
           description: product.description,
@@ -178,7 +179,9 @@ export async function PUT(req: NextRequest) {
           occasion: product.occasion,
           patternAndPrint: product.patternAndPrint,
           style: product.style,
-          dateAdded: new Date(product.dateAdded),
+          productType: product.productType,
+          options: product.options,
+          updatedAt: new Date(),
           variants: variantIds,
         },
       }

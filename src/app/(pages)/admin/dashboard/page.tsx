@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 import StatCard from "@/components/stat-card";
 import { TopProductTable } from "@/components/top-product-table";
-import { dummyProducts } from "@/lib/constants/dashboardSliderData";
 import { useGetStatsData } from "@/hooks/dashboard/useGetStatsData";
 import { useGetPieStatsData } from "@/hooks/dashboard/useGetPieStatsData";
 import { useGetEarningData } from "@/hooks/dashboard/useGetEarningData";
+import { useGetTopProducts } from "@/hooks/dashboard/useGetTopProducts";
+import { useGetStockOverview } from "@/hooks/dashboard/useGetStockOverview";
 import GraphDiagram from "@/components/graph-diagram";
 import PieDiagram from "@/components/pie-diagram";
+import { AlertTriangle, TrendingDown } from "lucide-react";
 
 export default function Dashboard() {
   const { 
@@ -40,6 +42,18 @@ export default function Dashboard() {
     isLoading: yearlyEarningsIsLoading,
     error: yearlyEarningsErrorObj
   } = useGetEarningData();
+
+  const {
+    data: topProducts,
+    isError: topProductsError,
+    error: topProductsErrorObj,
+  } = useGetTopProducts();
+
+  const {
+    data: stockData,
+    isError: stockError,
+    error: stockErrorObj,
+  } = useGetStockOverview();
   
   const [size, setSize] = useState<"sm" | "md" | "xs">("sm");
 
@@ -54,7 +68,13 @@ export default function Dashboard() {
     if (yearlyEarningsError) {
       toast.error(`Failed to load earnings data: ${yearlyEarningsErrorObj?.message || 'Unknown error'}`);
     }
-  }, [statsError, pieStatsError, yearlyEarningsError, statsErrorObj, pieStatsErrorObj, yearlyEarningsErrorObj]);
+    if (topProductsError) {
+      toast.error(`Failed to load top products: ${topProductsErrorObj?.message || 'Unknown error'}`);
+    }
+    if (stockError) {
+      toast.error(`Failed to load stock data: ${stockErrorObj?.message || 'Unknown error'}`);
+    }
+  }, [statsError, pieStatsError, yearlyEarningsError, topProductsError, stockError, statsErrorObj, pieStatsErrorObj, yearlyEarningsErrorObj, topProductsErrorObj, stockErrorObj]);
 
   // Handle window resize
   useEffect(() => {
@@ -186,15 +206,58 @@ export default function Dashboard() {
         {/* Top Products and Stock */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <TopProductTable products={dummyProducts} />
+            {topProducts && topProducts.length > 0 ? (
+              <TopProductTable products={topProducts} />
+            ) : (
+              <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Top Selling Products</h2>
+                <div className="mt-4 text-slate-600 dark:text-slate-400">No sales data available yet.</div>
+              </div>
+            )}
           </div>
           <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
               Stock Overview
             </h2>
-            <div className="mt-4 text-slate-600 dark:text-slate-400">
-              Stock data coming soon...
-            </div>
+            {stockData ? (
+              <div className="mt-4 space-y-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 text-center">
+                    <Package className="h-6 w-6 text-purple-600 dark:text-purple-400 mx-auto mb-1" />
+                    <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">{stockData.totalProducts}</p>
+                    <p className="text-xs text-purple-600 dark:text-purple-400">Total Products</p>
+                  </div>
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 text-center">
+                    <TrendingDown className="h-6 w-6 text-red-600 dark:text-red-400 mx-auto mb-1" />
+                    <p className="text-2xl font-bold text-red-700 dark:text-red-300">{stockData.outOfStock}</p>
+                    <p className="text-xs text-red-600 dark:text-red-400">Out of Stock</p>
+                  </div>
+                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 text-center">
+                    <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400 mx-auto mb-1" />
+                    <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{stockData.lowStock}</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400">Low Stock</p>
+                  </div>
+                </div>
+                {stockData.lowStockProducts.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Low Stock Items</h3>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {stockData.lowStockProducts.map((product: any) => (
+                        <div key={product._id} className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                          <img src={product.thumbnail} alt={product.name} className="w-10 h-10 object-cover rounded border" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{product.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{product.totalStock} left in stock</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="mt-4 text-slate-600 dark:text-slate-400">Stock data not available</div>
+            )}
           </div>
         </div>
       </div>
