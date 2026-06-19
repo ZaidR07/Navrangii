@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
-});
+function getRazorpay() {
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || "",
+    key_secret: process.env.RAZORPAY_KEY_SECRET || "",
+  });
+}
 
-// Check if keys are configured
-const isConfigured = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET;
+function isConfigured() {
+  return !!process.env.RAZORPAY_KEY_ID && !!process.env.RAZORPAY_KEY_SECRET;
+}
 
 export async function POST(req: NextRequest) {
   try {
     // Check if Razorpay is configured
-    if (!isConfigured) {
+    if (!isConfigured()) {
       console.error("Razorpay not configured: Missing RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET");
       return NextResponse.json(
         { success: false, message: "Payment gateway not configured. Please contact support." },
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
     };
 
     // Create order in Razorpay
-    const order = await razorpay.orders.create(options);
+    const order = await getRazorpay().orders.create(options);
 
     if (!order || !order.id) {
       return NextResponse.json(
