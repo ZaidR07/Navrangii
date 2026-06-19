@@ -3,10 +3,12 @@ import { connectToDB } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import Razorpay from "razorpay";
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "",
-});
+function getRazorpay() {
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID || "",
+    key_secret: process.env.RAZORPAY_KEY_SECRET || "",
+  });
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest) {
 
       if (paymentId && (order.paymentStatus === "paid" || order.orderStatusUpdate?.paymentStatus === "paid" || order.paymentMethod === "online" || order.paymentMethod === "Razorpay")) {
         // Razorpay expects paise
-        await razorpay.payments.refund(paymentId, {
+        await getRazorpay().payments.refund(paymentId, {
           amount: Math.round(refundAmount * 100),
           notes: {
             reason: request.reason || "refund",
