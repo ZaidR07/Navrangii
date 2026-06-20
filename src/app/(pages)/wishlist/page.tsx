@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useWishlist } from '@/hooks/wishlist/useWishlist';
 import { useRemoveFromWishlist } from '@/hooks/wishlist/useRemoveFromWishlist';
 import { motion } from 'framer-motion';
-import { X, Heart, ShoppingCart } from 'lucide-react';
+import { X, Heart, ShoppingCart, LogIn } from 'lucide-react';
 import WishlistLoginModal from '@/components/wishlist/WishlistLoginModal';
 import WishlistItem from '@/components/wishlist/WishlistItem';
 import Cookies from 'js-cookie';
@@ -94,7 +94,37 @@ export default function WishlistPage() {
     setUndoItems(prev => prev.filter(item => item.productId !== productId));
   };
   
-  if (!userEmail || isLoading) {
+  if (!userEmail) {
+    return (
+      <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
+        <NavigationHeader />
+        <div className="py-8 mt-36 lg:mt-40">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+              <Heart className="mx-auto h-16 w-16 text-gray-300 mb-4" />
+              <h3 className="text-xl font-medium text-gray-900 mb-2">Login to view your wishlist</h3>
+              <p className="text-gray-500 mb-6">Please log in to see your saved items</p>
+              <button
+                onClick={() => setIsLoginModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+              >
+                <LogIn className="h-4 w-4" />
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+        <Footer />
+        <WishlistLoginModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          onLoginSuccess={handleLoginSuccess}
+        />
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
         <div className="text-center">
@@ -104,7 +134,7 @@ export default function WishlistPage() {
       </div>
     );
   }
-  
+
   if (isError) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
