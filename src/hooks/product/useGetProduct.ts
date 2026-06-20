@@ -20,6 +20,9 @@ export async function fetchAllProducts(): Promise<Product[]> {
       if (error.response?.status === 401) {
         window.location.href = '/admin';
       }
+      if (error.response?.status === 404) {
+        return []; // No products found
+      }
       throw new Error(error.response?.data?.message || 'Failed to fetch products');
     }
     throw error;

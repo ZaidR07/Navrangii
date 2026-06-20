@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, ReactNode, useEffect } from "react";
-import { useTheme } from "next-themes";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 import { useCurrentAdmin } from "@/hooks/admin/useCurrentAdmin";
@@ -16,12 +15,6 @@ export default function AuthCheckWrapper({ children }: AuthCheckWrapperProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const router = useRouter();
   const { data:user, isLoading, isError, error } = useCurrentAdmin();
-  const { setTheme } = useTheme();
-
-  useEffect(() => {
-    setTheme("dark");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     // Only redirect when query is done and user is definitely not authenticated

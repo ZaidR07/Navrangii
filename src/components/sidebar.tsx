@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, memo } from "react";
 import Link from "next/link";
 import {
   Menu, ChevronLeft, LayoutDashboard, Users, Package, ShoppingCart,
@@ -18,7 +18,6 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [isHovered, setIsHovered] = useState(false);
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isMarketingExpanded, setIsMarketingExpanded] = useState(false);
   const pathname = usePathname();
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -103,7 +102,7 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
         onMouseLeave={handleMouseLeave}
         className={`
           fixed md:relative z-50 top-0 left-0 h-screen flex flex-col
-          transition-all duration-300 ease-in-out
+          transition-all duration-150 ease-out
           border-r border-slate-200 dark:border-slate-700
           bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900
           
@@ -134,8 +133,6 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
               icon={<LayoutDashboard className="h-5 w-5" />}
               isActive={pathname === "/admin/dashboard"}
               isCollapsed={collapsed}
-              onHover={setHoveredItem}
-              isHovered={hoveredItem === "/admin/dashboard"}
             />
 
             {/* Customers */}
@@ -145,8 +142,6 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
               icon={<Users className="h-5 w-5" />}
               isActive={pathname === "/admin/customers"}
               isCollapsed={collapsed}
-              onHover={setHoveredItem}
-              isHovered={hoveredItem === "/admin/customers"}
             />
 
             {/* Marketing (Expandable) */}
@@ -157,8 +152,6 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
                 icon={<BadgeIndianRupee className="h-5 w-5" />}
                 isActive={pathname.startsWith("/admin/marketing")}
                 isCollapsed={collapsed}
-                onHover={setHoveredItem}
-                isHovered={hoveredItem === "/admin/marketing"}
               />
             ) : (
               <div className="space-y-1">
@@ -205,8 +198,6 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
                 {...item}
                 isActive={pathname === item.href}
                 isCollapsed={collapsed}
-                onHover={setHoveredItem}
-                isHovered={hoveredItem === item.href}
               />
             ))}
           </div>
@@ -217,8 +208,6 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
                 {...item}
                 isActive={pathname === item.href}
                 isCollapsed={collapsed}
-                onHover={setHoveredItem}
-                isHovered={hoveredItem === item.href}
               />
             ))}
           </div>
@@ -249,19 +238,15 @@ export default function Sidebar({ isOpen, setIsOpen, defaultCollapsed = true }: 
 interface NavLinkProps extends NavItem {
   isActive: boolean;
   isCollapsed: boolean;
-  onHover: (href: string | null) => void;
-  isHovered: boolean;
 }
 
-function NavLink({ href, label, icon, isActive, isCollapsed, onHover, isHovered }: NavLinkProps) {
+const NavLink = memo(function NavLink({ href, label, icon, isActive, isCollapsed }: NavLinkProps) {
   return (
     <div className="relative group">
       <Link
         href={href}
-        onMouseEnter={() => onHover(href)}
-        onMouseLeave={() => onHover(null)}
         className={`
-          flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200
+          flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-150
           ${isCollapsed ? "justify-center" : ""}
           ${isActive ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300" : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"}
         `}
@@ -269,11 +254,11 @@ function NavLink({ href, label, icon, isActive, isCollapsed, onHover, isHovered 
         {icon}
         {!isCollapsed && <span>{label}</span>}
       </Link>
-      {isCollapsed && isHovered && (
-        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 bg-black text-white px-2 py-1 rounded text-sm shadow">
+      {isCollapsed && (
+        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-2 bg-black text-white px-2 py-1 rounded text-sm shadow opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-150 whitespace-nowrap z-50">
           {label}
         </div>
       )}
     </div>
   );
-}
+});

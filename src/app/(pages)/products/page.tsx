@@ -165,20 +165,26 @@ function ProductsPageContent() {
     return parts.join(' - ');
   };
   
-  if (productsLoading || variablesLoading) {
+  if (productsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
       </div>
     );
   }
-  
-  if (productsError || variablesError) {
+
+  if (productsError) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Error Loading Data</h2>
-          <p className="text-gray-600">{productsError?.message || variablesError?.message || 'Failed to load data. Please try again later.'}</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
+          <p className="text-gray-600">We couldn&apos;t load the products right now. Please try again later.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
+          >
+            Refresh Page
+          </button>
         </div>
       </div>
     );

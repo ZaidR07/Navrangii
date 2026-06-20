@@ -1,33 +1,86 @@
 import { MongoClient, Db } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGOURL;
+function getMongoUri(): string {
+  const raw = (process.env.MONGODB_URI || process.env.MONGOURL || "").trim();
 
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI or MONGOURL environment variable inside .env.local');
+  // Auto-fix common typo: mmongodb:// -> mongodb://
+  const fixed = raw.replace(/^mmongodb:\/\//i, "mongodb://");
+
+  return fixed;
 }
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
 
 export async function connectToDB() {
-  if (cachedClient && cachedDb) {
-    return { client: cachedClient, db: cachedDb };
+  // Always read env fresh (Next.js hot-reload doesn't re-evaluate module-level consts)
+  const MONGODB_URI = getMongoUri();
+
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI or MONGOURL environment variable inside .env.local');
   }
 
-  const client = new MongoClient(MONGODB_URI!);
-  await client.connect();
-  
-  const db = client.db(); // Uses database name from connection string
-  
-  cachedClient = client;
-  cachedDb = db;
-  
-  return { client, db };
+  if (!MONGODB_URI.startsWith("mongodb://") && !MONGODB_URI.startsWith("mongodb+srv://")) {
+    throw new Error(
+      `Invalid MONGODB_URI or MONGOURL. Expected connection string starting with "mongodb://" or "mongodb+srv://". Got: "${MONGODB_URI.slice(0, 50)}..."`
+    );
+  }
+
+  // If we have a cached connection, verify it's still alive
+  if (cachedClient && cachedDb) {
+    try {
+      await cachedDb.admin().ping();
+      return { client: cachedClient, db: cachedDb };
+    } catch {
+      // Connection is dead — clear cache and reconnect below
+      try {
+        await cachedClient.close();
+      } catch {
+        // ignore close errors
+      }
+      cachedClient = null;
+      cachedDb = null;
+    }
+  }
+
+  // Create new connection
+  const client = new MongoClient(MONGODB_URI);
+
+  try {
+    await client.connect();
+    const db = client.db();
+
+    // Verify connection with a ping
+    await db.admin().ping();
+
+    cachedClient = client;
+    cachedDb = db;
+
+    return { client, db };
+  } catch (error) {
+    // Clear any partial state
+    try {
+      await client.close();
+    } catch {
+      // ignore close errors
+    }
+    cachedClient = null;
+    cachedDb = null;
+
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error(`Database connection failed: ${errMsg}`);
+    console.error(`Using MONGOURL/MONGODB_URI: ${MONGODB_URI.replace(/:([^@:]+)@/, ':****@')}`);
+    throw error;
+  }
 }
 
 export async function disconnectFromDB() {
   if (cachedClient) {
-    await cachedClient.close();
+    try {
+      await cachedClient.close();
+    } catch {
+      // ignore
+    }
     cachedClient = null;
     cachedDb = null;
   }
