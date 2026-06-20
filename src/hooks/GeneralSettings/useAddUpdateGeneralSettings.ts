@@ -16,6 +16,8 @@ interface GeneralSettings {
   phoneNumber: string;
   email: string;
   whatsapp: string;
+  whatsappUsername: string;
+  whatsappDeviceToken: string;
 }
 
 interface SettingsResponse {

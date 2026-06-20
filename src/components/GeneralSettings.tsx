@@ -20,6 +20,8 @@ export default function GeneralSettings() {
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [whatsapp, setWhatsapp] = useState<string>("");
+  const [whatsappUsername, setWhatsappUsername] = useState<string>("");
+  const [whatsappDeviceToken, setWhatsappDeviceToken] = useState<string>("");
 
   // Populate local state when settings load
   useEffect(() => {
@@ -30,6 +32,8 @@ export default function GeneralSettings() {
     setPhoneNumber(settings.phoneNumber ?? "");
     setEmail(settings.email ?? "");
     setWhatsapp(settings.whatsapp ?? "");
+    setWhatsappUsername(settings.whatsappUsername ?? "");
+    setWhatsappDeviceToken(settings.whatsappDeviceToken ?? "");
   }, [settings]);
 
   const addGeneralItem = () => {
@@ -67,6 +71,8 @@ export default function GeneralSettings() {
       phoneNumber,
       email,
       whatsapp,
+      whatsappUsername,
+      whatsappDeviceToken,
     };
 
     saveGeneralSettings(payload);
@@ -82,6 +88,8 @@ export default function GeneralSettings() {
       setPhoneNumber(settings.phoneNumber ?? "");
       setEmail(settings.email ?? "");
       setWhatsapp(settings.whatsapp ?? "");
+      setWhatsappUsername(settings.whatsappUsername ?? "");
+      setWhatsappDeviceToken(settings.whatsappDeviceToken ?? "");
     } else {
       setGeneralItems([""]);
       setReturnPeriod("");
@@ -89,6 +97,8 @@ export default function GeneralSettings() {
       setPhoneNumber("");
       setEmail("");
       setWhatsapp("");
+      setWhatsappUsername("");
+      setWhatsappDeviceToken("");
     }
     toast.info("Form reset");
   };
@@ -141,6 +151,36 @@ export default function GeneralSettings() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* WhatsApp Marketing Credentials Section */}
+          <div>
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">WhatsApp Marketing Credentials</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="whatsappUsername">Username</Label>
+                <Input
+                  id="whatsappUsername"
+                  placeholder="Enter WhatsApp username"
+                  value={whatsappUsername}
+                  onChange={(e) => setWhatsappUsername(e.target.value)}
+                  disabled={isLoading || isSaving}
+                />
+              </div>
+              <div>
+                <Label htmlFor="whatsappDeviceToken">Device Token</Label>
+                <Input
+                  id="whatsappDeviceToken"
+                  placeholder="Enter device token"
+                  value={whatsappDeviceToken}
+                  onChange={(e) => setWhatsappDeviceToken(e.target.value)}
+                  disabled={isLoading || isSaving}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">
+              API URL and country code are managed internally. Only username and device token need to be configured here.
+            </p>
           </div>
 
           {/* Policy Information Section */}

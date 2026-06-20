@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "@/lib/mongodb";
 
-const WHATSAPP_API_BASE = process.env.WHATSAPP_API_BASE || "https://whatsapper.t-rexinfotech.in/api/public";
-const WHATSAPP_DEVICE_TOKEN = process.env.WHATSAPP_DEVICE_TOKEN;
-const WHATSAPP_COUNTRY_CODE = process.env.WHATSAPP_COUNTRY_CODE || "91";
-const WHATSAPP_USERNAME = process.env.WHATSAPP_USERNAME || "YourApp";
+const WHATSAPP_API_BASE = "https://whatsapper.t-rexinfotech.in/api/public";
+const WHATSAPP_COUNTRY_CODE = "91";
 const INTERVAL_SECONDS = 3; // Hardcoded 3-second interval
 
 export async function POST(req: NextRequest) {
   try {
-    // Check if env credentials are configured
-    if (!WHATSAPP_DEVICE_TOKEN) {
+    const { db } = await connectToDB();
+
+    // Fetch WhatsApp credentials from database
+    const settingsDoc = await db
+      .collection("general_information")
+      .findOne({ _id: "general_settings" as any });
+
+    const settings = settingsDoc?.data || {};
+    const WHATSAPP_USERNAME = settings.whatsappUsername || "";
+    const WHATSAPP_DEVICE_TOKEN = settings.whatsappDeviceToken || "";
+
+    if (!WHATSAPP_USERNAME || !WHATSAPP_DEVICE_TOKEN) {
       return NextResponse.json(
-        { success: false, message: "WhatsApp device token not configured" },
+        { success: false, message: "WhatsApp credentials not configured. Please set them in Settings > General Settings > WhatsApp Marketing Credentials." },
         { status: 500 }
       );
     }
@@ -39,7 +47,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { db } = await connectToDB();
     const jobId = `JOB-${Date.now()}`;
     const results = [];
     let sentCount = 0;

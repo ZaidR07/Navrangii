@@ -16,6 +16,8 @@ interface GeneralSettings {
   phoneNumber: string;
   email: string;
   whatsapp: string;
+  whatsappUsername: string;
+  whatsappDeviceToken: string;
 }
 
 interface SettingsResponse {
@@ -32,6 +34,8 @@ export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   phoneNumber: '',
   email: '',
   whatsapp: '',
+  whatsappUsername: '',
+  whatsappDeviceToken: '',
 };
 
 async function getGeneralSettingsRequest() {

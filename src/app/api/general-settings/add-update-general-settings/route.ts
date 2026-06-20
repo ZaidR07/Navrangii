@@ -20,6 +20,8 @@ export async function POST(req: NextRequest) {
       phoneNumber: "",
       email: "",
       whatsapp: "",
+      whatsappUsername: "",
+      whatsappDeviceToken: "",
     };
 
     const normalized = {
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
     const toSave = { ...defaultGeneralSettings, ...normalized };
 
     await db.collection("general_information").updateOne(
-      { _id: "general_settings" },
+      { _id: "general_settings" as any },
       {
         $set: { data: toSave, updatedAt: new Date() },
         $setOnInsert: { createdAt: new Date() },
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     const updated = await db
       .collection("general_information")
-      .findOne({ _id: "general_settings" });
+      .findOne({ _id: "general_settings" as any });
 
     return NextResponse.json(
       {
