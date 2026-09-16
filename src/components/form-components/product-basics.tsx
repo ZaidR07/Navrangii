@@ -66,7 +66,7 @@ export default function ProductBasics({
           <FormSelect
             control={control}
             name="section"
-            label="Section"
+            label="Section*"
             options={sectionOptions}
           />
         </div>
@@ -92,7 +92,7 @@ export default function ProductBasics({
           <FormSelect
             control={control}
             name="subcategory"
-            label="Subcategory*"
+            label="Subcategory"
             options={subCategoryOptions}
             disabled={!category}
             placeholder={category ? "Select…" : "Choose category first"}
@@ -189,7 +189,7 @@ export default function ProductBasics({
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Description*</FormLabel>
               <FormControl>
                 <Textarea
                   rows={3}

@@ -5,6 +5,7 @@ import { Product, ProductVariantType } from '@/lib/types/productType';
 import WishlistToggle from '@/components/wishlist/WishlistToggle';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 interface ProductDetailProps {
   product: Product;
@@ -125,12 +126,13 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
               {/* Main Image */}
               <div className="flex-1 flex items-center justify-center relative">
                 <div className="relative w-full h-full flex items-center justify-center">
-                  <img
+                  <Image
                     src={allImages[currentMobileImage]}
                     alt={`${product.name} ${currentMobileImage + 1}`}
-                    className="-mt-12 min-w-[90vw] lg:min-w-[22vw] max-h-[70vh]  max-w-[90vw] object-contain"
+                    width={1000}
+                    height={1000}
+                    className="-mt-12 min-w-[90vw] lg:min-w-[22vw] max-h-[70vh] max-w-[90vw] object-contain"
                     style={{ width: 'auto', height: 'auto' }}
-                    onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
                   />
                 </div>
                 
@@ -166,15 +168,16 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
                     key={idx}
                     onClick={() => handleMobileImageSelect(idx)}
                     className={cn(
-                      'flex-shrink-0 w-16 h-16 border-2 rounded overflow-hidden',
+                      'flex-shrink-0 w-16 h-16 border-2 rounded overflow-hidden relative',
                       idx === currentMobileImage ? 'border-purple-500' : 'border-transparent'
                     )}
                   >
-                    <img
+                    <Image
                       src={img}
                       alt={`Thumbnail ${idx + 1}`}
+                      fill
+                      sizes="64px"
                       className="w-full h-full object-cover"
-                      onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/100/eee/aaa?text=No+Image'; }}
                     />
                   </button>
                 ))}
@@ -194,7 +197,7 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
           {allImages.map((image, index) => (
             <div 
               key={index}
-              className="flex-shrink-0 snap-center relative"
+              className="flex-shrink-0 snap-center relative aspect-[4/5]"
               style={{ width: 'calc(100% - 1rem)' }}
             >
               <button 
@@ -204,11 +207,12 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
                 }}
                 className="w-full h-full"
               >
-                <img 
+                <Image 
                   src={image}
                   alt={`${product.name} ${index + 1}`}
-                  className="w-full aspect-[4/5] object-cover rounded-lg"
-                  onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
+                  fill
+                  sizes="(max-width: 1024px) 90vw, 50vw"
+                  className="w-full h-full object-cover rounded-lg"
                 />
               </button>
               {/* Wishlist Toggle Button */}
@@ -240,49 +244,75 @@ const ProductImageGallery = ({ product, selectedVariant }: ProductDetailProps) =
 
       {/* Desktop View */}
       <div className="hidden lg:block">
-        <div className="relative mb-4 overflow-hidden rounded-lg bg-gray-100" style={{ aspectRatio: '4/5' }}>
-          <button 
-            onClick={() => {
-              setCurrentMobileImage(selectedImage);
-              setIsFullscreen(true);
-            }}
-            className="w-full h-full"
-          >
-            <img
-              src={allImages[selectedImage] || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
-              alt={product.name}
-              className="w-full h-full object-cover"
-              onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
-            />
-          </button>
-          <div className="absolute top-2 right-2">
-            <WishlistToggle 
-              product={product} 
-              className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md"
-              iconClassName="h-5 w-5"
-            />
-          </div>
-        </div>
+        <div className="xl:flex xl:items-start xl:gap-4 3xl:block">
+          {/* Left vertical thumbnails - xl & 2xl only */}
+          {allImages.length > 1 && (
+            <div className="hidden xl:flex 3xl:hidden flex-col gap-2 w-24 shrink-0 max-h-[70vh] overflow-y-auto hide-scrollbar">
+              {allImages.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`relative aspect-square w-full shrink-0 overflow-hidden rounded-lg ${selectedImage === index ? 'ring-2 ring-purple-600' : ''}`}
+                >
+                  <Image
+                    src={image}
+                    alt={`${product.name} ${index + 1}`}
+                    fill
+                    sizes="96px"
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
 
-        {/* Thumbnails */}
-        {allImages.length > 1 && (
-          <div className="grid grid-cols-4 gap-2">
-            {allImages.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setSelectedImage(index)}
-                className={`relative aspect-square overflow-hidden rounded-lg ${selectedImage === index ? 'ring-2 ring-purple-600' : ''}`}
-              >
-                <img
-                  src={image}
-                  alt={`${product.name} ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/100/eee/aaa?text=No+Image'; }}
-                />
-              </button>
-            ))}
+          {/* Main image */}
+          <div className="relative mb-4 xl:mb-0 3xl:mb-4 overflow-hidden rounded-lg bg-gray-100 aspect-[4/5] lg:max-w-[56vh] lg:mx-auto xl:flex-1">
+            <button
+              onClick={() => {
+                setCurrentMobileImage(selectedImage);
+                setIsFullscreen(true);
+              }}
+              className="w-full h-full"
+            >
+              <Image
+                src={allImages[selectedImage] || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
+                alt={product.name}
+                fill
+                sizes="50vw"
+                className="w-full h-full object-cover"
+              />
+            </button>
+            <div className="absolute top-2 right-2">
+              <WishlistToggle
+                product={product}
+                className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md"
+                iconClassName="h-5 w-5"
+              />
+            </div>
           </div>
-        )}
+
+          {/* Bottom thumbnails - lg & 3xl only */}
+          {allImages.length > 1 && (
+            <div className="grid grid-cols-4 gap-2 lg:max-w-[56vh] lg:mx-auto xl:hidden 3xl:grid">
+              {allImages.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setSelectedImage(index)}
+                  className={`relative aspect-square overflow-hidden rounded-lg ${selectedImage === index ? 'ring-2 ring-purple-600' : ''}`}
+                >
+                  <Image
+                    src={image}
+                    alt={`${product.name} ${index + 1}`}
+                    fill
+                    sizes="100px"
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       
       <style jsx>{`

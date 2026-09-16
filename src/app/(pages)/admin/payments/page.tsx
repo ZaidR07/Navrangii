@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { CreditCard, CheckCircle, XCircle, Clock, Search, Download, Filter } from 'lucide-react';
 import { useGetOrders } from '@/hooks/order/useGetOrders';
 import { Order } from '@/lib/types/orderType';
+import { SkeletonTable } from '@/components/skeletons/admin-skeletons';
 
 export default function PaymentsPage() {
   const { data: ordersData, isLoading } = useGetOrders()
@@ -173,9 +174,7 @@ export default function PaymentsPage() {
 
       {/* Payments Table */}
       {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-        </div>
+        <SkeletonTable columns={7} rows={6} />
       ) : (
       <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border overflow-hidden">
         <div className="overflow-x-auto">

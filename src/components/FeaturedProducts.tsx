@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import WishlistToggle from '@/components/wishlist/WishlistToggle';
 
 interface Product {
@@ -52,7 +52,7 @@ const featuredProducts: Product[] = [
 export default function FeaturedProducts() {
   return (
     <section className="py-20 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -75,14 +75,16 @@ export default function FeaturedProducts() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 whileHover={{ scale: 1.05 }}
-                className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
+                className="group cursor-pointer transition-all duration-300"
               >
-              <div className="relative overflow-hidden">
-                <img
+              <div className="relative overflow-hidden aspect-[4/5] bg-gray-100 border-4 border-gray-100 shadow-lg group-hover:shadow-2xl transition-shadow duration-300">
+                <Image
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-80 object-cover group-hover:scale-110 transition-transform duration-300"
-                  style={{ aspectRatio: '3/4', objectFit: 'cover' }}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  style={{ aspectRatio: '4/5', objectFit: 'cover' }}
                 />
                 <div className="absolute top-4 right-4">
                   <WishlistToggle 
@@ -92,23 +94,14 @@ export default function FeaturedProducts() {
                   />
                 </div>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
-                <div className="flex items-center mb-3">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-                    />
-                  ))}
-                  <span className="text-sm text-gray-600 ml-2">({product.reviews})</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-2xl font-bold text-purple-600">{product.price}</span>
-                    <span className="text-lg text-gray-500 line-through ml-2">{product.originalPrice}</span>
-                  </div>
-                </div>
+              <div className="p-4 text-center">
+                <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+                <p className="text-base text-purple-600">
+                  {product.price}
+                  {product.originalPrice && product.originalPrice !== product.price && (
+                    <span className="ml-2 text-sm text-gray-400 line-through">{product.originalPrice}</span>
+                  )}
+                </p>
               </div>
               </motion.div>
             </Link>

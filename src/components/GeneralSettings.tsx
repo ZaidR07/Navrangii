@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useGetGeneralSettings } from "@/hooks/GeneralSettings/useGetGeneralSettings";
 import { useAddUpdateGeneralSettings } from "@/hooks/GeneralSettings/useAddUpdateGeneralSettings";
@@ -15,6 +17,12 @@ export default function GeneralSettings() {
   const { saveGeneralSettings, isSaving, saveError } = useAddUpdateGeneralSettings();
 
   const [generalItems, setGeneralItems] = useState<string[]>([""]);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
+  const [heroUploading, setHeroUploading] = useState(false);
+  const heroFileInputRef = useRef<HTMLInputElement>(null);
+  const [heroMobileImages, setHeroMobileImages] = useState<string[]>([]);
+  const [heroMobileUploading, setHeroMobileUploading] = useState(false);
+  const heroMobileFileInputRef = useRef<HTMLInputElement>(null);
   const [returnPeriod, setReturnPeriod] = useState<number | "">("");
   const [freeShippingThreshold, setFreeShippingThreshold] = useState<number | "">("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -27,6 +35,8 @@ export default function GeneralSettings() {
   useEffect(() => {
     if (!settings) return;
     setGeneralItems((settings.newsAndOffers || []).map((i: any) => i?.title ?? ""));
+    setHeroImages(settings.heroCarousel || []);
+    setHeroMobileImages(settings.heroCarouselMobile || []);
     setReturnPeriod(settings.returnPeriod ?? "");
     setFreeShippingThreshold(settings.freeShippingThreshold ?? "");
     setPhoneNumber(settings.phoneNumber ?? "");
@@ -35,6 +45,99 @@ export default function GeneralSettings() {
     setWhatsappUsername(settings.whatsappUsername ?? "");
     setWhatsappDeviceToken(settings.whatsappDeviceToken ?? "");
   }, [settings]);
+
+  const fileToBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+  const handleCarouselFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+    setUploading: (v: boolean) => void
+  ) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      const base64s = await Promise.all(files.map(fileToBase64));
+      setter((prev) => [...prev, ...base64s]);
+    } catch {
+      toast.error("Failed to read image file");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const removeCarouselImage = (
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+    index: number
+  ) => {
+    setter((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const renderCarouselGroup = (
+    label: string,
+    hint: string,
+    images: string[],
+    uploading: boolean,
+    inputRef: React.RefObject<HTMLInputElement | null>,
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+    setUploading: (v: boolean) => void
+  ) => (
+    <div>
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300">{label}</h4>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => inputRef.current?.click()}
+          disabled={isLoading || isSaving || uploading}
+        >
+          {uploading ? "Uploading..." : "Add Image"}
+        </Button>
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(e) => handleCarouselFileChange(e, setter, setUploading)}
+      />
+      <p className="text-xs text-gray-500 mb-3">{hint}</p>
+      {images.length === 0 ? (
+        <p className="text-sm text-slate-500 dark:text-slate-400">No carousel images added yet.</p>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+          {images.map((img, index) => (
+            <div key={index} className="relative aspect-video rounded-md border overflow-hidden">
+              <Image
+                src={img}
+                alt={`${label} slide ${index + 1}`}
+                fill
+                className="object-cover"
+              />
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="absolute top-1 right-1 bg-white/70 hover:bg-white h-7 w-7"
+                onClick={() => removeCarouselImage(setter, index)}
+                disabled={isSaving}
+              >
+                <Trash2 className="h-4 w-4 text-red-600" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 
   const addGeneralItem = () => {
     setGeneralItems([...generalItems, ""]);
@@ -66,6 +169,8 @@ export default function GeneralSettings() {
           type: "news" as const,
           isActive: true,
         })),
+      heroCarousel: heroImages,
+      heroCarouselMobile: heroMobileImages,
       returnPeriod: returnPeriod === "" ? null : returnPeriod,
       freeShippingThreshold: freeShippingThreshold === "" ? null : freeShippingThreshold,
       phoneNumber,
@@ -83,6 +188,8 @@ export default function GeneralSettings() {
     // Reset to the last fetched values
     if (settings) {
       setGeneralItems((settings.newsAndOffers || []).map((i: any) => i?.title ?? ""));
+      setHeroImages(settings.heroCarousel || []);
+      setHeroMobileImages(settings.heroCarouselMobile || []);
       setReturnPeriod(settings.returnPeriod ?? "");
       setFreeShippingThreshold(settings.freeShippingThreshold ?? "");
       setPhoneNumber(settings.phoneNumber ?? "");
@@ -92,6 +199,8 @@ export default function GeneralSettings() {
       setWhatsappDeviceToken(settings.whatsappDeviceToken ?? "");
     } else {
       setGeneralItems([""]);
+      setHeroImages([]);
+      setHeroMobileImages([]);
       setReturnPeriod("");
       setFreeShippingThreshold("");
       setPhoneNumber("");
@@ -115,6 +224,31 @@ export default function GeneralSettings() {
       </CardHeader>
       <CardContent className="p-8">
         <div className="space-y-8">
+          {/* Hero Carousel Section */}
+          <div>
+            <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Hero Carousel</h3>
+            <div className="space-y-6">
+              {renderCarouselGroup(
+                "Desktop Carousel",
+                "Shown on desktop screens. Recommended ratio 16:9.",
+                heroImages,
+                heroUploading,
+                heroFileInputRef,
+                setHeroImages,
+                setHeroUploading
+              )}
+              {renderCarouselGroup(
+                "Mobile Carousel",
+                "Shown on mobile screens. Recommended portrait ratio 4:5 or 9:16. Falls back to desktop images if empty.",
+                heroMobileImages,
+                heroMobileUploading,
+                heroMobileFileInputRef,
+                setHeroMobileImages,
+                setHeroMobileUploading
+              )}
+            </div>
+          </div>
+
           {/* Contact Information Section */}
           <div>
             <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-4">Contact Information</h3>

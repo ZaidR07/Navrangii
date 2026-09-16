@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 import { useGetVisitors } from "@/hooks/users/useGetVisitors";
 import { toast } from "react-toastify";
-import LoaderSpinner from "@/components/loader-spinner";
+import { AdminPageSkeleton } from "@/components/skeletons/admin-skeletons";
 import { Search, UserCheck, Mail, Phone, Calendar, Users } from "lucide-react";
 
 interface Visitor {
   _id: string;
   name?: string;
-  email: string;
+  email?: string;
   phone?: string;
   createdAt?: string;
   lastLogin?: string;
@@ -39,7 +39,7 @@ export default function UsersPage() {
     );
   });
 
-  if (isLoading) return <LoaderSpinner message="Loading users..." />;
+  if (isLoading) return <AdminPageSkeleton statCards={3} tableColumns={6} tableRows={5} />;
 
   return (
     <div className="min-h-screen bg-muted/40 p-4 sm:p-6 lg:p-8">
@@ -158,7 +158,10 @@ export default function UsersPage() {
                       <div className="flex items-center gap-3">
                         <div className="h-9 w-9 rounded-full bg-purple-100 flex items-center justify-center">
                           <span className="text-sm font-medium text-purple-700">
-                            {visitor.name?.charAt(0)?.toUpperCase() || visitor.email.charAt(0).toUpperCase()}
+                            {visitor.name?.charAt(0)?.toUpperCase() ||
+                              visitor.email?.charAt(0)?.toUpperCase() ||
+                              visitor.phone?.slice(-2) ||
+                              "U"}
                           </span>
                         </div>
                         <div>
@@ -171,7 +174,7 @@ export default function UsersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-slate-400">
                         <Mail className="h-3.5 w-3.5 text-gray-400 dark:text-slate-500" />
-                        {visitor.email}
+                        {visitor.email || "—"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-slate-400">

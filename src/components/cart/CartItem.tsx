@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, Minus, Plus } from 'lucide-react';
+import Image from 'next/image';
 import { Product } from '@/lib/types/productType';
 
 interface CartItemProps {
@@ -52,13 +53,15 @@ const CartItem = ({ item, onRemove, onUpdateQuantity }: CartItemProps) => {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col sm:flex-row gap-3 p-3 bg-white rounded-xl shadow-sm border border-gray-100"
+      className="flex flex-col sm:flex-row gap-3 p-3 bg-gray-100 rounded-xl shadow-sm border border-gray-200"
     >
       {/* Product Image */}
       <div className="flex-shrink-0 w-full h-full sm:w-24 sm:h-24 relative rounded-lg overflow-hidden bg-gray-100 mx-auto sm:mx-0 aspect-4/5">
-        <img
+        <Image
           src={selectedVariant?.thumbnail || selectedVariant?.gallery?.[0] || product?.image || '/placeholder.svg'}
           alt={product?.name || 'Product'}
+          fill
+          sizes="96px"
           className="object-cover w-full h-full"
         />
       </div>

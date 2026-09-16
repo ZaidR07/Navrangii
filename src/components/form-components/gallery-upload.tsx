@@ -2,19 +2,20 @@
 
 import { ProductFormValues } from "@/validationSchema/productSchema";
 import Image from "next/image";
-import { Control, Controller, Path } from "react-hook-form";
+import { Control } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Trash2 } from "lucide-react";
 import { Input } from "../ui/input";
-import { FormMessage } from "../ui/form";
+import { FormField, FormItem, FormMessage } from "../ui/form";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export function GalleryUpload({
   control,
   name,
 }: {
   control: Control<ProductFormValues>;
-  name: Path<ProductFormValues>;
+  name: `variants.${number}.gallery`;
 }) {
   const [loadingIndex, setLoadingIndex] = useState<number | null>(null);
 
@@ -28,16 +29,18 @@ export function GalleryUpload({
   };
 
   return (
-    <Controller
+    <FormField
       control={control}
       name={name}
-      render={({ field }) => {
+      render={({ field, fieldState }) => {
         const images: string[] = Array.isArray(field.value)
           ? field.value.filter((v): v is string => typeof v === "string")
           : [];
 
+        const errorMessage = fieldState?.error?.message;
+
         return (
-          <div className="space-y-2">
+          <FormItem className="space-y-2">
             <div className="flex flex-wrap gap-3">
               {images.map((img, i) => (
                 <div
@@ -86,12 +89,16 @@ export function GalleryUpload({
                     }
                   }}
                   disabled={loadingIndex !== null}
-                  className="w-48"
+                  className={cn("w-48", fieldState?.error && "border-red-500")}
                 />
               )}
             </div>
-            <FormMessage className="text-red-600" />
-          </div>
+            {errorMessage ? (
+              <p className="text-sm text-red-600">{errorMessage}</p>
+            ) : (
+              <FormMessage className="text-red-600" />
+            )}
+          </FormItem>
         );
       }}
     />

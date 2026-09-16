@@ -75,19 +75,19 @@ export default function SizeSection({
               control={control}
               name={`variants.${idx}.sizes.${rIdx}.marketPrice` as const}
               type="number"
-              label="Market ₹"
+              label="Market ₹*"
             />
             <FormInput
               control={control}
               name={`variants.${idx}.sizes.${rIdx}.sellingPrice` as const}
               type="number"
-              label="Selling ₹"
+              label="Selling ₹*"
             />
             <FormInput
               control={control}
               name={`variants.${idx}.sizes.${rIdx}.stock` as const}
               type="number"
-              label="Stock"
+              label="Stock*"
             />
 
             <div className="flex justify-end">

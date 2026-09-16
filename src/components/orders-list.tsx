@@ -264,17 +264,23 @@ export default function OrdersListTab({getStatusColor,orders,setOrders}: OrdersL
                                       </CardTitle>
                                     </CardHeader>
                                     <CardContent className="text-sm space-y-1">
-                                      <p>{selectedOrder.shippingAddress.fullName}</p>
-                                      <p>{selectedOrder.shippingAddress.addressLine1}</p>
-                                      {selectedOrder.shippingAddress.addressLine2 && (
-                                        <p>{selectedOrder.shippingAddress.addressLine2}</p>
+                                      {selectedOrder.shippingAddress ? (
+                                        <>
+                                          <p>{selectedOrder.shippingAddress.fullName}</p>
+                                          <p>{selectedOrder.shippingAddress.addressLine1}</p>
+                                          {selectedOrder.shippingAddress.addressLine2 && (
+                                            <p>{selectedOrder.shippingAddress.addressLine2}</p>
+                                          )}
+                                          <p>
+                                            {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{" "}
+                                            {selectedOrder.shippingAddress.postalCode}
+                                          </p>
+                                          <p>{selectedOrder.shippingAddress.country}</p>
+                                          <p>{selectedOrder.shippingAddress.phone}</p>
+                                        </>
+                                      ) : (
+                                        <p>N/A</p>
                                       )}
-                                      <p>
-                                        {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state}{" "}
-                                        {selectedOrder.shippingAddress.postalCode}
-                                      </p>
-                                      <p>{selectedOrder.shippingAddress.country}</p>
-                                      <p>{selectedOrder.shippingAddress.phone}</p>
                                     </CardContent>
                                   </Card>
 

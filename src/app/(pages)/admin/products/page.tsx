@@ -28,7 +28,7 @@ import { useGetAllProducts } from "@/hooks/product/useGetProduct";
 import { useHasMounted } from "@/lib/useHasMounted";
 import { CenteredGradientCard } from "@/components/centered-gradient-card";
 import { toast } from "react-toastify";
-import LoaderSpinner from "@/components/loader-spinner";
+import { AdminPageSkeleton } from "@/components/skeletons/admin-skeletons";
 
 import { useDebounce } from "use-debounce";
 import { Product } from "@/lib/types/productType";
@@ -40,14 +40,19 @@ import { useGetVariable } from "@/hooks/variable/useGetVariable";
 
 const stockOf = (p: Product) =>
   p.variants?.reduce(
-    (sum, v) => sum + v.sizes.reduce((s, row) => s + row.stock, 0),
+    (sum, v) =>
+      sum + (v.sizes ?? []).reduce((s, row) => s + (Number(row.stock) || 0), 0),
     0
   ) ?? 0;
 
 const valueOf = (p: Product) =>
   p.variants?.reduce(
     (sum, v) =>
-      sum + v.sizes.reduce((s, row) => s + row.sellingPrice * row.stock, 0),
+      sum +
+      (v.sizes ?? []).reduce(
+        (s, row) => s + (Number(row.sellingPrice) || 0) * (Number(row.stock) || 0),
+        0
+      ),
     0
   ) ?? 0;
 
@@ -93,7 +98,7 @@ export default function ProductManagementPage() {
   /* --------------------------------------------------------- */
   /* conditional UI (after all hooks)                          */
   /* --------------------------------------------------------- */
-  if (isLoading) return <LoaderSpinner message="Loading products..." />;
+  if (isLoading) return <AdminPageSkeleton statCards={3} tableColumns={9} tableRows={5} />;
 
   if (isError) {
     toast.error("Failed to load products. Please try again later.");

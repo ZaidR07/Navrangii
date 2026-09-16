@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import { useCart } from '@/hooks/cart/useCart';
 import { useGetProfile } from '@/hooks/user/useProfile';
 import { useGetCoupons } from '@/hooks/coupon/useGetCoupons';
@@ -12,6 +13,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import RazorpayScript from '@/components/payment/RazorpayScript';
 import { useCurrentAdmin } from '@/hooks/admin/useCurrentAdmin';
+import { CheckoutPageSkeleton } from '@/components/skeletons/site-skeletons';
 
 // Razorpay types
 declare global {
@@ -266,11 +268,7 @@ function CheckoutContent() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+    return <CheckoutPageSkeleton />;
   }
   
   return (
@@ -288,7 +286,7 @@ function CheckoutContent() {
         />
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6">
           <button
             type="button"
@@ -481,10 +479,12 @@ function CheckoutContent() {
                   const unitPrice = sizeData?.sellingPrice || 0;
                   return (
                     <div key={idx} className="flex items-start gap-3">
-                      <div className="w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
-                        <img
+                      <div className="w-12 h-12 rounded-md overflow-hidden bg-gray-100 flex-shrink-0 relative">
+                        <Image
                           src={item.variant?.thumbnail || item.product?.image || '/placeholder.svg'}
                           alt={item.product?.name || 'Product'}
+                          fill
+                          sizes="48px"
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -803,9 +803,11 @@ const OrderReview = ({ cartItems, subtotal, shipping, total, deliveryAddress }: 
           <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
             <div className="flex-shrink-0 w-14 h-14 relative rounded-md overflow-hidden bg-gray-200">
               {/* Product Image */}
-              <img
+              <Image
                 src={item.variant?.thumbnail || item.product?.image || '/placeholder.svg'}
                 alt={item.product?.name || 'Product'}
+                fill
+                sizes="56px"
                 className="w-full h-full object-cover"
               />
             </div>

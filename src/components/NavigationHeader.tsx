@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, X, Sparkles, ChevronDown, User, ShoppingCart, Search, LogOut, Menu } from "lucide-react";
+import { Heart, X, Sparkles,  User, ShoppingCart, Search, LogOut, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from '@/context/UserContext';
@@ -131,8 +131,8 @@ export default function NavigationHeader() {
       </div>
 
       <header className="fixed top-10 left-0 right-0 z-[100] bg-white/95 backdrop-blur-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 sm:h-24 lg:h-28">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20 lg:h-20">
             {/* Logo */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
@@ -146,7 +146,7 @@ export default function NavigationHeader() {
                   width={720}
                   height={216}
                   priority
-                  className="h-12 sm:h-16 lg:h-28 w-auto object-contain"
+                  className="h-10 sm:h-14 lg:h-16 w-auto object-contain"
                 />
               </Link>
             </motion.div>
@@ -349,7 +349,7 @@ export default function NavigationHeader() {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="fixed left-0 right-0 top-20 sm:top-24 z-[110] px-4"
+                      className="fixed left-0 right-0 top-26 sm:top-30 z-[110] px-4"
                     >
                       <div className="relative mx-auto w-full max-w-md bg-white rounded-lg shadow-lg border border-gray-200 p-4">
                         <input

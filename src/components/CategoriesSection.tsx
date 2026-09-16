@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 interface Category {
   title: string;
@@ -52,7 +53,7 @@ export default function CategoriesSection() {
     <>
       {/* Desktop Version */}
       <section className="py-20 bg-white hidden lg:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -76,9 +77,11 @@ export default function CategoriesSection() {
               >
                 <div className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
                   <div className="h-48 relative overflow-hidden">
-                    <img 
+                    <Image 
                       src={category.image} 
                       alt={category.title}
+                      fill
+                      sizes="(max-width: 768px) 50vw, 25vw"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
@@ -99,7 +102,7 @@ export default function CategoriesSection() {
 
       {/* Mobile Version - 2 Column Grid */}
       <section className="py-12 bg-white lg:hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -123,9 +126,11 @@ export default function CategoriesSection() {
               >
                 <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300">
                   <div className="h-32 sm:h-40 relative overflow-hidden">
-                    <img 
+                    <Image 
                       src={category.image} 
                       alt={category.title}
+                      fill
+                      sizes="50vw"
                       className="w-full h-full object-cover group-active:scale-105 transition-transform duration-300"
                     />
                   </div>

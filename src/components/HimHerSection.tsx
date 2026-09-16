@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
 import { useGetAllProducts } from '@/hooks/product/useGetProduct';
 import { Product as ProductType } from '@/lib/types/productType';
 import Link from "next/link";
+import Image from "next/image";
 import { useGetProductReviewsAggregate } from "@/hooks/product/useGetProductReviewsAggregate";
+import { SectionGridSkeleton } from '@/components/skeletons/site-skeletons';
 
 interface CoupleProduct {
   id: string;
@@ -51,33 +52,29 @@ const ProductCard = ({ product, index }: { product: CoupleProduct; index: number
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
       whileHover={{ scale: 1.05 }}
-      className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col"
+      className="group cursor-pointer transition-all duration-300 h-full flex flex-col"
     >
-      <div className="relative h-80 overflow-hidden">
-        <img
+      <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 border-4 border-gray-100 shadow-xl group-hover:shadow-2xl transition-shadow duration-300">
+        <Image
           src={product.image}
           alt={product.name}
+          fill
+          sizes="(max-width: 1024px) 50vw, 25vw"
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          style={{ aspectRatio: '3/4', objectFit: 'cover' }}
+          style={{ aspectRatio: '4/5', objectFit: 'cover' }}
         />
-        <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+        <div className="absolute top-1 right-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-semibold">
           {product.discount}
         </div>
       </div>
-      <div className="p-5 flex-grow flex flex-col">
-        <h3 className="text-lg font-bold text-gray-900 mb-3 line-clamp-2">{product.name}</h3>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`h-4 w-4 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-            ))}
-            <span className="text-sm text-gray-600 ml-2">{product.reviews > 0 ? `(${product.reviews})` : ""}</span>
-          </div>
-          <div className="flex items-baseline">
-            <span className="text-xl font-bold text-purple-600 mr-2">{product.price}</span>
-            <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
-          </div>
-        </div>
+      <div className="p-4 flex-grow flex flex-col text-center">
+        <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+        <p className="text-base text-purple-600">
+          {product.price}
+          {product.originalPrice && product.originalPrice !== product.price && (
+            <span className="ml-2 text-sm text-gray-400 line-through">{product.originalPrice}</span>
+          )}
+        </p>
       </div>
     </motion.div>
   </Link>
@@ -89,33 +86,29 @@ const MobileProductCard = ({ product, index }: { product: CoupleProduct; index: 
       initial={{ opacity: 0, x: 50 }}
       whileInView={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="w-full bg-white rounded-2xl overflow-hidden shadow-xl cursor-pointer"
+      className="w-full cursor-pointer"
     >
-      <div className="relative h-48 overflow-hidden">
-        <img
+      <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 border-4 border-gray-100 shadow-xl">
+        <Image
           src={product.image}
           alt={product.name}
+          fill
+          sizes="(max-width: 1024px) 50vw, 25vw"
           className="w-full h-full object-cover"
-          style={{ aspectRatio: '3/4', objectFit: 'cover' }}
+          style={{ aspectRatio: '4/5', objectFit: 'cover' }}
         />
-        <div className="absolute top-3 right-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+        <div className="absolute top-1 right-1 bg-red-500 text-white px-1.5 py-0.5 rounded-full text-[10px] font-semibold">
           {product.discount}
         </div>
       </div>
-      <div className="p-3">
-        <h3 className="text-base font-bold text-gray-900 mb-1 line-clamp-2">{product.name}</h3>
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`h-3 w-3 ${i < Math.floor(product.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
-            ))}
-            <span className="text-xs text-gray-600 ml-1">{product.reviews > 0 ? `(${product.reviews})` : ""}</span>
-          </div>
-          <div className="flex items-baseline">
-            <span className="text-lg font-bold text-purple-600 mr-1">{product.price}</span>
-            <span className="text-xs text-gray-500 line-through">{product.originalPrice}</span>
-          </div>
-        </div>
+      <div className="p-3 text-center">
+        <h3 className="text-base font-medium text-gray-800 mb-1 line-clamp-2">{product.name}</h3>
+        <p className="text-sm text-purple-600">
+          {product.price}
+          {product.originalPrice && product.originalPrice !== product.price && (
+            <span className="ml-1 text-xs text-gray-400 line-through">{product.originalPrice}</span>
+          )}
+        </p>
       </div>
     </motion.div>
   </Link>
@@ -150,10 +143,8 @@ export default function HimHerSection() {
   if (isLoading) {
     return (
       <section className="py-20 bg-gradient-to-br from-pink-50 to-purple-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <p className="text-xl text-purple-600">Loading hair accessories...</p>
-          </div>
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionGridSkeleton />
         </div>
       </section>
     );
@@ -162,7 +153,7 @@ export default function HimHerSection() {
   if (error) {
     return (
       <section className="py-20 bg-gradient-to-br from-pink-50 to-purple-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-xl text-red-600">Error loading hair accessories</p>
           </div>
@@ -173,7 +164,7 @@ export default function HimHerSection() {
   
   return (
     <section className="py-20 bg-gradient-to-br from-pink-50 to-purple-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}

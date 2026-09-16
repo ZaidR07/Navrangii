@@ -5,7 +5,7 @@ import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
 import { useCurrentAdmin } from "@/hooks/admin/useCurrentAdmin";
 import { useRouter } from "next/navigation";
-import PageLoading from "@/components/page-loading";
+import { AdminShellSkeleton } from "@/components/skeletons/admin-skeletons";
 
 interface AuthCheckWrapperProps {
   children: ReactNode;
@@ -29,20 +29,20 @@ export default function AuthCheckWrapper({ children }: AuthCheckWrapperProps) {
   }, [isLoading, user, isError, error, router]);
 
   if (isLoading) {
-    return <PageLoading />;
+    return <AdminShellSkeleton />;
   }
 
   // If no user and no explicit auth error, still show loading briefly
   // (could be a timing issue on first render after refresh)
   if (!user && !isError) {
-    return <PageLoading />;
+    return <AdminShellSkeleton />;
   }
 
   // Auth error that isn't 401/403 - could be network issue, show the UI
   if (isError && !user) {
     const status = (error as any)?.response?.status;
     if (status === 401 || status === 403) {
-      return <PageLoading />; // Will redirect via useEffect
+      return <AdminShellSkeleton />; // Will redirect via useEffect
     }
     // Network or other error - still try to show UI
   }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Home, Heart, User, ShoppingCart, LogOut, Package, Grid, Menu, Search } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from '@/context/UserContext';
 import { useCart } from '@/context/CartContext';
 import { useWishlistCount } from '@/hooks/wishlist/useWishlistCount';
@@ -140,8 +141,10 @@ export default function MobileBottomNav() {
                 >
                   <div className="aspect-square rounded-2xl bg-gray-50 overflow-hidden mb-3 border border-pink-100 shadow-sm group-active:scale-95 transition-all relative p-1">
                     <div className="w-full h-full rounded-xl overflow-hidden relative">
-                      <img 
+                      <Image 
                         src={categoryImages['onSale']} 
+                        fill
+                        sizes="45vw"
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         alt="On Sale"
                       />
@@ -165,8 +168,10 @@ export default function MobileBottomNav() {
                 >
                   <div className="aspect-square rounded-2xl bg-gray-50 overflow-hidden mb-3 border border-pink-100 shadow-sm group-active:scale-95 transition-all relative p-1">
                     <div className="w-full h-full rounded-xl overflow-hidden relative">
-                      <img 
+                      <Image 
                         src={categoryImages['bestSeller']} 
+                        fill
+                        sizes="45vw"
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         alt="Bestsellers"
                       />
@@ -190,8 +195,10 @@ export default function MobileBottomNav() {
                 >
                   <div className="aspect-square rounded-2xl bg-gray-50 overflow-hidden mb-3 border border-pink-100 shadow-sm group-active:scale-95 transition-all relative p-1">
                     <div className="w-full h-full rounded-xl overflow-hidden relative">
-                      <img 
+                      <Image 
                         src={categoryImages['newArrival']} 
+                        fill
+                        sizes="45vw"
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         alt="New Arrivals"
                       />
@@ -216,15 +223,13 @@ export default function MobileBottomNav() {
                     className="group cursor-pointer"
                   >
                     <div className="aspect-square rounded-2xl bg-gray-50 overflow-hidden mb-3 border border-pink-100 shadow-sm group-active:scale-95 transition-all relative p-1">
-                      <div className="w-full h-full rounded-xl overflow-hidden">
-                        <img 
+                      <div className="w-full h-full rounded-xl overflow-hidden relative">
+                        <Image 
                           src={categoryImages[section] || 'https://images.unsplash.com/photo-1618333234901-b358a5bc200e?q=80&w=300&auto=format&fit=crop'}
                           alt={section}
+                          fill
+                          sizes="45vw"
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = "https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=300&auto=format&fit=crop";
-                          }}
                         />
                       </div>
                     </div>

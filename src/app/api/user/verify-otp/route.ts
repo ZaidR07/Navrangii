@@ -1,22 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "../../../../lib/mongodb";
+import { formatWhatsAppNumber } from "@/lib/whatsapp";
 import { sign } from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, otp } = await req.json();
+    const { phone, otp } = await req.json();
 
-    if (!email || !otp) {
+    if (!phone || !otp) {
       return NextResponse.json(
-        { success: false, message: "Email and OTP are required" },
+        { success: false, message: "Phone number and OTP are required" },
         { status: 400 }
       );
     }
 
     const { db } = await connectToDB();
 
+    const formattedPhone = formatWhatsAppNumber(phone.replace(/\s|-/g, ""));
+
     // Find the OTP record
-    const otpRecord = await db.collection("otps").findOne({ email });
+    const otpRecord = await db.collection("otps").findOne({ phone: formattedPhone });
 
     if (!otpRecord) {
       return NextResponse.json(
@@ -42,29 +45,29 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if user exists, if not create one
-    let user = await db.collection("users").findOne({ email });
-    
+    let user = await db.collection("users").findOne({ phone: formattedPhone });
+
     if (!user) {
       // Create new user
       const newUser = {
-        email,
+        phone: formattedPhone,
         createdAt: new Date(),
         updatedAt: new Date(),
         isActive: true,
       };
-      
+
       const result = await db.collection("users").insertOne(newUser);
       user = { ...newUser, _id: result.insertedId };
     }
 
     // Delete the OTP record after successful verification
-    await db.collection("otps").deleteOne({ email });
+    await db.collection("otps").deleteOne({ phone: formattedPhone });
 
     // Generate JWT token
     const token = sign(
-      { 
-        userId: user._id.toString(), 
-        email: user.email 
+      {
+        userId: user._id.toString(),
+        phone: user.phone,
       },
       process.env.JWT_SECRET || 'fallback-secret-key',
       { expiresIn: '7d' }
@@ -82,7 +85,7 @@ export async function POST(req: NextRequest) {
         message: "OTP verified successfully",
         user: {
           _id: user._id,
-          email: user.email,
+          phone: user.phone,
           createdAt: user.createdAt,
         },
         token,

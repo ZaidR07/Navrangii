@@ -8,6 +8,7 @@ import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import { FormField, FormItem, FormMessage } from "../ui/form";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 type ThumbnailUploadProps = {
   control: Control<ProductFormValues>;
@@ -21,7 +22,7 @@ export default function ThumbnailUpload({ control, name }: ThumbnailUploadProps)
     <FormField
       control={control}
       name={name}
-      render={({ field }) => {
+      render={({ field, fieldState }) => {
         const img = typeof field.value === "string" ? field.value : "";
 
         const handleFileToBase64 = async (file: File) => {
@@ -74,7 +75,7 @@ export default function ThumbnailUpload({ control, name }: ThumbnailUploadProps)
                 accept="image/*"
                 onChange={handleChange}
                 disabled={loading}
-                className="w-48"
+                className={cn("w-48", fieldState?.error && "border-red-500")}
               />
             )}
             <FormMessage className="text-red-600" />

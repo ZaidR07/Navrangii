@@ -4,6 +4,10 @@ import { connectToDB } from "../../../../lib/mongodb";
 import { deleteS3Object } from "../../../../lib/awsUploadImages";
 import { getAuthenticatedAdmin } from "../../../../lib/adminAuth";
 
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+};
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -61,7 +65,7 @@ export async function GET(
         message: "Product fetched successfully",
         product,
       },
-      { status: 200 }
+      { status: 200, headers: CACHE_HEADERS }
     );
   } catch (error: any) {
     console.error("Error in getProductById:", error);

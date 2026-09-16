@@ -18,8 +18,8 @@ export const variantSizeSchema = z.object({
     thumbnail: z.string().url({ message: "Thumbnail URL is required" }),
     gallery: z
       .array(z.string().url({ message: "Invalid image URL" }))
-      .max(4, { message: "Up to 4 gallery images" })
-      .optional(),
+      .min(1, { message: "Upload at least 1 gallery image" })
+      .max(4, { message: "Up to 4 gallery images" }),
   });
 
 /* ───── product ───── */
@@ -29,15 +29,15 @@ export const productSchema = z.object({
   description: z.string().min(1, { message: "Description is required" }),
   section: z.string().min(1, { message: "Section is required" }),
   category: z.string().min(1, { message: "Category is required" }),
-  subcategory: z.string().min(1, { message: "Subcategory is required" }),
-  fabric: z.string().min(1, { message: "Fabric is required" }),
-  occasion: z.string().min(1, { message: "Occasion is required" }),
-  patternAndPrint: z.string().min(1, { message: "Pattern is required" }),
-  style: z.string().min(1, { message: "Style is required" }),
+  subcategory: z.string().optional(),
+  fabric: z.string().optional(),
+  occasion: z.string().optional(),
+  patternAndPrint: z.string().optional(),
+  style: z.string().optional(),
   productType: z.enum(["regular", "onSale", "bestSeller", "newArrival"], {
     required_error: "Product type is required",
   }),
-  option: z.string().min(1, { message: "Style is required" }),
+  option: z.string().optional(),
   variants: z.array(variantSchema).min(1, { message: "Add at least one variant" }),
 });
 

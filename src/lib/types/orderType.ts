@@ -62,7 +62,7 @@ export interface Order {
   orderStatusUpdate?: OrderStatusUpdate;
   status?: string;
   paymentMethod: string;
-  shippingAddress: ShippingAddress;
+  shippingAddress?: ShippingAddress | null;
   address?: any;
   assignedDeliveryPartner?: DeliveryPartners;
   assignedDate?: string;

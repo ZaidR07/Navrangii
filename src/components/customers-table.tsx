@@ -269,7 +269,7 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                               (order.orderStatusUpdate?.status || 'pending').slice(1)}
                                           </Badge>
                                           <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">
-                                            ₹{order.total.toFixed(2)}
+                                            ₹{(order.total ?? 0).toFixed(2)}
                                           </p>
                                         </div>
                                       </div>
@@ -320,8 +320,9 @@ export const CustomersTable: React.FC<CustomersTableProps> = ({
                                         </span>
                                         <div className="flex items-center gap-2 text-gray-600 dark:text-slate-400">
                                           <MapPin className="h-3 w-3" />
-                                          {order.shippingAddress.city},{" "}
-                                          {order.shippingAddress.state}
+                                          {order.shippingAddress
+                                            ? `${order.shippingAddress.city}, ${order.shippingAddress.state}`
+                                            : "N/A"}
                                         </div>
                                       </div>
                                       {order.orderStatusUpdate?.trackingNumber && (

@@ -18,6 +18,7 @@ import { useCurrentAdmin } from '@/hooks/admin/useCurrentAdmin';
 
 import NavigationHeader from '@/components/NavigationHeader';
 import Footer from '@/components/Footer';
+import { CartPageSkeleton } from '@/components/skeletons/site-skeletons';
 
 export default function CartPage() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -247,8 +248,8 @@ export default function CartPage() {
     return (
       <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
         <NavigationHeader />
-        <div className="py-8 mt-36 lg:mt-40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="py-8 mt-32 lg:mt-36">
+          <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white rounded-xl shadow-sm p-12 text-center">
               <ShoppingCart className="mx-auto h-16 w-16 text-gray-300 mb-4" />
               <h3 className="text-xl font-medium text-gray-900 mb-2">Login to view your cart</h3>
@@ -274,20 +275,13 @@ export default function CartPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your cart...</p>
-        </div>
-      </div>
-    );
+    return <CartPageSkeleton />;
   }
 
   if (isError) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-xl shadow-sm p-12 text-center">
             <X className="mx-auto h-16 w-16 text-red-500 mb-4" />
             <h3 className="text-xl font-medium text-gray-900 mb-2">Error loading cart</h3>
@@ -307,8 +301,8 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0">
       <NavigationHeader />
-      <div className="py-8 mt-36 lg:mt-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="py-8 mt-32 lg:mt-36">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-end mb-8" />
           
           {cartItems.length === 0 ? (

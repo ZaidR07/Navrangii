@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ShoppingCart, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { Product } from '@/lib/types/productType';
 // WishlistToggle removed per request
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface SimilarProductsCarouselProps {
   products: Product[];
@@ -32,22 +33,21 @@ const SimilarProductsCarousel = ({ products }: SimilarProductsCarouselProps) => 
             const discount = originalPrice > currentPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0;
             return (
               <Link key={product._id} href={`/product/${product._id}`} className="w-full">
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow h-full">
-                  <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-                    <img src={product.image || firstVariant?.gallery?.[0] || 'https://placehold.co/600x800/eee/aaa?text=No+Image'} alt={product.name} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x800/eee/aaa?text=No+Image'; }} />
+                <div className="h-full">
+                  <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 border-4 border-white hover:shadow-lg transition-shadow">
+                    <Image src={product.image || firstVariant?.gallery?.[0] || 'https://placehold.co/600x800/eee/aaa?text=No+Image'} alt={product.name} fill sizes="45vw" className="w-full h-full object-cover" />
                     {discount > 0 && (
-                      <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">{discount}% OFF</div>
+                      <div className="absolute top-1 left-1 bg-red-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">{discount}% OFF</div>
                     )}
                   </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-medium text-gray-900 line-clamp-1">{product.name}</h3>
-                    <p className="text-[10px] sm:text-xs text-gray-500 mb-1 line-clamp-1">{product.category}</p>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-purple-600">₹{currentPrice.toLocaleString()}</span>
+                  <div className="p-3 text-center">
+                    <h3 className="text-base font-medium text-gray-800 mb-1 line-clamp-2">{product.name}</h3>
+                    <p className="text-sm text-purple-600">
+                      ₹{currentPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       {originalPrice > currentPrice && (
-                        <span className="text-xs text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
+                        <span className="ml-1 text-xs text-gray-400 line-through">₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       )}
-                    </div>
+                    </p>
                   </div>
                 </div>
               </Link>
@@ -69,36 +69,26 @@ const SimilarProductsCarousel = ({ products }: SimilarProductsCarouselProps) => 
                   const originalPrice = firstSize?.marketPrice || 0;
                   const discount = originalPrice > currentPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0;
                   return (
-                    <motion.div key={product._id} className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow" whileHover={{ y: -5 }}>
-                      <div className="relative aspect-square overflow-hidden bg-gray-100">
-                        <img src={product.image || firstVariant?.gallery?.[0] || 'https://placehold.co/600x600/eee/aaa?text=No+Image'} alt={product.name} className="w-full h-full object-cover" onError={e => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }} />
-                        {discount > 0 && (
-                          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">{discount}% OFF</div>
-                        )}
-                        {/* Removed wishlist icon */}
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-medium text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
-                        <p className="text-sm text-gray-500 mb-2">{product.category}</p>
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="flex items-center">
-                            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                            <span className="text-xs text-gray-600 ml-1">4.5</span>
-                          </div>
-                          <span className="text-xs text-gray-400">•</span>
-                          <span className="text-xs text-gray-600">234 sold</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-purple-600">₹{currentPrice.toLocaleString()}</span>
-                          {originalPrice > currentPrice && (
-                            <span className="text-sm text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
+                    <Link key={product._id} href={`/product/${product._id}`}>
+                      <motion.div whileHover={{ y: -5 }}>
+                        <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 border-4 border-white hover:shadow-lg transition-shadow">
+                          <Image src={product.image || firstVariant?.gallery?.[0] || 'https://placehold.co/600x800/eee/aaa?text=No+Image'} alt={product.name} fill sizes="25vw" className="w-full h-full object-cover" />
+                          {discount > 0 && (
+                            <div className="absolute top-1 left-1 bg-red-500 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded">{discount}% OFF</div>
                           )}
+                          {/* Removed wishlist icon */}
                         </div>
-                        <Link href={`/product/${product._id}`} className="block w-full mt-3">
-                          <span className="w-full inline-flex justify-center bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg text-sm font-medium transition-colors">View Product</span>
-                        </Link>
-                      </div>
-                    </motion.div>
+                        <div className="p-4 text-center">
+                          <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2">{product.name}</h3>
+                          <p className="text-base text-purple-600">
+                            ₹{currentPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            {originalPrice > currentPrice && (
+                              <span className="ml-2 text-sm text-gray-400 line-through">₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            )}
+                          </p>
+                        </div>
+                      </motion.div>
+                    </Link>
                   );
                 })}
               </div>

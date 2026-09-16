@@ -4,8 +4,8 @@ import Cookies from 'js-cookie';
 
 export const useSendOtp = () => {
   return useMutation({
-    mutationFn: async (email) => {
-      const response = await apiClient.post('/user/send-otp', { email });
+    mutationFn: async (phone: string) => {
+      const response = await apiClient.post('/user/send-otp', { phone });
       return response.data;
     },
     onError: (error) => {
@@ -16,20 +16,28 @@ export const useSendOtp = () => {
 
 export const useVerifyOtp = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ email, otp }: { email: string; otp: string }) => {
-      const response = await apiClient.post('/user/verify-otp', { email, otp });
+    mutationFn: async ({ phone, otp }: { phone: string; otp: string }) => {
+      const response = await apiClient.post('/user/verify-otp', { phone, otp });
       return response.data;
     },
     onSuccess: (data) => {
-      // Store user email in cookie for 1 year (365 days)
-      Cookies.set('userEmail', data.user.email, { 
-        expires: 365, 
+      // Store user phone in cookie for 1 year (365 days)
+      Cookies.set('userPhone', data.user.phone, {
+        expires: 365,
         sameSite: 'Lax',
         secure: process.env.NODE_ENV === 'production'
       });
-      
+
+      // Backward compatibility: also set userEmail cookie with the phone
+      // so existing cart/wishlist/checkout code keeps working until migrated
+      Cookies.set('userEmail', data.user.phone, {
+        expires: 365,
+        sameSite: 'Lax',
+        secure: process.env.NODE_ENV === 'production'
+      });
+
       // Invalidate and refetch queries that depend on user authentication
       queryClient.invalidateQueries({ queryKey: ['user'] });
     },

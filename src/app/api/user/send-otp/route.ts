@@ -1,23 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "../../../../lib/mongodb";
-import { Resend } from "resend";
+import { sendWhatsAppMessage, formatWhatsAppNumber } from "@/lib/whatsapp";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email } = await req.json();
+    const { phone } = await req.json();
 
-    if (!email) {
+    if (!phone) {
       return NextResponse.json(
-        { success: false, message: "Email is required" },
+        { success: false, message: "Phone number is required" },
         { status: 400 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    // Validate Indian mobile number (10 digits, optionally prefixed with +91 or 91)
+    const cleaned = phone.replace(/\s|-/g, "");
+    const phoneRegex = /^(\+?91)?[6-9]\d{9}$/;
+    if (!phoneRegex.test(cleaned)) {
       return NextResponse.json(
-        { success: false, message: "Invalid email format" },
+        { success: false, message: "Invalid phone number. Please enter a valid 10-digit Indian mobile number." },
         { status: 400 }
       );
     }
@@ -28,12 +29,14 @@ export async function POST(req: NextRequest) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP expires in 10 minutes
 
-    // Store or update OTP in database
+    const formattedPhone = formatWhatsAppNumber(cleaned);
+
+    // Store or update OTP in database (keyed by phone)
     await db.collection("otps").updateOne(
-      { email },
+      { phone: formattedPhone },
       {
         $set: {
-          email,
+          phone: formattedPhone,
           otp,
           expiry: otpExpiry,
           createdAt: new Date(),
@@ -42,41 +45,29 @@ export async function POST(req: NextRequest) {
       { upsert: true }
     );
 
-    // Send OTP via Resend
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
+    // Send OTP via WhatsApp (same provider as marketing campaigns)
+    const message = `Your Navrangi OTP is ${otp}. It is valid for 10 minutes. Please do not share this code with anyone.`;
+
     try {
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL!,
-        to: [email],
-        subject: "Your OTP Verification Code",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #333;">Your OTP Verification Code</h2>
-            <p style="font-size: 18px; color: #666;">
-              Your One-Time Password (OTP) is:
-            </p>
-            <div style="background: #f4f4f4; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
-              <span style="font-size: 32px; font-weight: bold; color: #007bff; letter-spacing: 4px;">
-                ${otp}
-              </span>
-            </div>
-            <p style="color: #666; font-size: 14px;">
-              This OTP will expire in <strong>10 minutes</strong>. Please do not share this code with anyone.
-            </p>
-            <p style="color: #999; font-size: 12px; margin-top: 30px;">
-              If you didn't request this OTP, please ignore this email.
-            </p>
-          </div>
-        `,
-      });
-    } catch (emailError) {
-      console.error("Error sending email via Resend:", emailError);
+      const result = await sendWhatsAppMessage(formattedPhone, message);
+      if (!result.ok) {
+        console.error("WhatsApp API returned an error:", result.response);
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Failed to send OTP via WhatsApp",
+            error: "WhatsApp service error",
+          },
+          { status: 500 }
+        );
+      }
+    } catch (whatsappError) {
+      console.error("Error sending OTP via WhatsApp:", whatsappError);
       return NextResponse.json(
         {
           success: false,
-          message: "Failed to send OTP email",
-          error: "Email service error",
+          message: "Failed to send OTP via WhatsApp",
+          error: whatsappError instanceof Error ? whatsappError.message : "WhatsApp service error",
         },
         { status: 500 }
       );
@@ -85,7 +76,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: "OTP sent successfully",
+        message: "OTP sent successfully to your WhatsApp number",
         // In development, you might want to return the OTP for testing
         // otp: process.env.NODE_ENV === 'development' ? otp : undefined,
       },

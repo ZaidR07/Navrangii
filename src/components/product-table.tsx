@@ -17,7 +17,7 @@ import { useState } from "react";
 import { Product } from "@/lib/types/productType";
 import { VariantsDialog } from "./variants-dialog";
 import { useHasMounted } from "@/lib/useHasMounted";
-import LoaderSpinner from "./loader-spinner";
+import { SkeletonTable } from "./skeletons/admin-skeletons";
 import { useDeleteProduct } from "@/hooks/product/useDeleteProduct";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
@@ -60,7 +60,7 @@ export function ProductTable({
   };
 
   if (isDebouncing) {
-    return <LoaderSpinner message="Loading products..." />;
+    return <SkeletonTable columns={9} rows={5} />;
   }
 
   if (!products || products.length === 0) {

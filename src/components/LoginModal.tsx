@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Mail, Lock } from 'lucide-react';
+import { X, Phone, Lock } from 'lucide-react';
 import { useAuth } from '@/context/UserContext';
 
 interface LoginModalProps {
@@ -13,26 +13,27 @@ interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const { sendOtp, login } = useAuth();
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Basic email validation
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address');
+
+    // Basic Indian mobile number validation (10 digits, starts with 6-9)
+    const cleaned = phone.replace(/\D/g, '');
+    if (!cleaned || !/^[6-9]\d{9}$/.test(cleaned)) {
+      setError('Please enter a valid 10-digit mobile number');
       return;
     }
-    
+
     setIsLoading(true);
     setError('');
-    
+
     try {
-      await sendOtp(email);
+      await sendOtp(cleaned);
       setIsOtpSent(true);
       setError('');
     } catch (err: any) {
@@ -41,20 +42,20 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       setIsLoading(false);
     }
   };
-  
+
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!otp || otp.length !== 6) {
       setError('Please enter a valid 6-digit OTP');
       return;
     }
-    
+
     setIsLoading(true);
     setError('');
-    
+
     try {
-      await login(email, otp);
+      await login(phone.replace(/\D/g, ''), otp);
       if (onLoginSuccess) {
         onLoginSuccess();
       }
@@ -65,24 +66,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       setIsLoading(false);
     }
   };
-  
-  const handleBackToEmail = () => {
+
+  const handleBackToPhone = () => {
     setIsOtpSent(false);
     setOtp('');
     setError('');
   };
-  
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div 
+        <motion.div
           className="fixed inset-0 bg-white/30 backdrop-blur-sm flex items-center justify-center p-4 z-[1000]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
         >
-          <motion.div 
+          <motion.div
             className="bg-white rounded-xl shadow-xl w-full max-w-md p-6"
             initial={{ scale: 0.9, y: 20 }}
             animate={{ scale: 1, y: 0 }}
@@ -93,42 +94,46 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               <h2 className="text-xl font-bold text-gray-900">
                 {isOtpSent ? 'Verify OTP' : 'Login to Navrangi'}
               </h2>
-              <button 
+              <button
                 onClick={onClose}
                 className="text-gray-400 hover:text-gray-500"
               >
                 <X className="h-6 w-6" />
               </button>
             </div>
-            
+
             {error && (
               <div className="mb-4 text-red-600 text-sm bg-red-50 p-3 rounded-lg">
                 {error}
               </div>
             )}
-            
+
             {!isOtpSent ? (
               <form onSubmit={handleSendOtp}>
                 <div className="mb-4">
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                    WhatsApp Number
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-gray-400" />
+                      <Phone className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/[^0-9+\s-]/g, ''))}
                       className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500"
-                      placeholder="you@example.com"
+                      placeholder="9876543210"
                       disabled={isLoading}
+                      maxLength={13}
                     />
                   </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    We'll send an OTP to this WhatsApp number
+                  </p>
                 </div>
-                
+
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -141,9 +146,9 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
               <form onSubmit={handleVerifyOtp}>
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-4">
-                    We've sent a 6-digit OTP to <span className="font-medium">{email}</span>
+                    We've sent a 6-digit OTP to <span className="font-medium">{phone}</span> on WhatsApp
                   </p>
-                  
+
                   <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-1">
                     Enter OTP
                   </label>
@@ -162,11 +167,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     />
                   </div>
                 </div>
-                
+
                 <div className="flex gap-3">
                   <button
                     type="button"
-                    onClick={handleBackToEmail}
+                    onClick={handleBackToPhone}
                     disabled={isLoading}
                     className="flex-1 py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
                   >
@@ -182,7 +187,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                 </div>
               </form>
             )}
-            
+
             <p className="mt-4 text-xs text-gray-500 text-center">
               By continuing, you agree to our Terms of Service and Privacy Policy
             </p>

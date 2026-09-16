@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Package, Heart, User, MapPin, Phone, Mail, Edit3, CheckCircle, Truck, Clock, AlertCircle, ShoppingCart, X, CreditCard, Home, FileText, ChevronRight, HelpCircle } from "lucide-react";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -11,7 +12,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 const MySwal = withReactContent(Swal);
-import "react-toastify/dist/ReactToastify.css";
+import "react-toastify/ReactToastify.css";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useGetProfile, useUpdateProfile } from '@/hooks/user/useProfile';
 import { useAuth } from '@/context/UserContext';
@@ -22,6 +23,7 @@ import { useGetOrdersByEmail } from '@/hooks/order/useGetOrders';
 import AddressManager from '@/components/profile/AddressManager';
 import NavigationHeader from '@/components/NavigationHeader';
 import Footer from '@/components/Footer';
+import { ProfilePageSkeleton, ProfileTabSkeleton } from '@/components/skeletons/site-skeletons';
 
 interface Address {
   title: string;
@@ -53,13 +55,9 @@ const WishlistContent = () => {
   const email = Cookies.get('userEmail');
   
   const { data: wishlistData, isLoading, isError, error, refetch } = useWishlist(email || '');
-  
+
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+    return <ProfileTabSkeleton />;
   }
   
   if (isError) {
@@ -485,11 +483,7 @@ const OrdersContent = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+    return <ProfileTabSkeleton />;
   }
 
   if (isError) {
@@ -558,8 +552,8 @@ const OrdersContent = () => {
 
             {/* Product */}
             <div className="px-4 py-4 flex gap-4">
-              <div className="w-20 h-24 bg-gray-50 rounded overflow-hidden flex-shrink-0 border">
-                <img src={first?.variant?.thumbnail || first?.product?.image || first?.imageUrl || "/placeholder.svg"} alt={first?.product?.name || first?.productName || "Product"} className="w-full h-full object-cover" />
+              <div className="w-20 h-24 bg-gray-50 rounded overflow-hidden flex-shrink-0 border relative">
+                <Image src={first?.variant?.thumbnail || first?.product?.image || first?.imageUrl || "/placeholder.svg"} alt={first?.product?.name || first?.productName || "Product"} fill sizes="80px" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-sm font-semibold text-gray-900 line-clamp-2">{first?.product?.name || first?.productName || "Product"}</h3>
@@ -715,8 +709,8 @@ const OrdersContent = () => {
                   <div className="space-y-4">
                     {/* Product */}
                     <div className="flex gap-3 pb-3 border-b border-gray-100">
-                      <div className="w-20 h-20 lg:w-24 lg:h-24 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border">
-                        <img src={first?.variant?.thumbnail || first?.product?.image || first?.imageUrl || "/placeholder.svg"} alt={first?.product?.name || first?.productName || "Product"} className="w-full h-full object-cover" />
+                      <div className="w-20 h-20 lg:w-24 lg:h-24 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0 border relative">
+                        <Image src={first?.variant?.thumbnail || first?.product?.image || first?.imageUrl || "/placeholder.svg"} alt={first?.product?.name || first?.productName || "Product"} fill sizes="96px" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm lg:text-base font-semibold text-gray-900 leading-snug">{first?.product?.name || first?.productName || "Product"}</h3>
@@ -843,11 +837,7 @@ function ProfilePageContent() {
   }, [authLoading, isAuthenticated, router]);
 
   if (authLoading || !isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
-      </div>
-    );
+    return <ProfilePageSkeleton />;
   }
 
   const handleUpdateProfile = (data: Partial<UserProfile>) => {
@@ -875,8 +865,8 @@ function ProfilePageContent() {
   return (
     <>
       <NavigationHeader />
-      <div className="min-h-screen bg-gray-50 py-8 mt-36 lg:mt-40">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 py-8 mt-32 lg:mt-36">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -922,7 +912,6 @@ function ProfilePageContent() {
 
             {activeTab === 'wishlist' && (
               <div className="py-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">My Wishlist</h2>
                 <WishlistContent />
               </div>
             )}

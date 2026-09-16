@@ -4,6 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --breakpoint-3xl: 1920px;
+}
+
 @layer base {
   @theme {
     --radius: 0.5rem;

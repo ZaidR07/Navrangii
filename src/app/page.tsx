@@ -12,7 +12,6 @@ import NewArrivalsSection from "@/components/NewArrivalsSection";
 import CategoriesSection from "@/components/CategoriesSection";
 import BestSellingProducts from "@/components/BestSellingProducts";
 import FAQSection from "@/components/FAQSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { useGetAllProducts } from "@/hooks/product/useGetProduct";
@@ -48,7 +47,6 @@ export default function HomePage() {
       <CategoriesSection />
       <BestSellingProducts />
       <FAQSection />
-      <TestimonialsSection />
       <Footer />
       <MobileBottomNav />
     </div>

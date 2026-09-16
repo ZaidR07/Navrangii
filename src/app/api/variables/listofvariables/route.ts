@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "../../../../lib/mongodb";
 
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600',
+};
+
 export async function GET() {
   try {
     const { db } = await connectToDB();
@@ -23,7 +27,7 @@ export async function GET() {
         message: "Variables fetched successfully",
         data: variables,
       },
-      { status: 200 }
+      { status: 200, headers: CACHE_HEADERS }
     );
   } catch (error: unknown) {
     console.error("Error in getVariables:", error);

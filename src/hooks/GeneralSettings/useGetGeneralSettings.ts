@@ -11,6 +11,8 @@ interface NewsOfferItem {
 
 interface GeneralSettings {
   newsAndOffers: NewsOfferItem[];
+  heroCarousel: string[];
+  heroCarouselMobile: string[];
   returnPeriod: number | null;
   freeShippingThreshold: number | null;
   phoneNumber: string;
@@ -29,6 +31,8 @@ interface SettingsResponse {
 // Stable default to avoid new object creation per render
 export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   newsAndOffers: [],
+  heroCarousel: [],
+  heroCarouselMobile: [],
   returnPeriod: null,
   freeShippingThreshold: null,
   phoneNumber: '',

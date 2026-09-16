@@ -19,11 +19,6 @@ export async function POST(req: NextRequest) {
       "category",
       "name",
       "description",
-      "fabric",
-      "occasion",
-      "patternAndPrint",
-      "style",
-      "options",
     ];
 
     for (const field of requiredFields) {
@@ -55,6 +50,17 @@ export async function POST(req: NextRequest) {
         if (!variant.color || !variant.sizes || variant.sizes.length === 0) {
           return NextResponse.json(
             { message: "Variant color and sizes are required" },
+            { status: 400 }
+          );
+        }
+
+        if (
+          !variant.gallery ||
+          !Array.isArray(variant.gallery) ||
+          variant.gallery.length === 0
+        ) {
+          return NextResponse.json(
+            { message: "At least 1 gallery image is required per variant" },
             { status: 400 }
           );
         }

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 import { connectToDB } from "../../../../lib/mongodb";
 
+const CACHE_HEADERS = {
+  'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300',
+};
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -42,6 +46,24 @@ export async function GET(req: NextRequest) {
             variants: { $ifNull: ["$variants", []] },
           },
         },
+        {
+          // Project only fields needed for similar products display
+          $project: {
+            name: 1,
+            category: 1,
+            subcategory: 1,
+            section: 1,
+            productType: 1,
+            image: 1,
+            createdAt: 1,
+            "variants._id": 1,
+            "variants.thumbnail": 1,
+            "variants.gallery": 1,
+            "variants.sizes.sellingPrice": 1,
+            "variants.sizes.marketPrice": 1,
+            "variants.sizes.size": 1,
+          },
+        },
         { $limit: 10 },
       ])
       .toArray();
@@ -52,7 +74,7 @@ export async function GET(req: NextRequest) {
         message: "Similar products fetched successfully",
         products,
       },
-      { status: 200 }
+      { status: 200, headers: CACHE_HEADERS }
     );
   } catch (error: any) {
     console.error("Error in getSimilarProducts:", error);

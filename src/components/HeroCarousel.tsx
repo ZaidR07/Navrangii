@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { useGetGeneralSettings } from "@/hooks/GeneralSettings/useGetGeneralSettings";
 
 interface HeroImage {
   id: number;
@@ -75,20 +77,32 @@ const heroImages: HeroImage[] = [
 
 export default function HeroCarousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { settings } = useGetGeneralSettings();
+
+  const desktopUrls =
+    settings.heroCarousel && settings.heroCarousel.length > 0
+      ? settings.heroCarousel
+      : heroImages.map((h) => h.images.desktop);
+  const mobileUrls =
+    settings.heroCarouselMobile && settings.heroCarouselMobile.length > 0
+      ? settings.heroCarouselMobile
+      : desktopUrls;
+  const slideCount = Math.max(desktopUrls.length, mobileUrls.length);
+  const activeSlide = currentSlide % slideCount;
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+      setCurrentSlide((prev) => (prev + 1) % slideCount);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [slideCount]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    setCurrentSlide((prev) => (prev + 1) % slideCount);
   };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+    setCurrentSlide((prev) => (prev - 1 + slideCount) % slideCount);
   };
 
   return (
@@ -102,26 +116,28 @@ export default function HeroCarousel() {
           transition={{ duration: 0.8 }}
           className="absolute inset-0"
         >
-          {/* Background Image with Responsive Sources */}
+          {/* Background Image - single responsive Image with priority for first slide */}
           <div className="absolute inset-0">
-            {/* Mobile Image */}
-            <img
-              src={heroImages[currentSlide].images.mobile}
-              alt={heroImages[currentSlide].title}
-              className="block md:hidden w-full h-full object-cover"
-            />
-            {/* Tablet Image */}
-            <img
-              src={heroImages[currentSlide].images.tablet}
-              alt={heroImages[currentSlide].title}
-              className="hidden md:block lg:hidden w-full h-full object-cover"
-            />
-            {/* Desktop Image */}
-            <img
-              src={heroImages[currentSlide].images.desktop}
-              alt={heroImages[currentSlide].title}
-              className="hidden lg:block w-full h-full object-cover"
-            />
+            <div className="hidden md:block absolute inset-0">
+              <Image
+                src={desktopUrls[activeSlide % desktopUrls.length]}
+                alt={`Hero slide ${activeSlide + 1}`}
+                fill
+                priority={activeSlide === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </div>
+            <div className="md:hidden absolute inset-0">
+              <Image
+                src={mobileUrls[activeSlide % mobileUrls.length]}
+                alt={`Hero slide ${activeSlide + 1}`}
+                fill
+                priority={activeSlide === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </div>
           </div>
           
           {/* Subtle visual element overlay */}
@@ -159,12 +175,12 @@ export default function HeroCarousel() {
 
       {/* Slide Indicators */}
       <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 flex space-x-3">
-        {heroImages.map((_, index) => (
+        {Array.from({ length: slideCount }).map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentSlide
+              index === activeSlide
                 ? "bg-white scale-125"
                 : "bg-white/50 hover:bg-white/75"
             }`}

@@ -46,7 +46,7 @@ import KPICard from "@/components/kpl-card"
 import { toast } from "react-toastify"
 import { useGetCoupons } from "@/hooks/coupon/useGetCoupons"
 import { useDeleteCoupon } from "@/hooks/coupon/useDeleteCoupon"
-import LoaderSpinner from "@/components/loader-spinner"
+import { AdminPageSkeleton } from "@/components/skeletons/admin-skeletons"
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -109,7 +109,7 @@ export default function CouponsPage() {
   const totalUsage = coupons?.reduce((sum, coupon) => sum + coupon.usedCount, 0) || 0
  
   if (isLoading) {
-    return <LoaderSpinner message="Loading coupons..." />
+    return <AdminPageSkeleton statCards={3} tableColumns={6} tableRows={5} />
   }
 
   if (isError) {

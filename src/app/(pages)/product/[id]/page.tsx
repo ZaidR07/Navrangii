@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Loader2, AlertCircle, RotateCcw } from 'lucide-react';
+import { ProductDetailSkeleton } from '@/components/skeletons/site-skeletons';
 import { Button } from '@/components/ui/button';
 import { useGetProductById } from '@/hooks/product/useGetProduct';
 import { useGetSimilarProducts } from '@/hooks/product/useGetProduct';
@@ -69,10 +70,7 @@ const ProductDetailPage = () => {
     return (
       <div className="min-h-screen bg-white">
         <NavigationHeader />
-        <div className="mt-24 sm:mt-28 lg:mt-32 flex flex-col items-center justify-center gap-4 p-4">
-          <Loader2 className="h-12 w-12 animate-spin text-pink-500" />
-          <p className="text-gray-600">Loading product details...</p>
-        </div>
+        <ProductDetailSkeleton />
       </div>
     );
   }
@@ -81,7 +79,7 @@ const ProductDetailPage = () => {
     return (
       <div className="min-h-screen bg-white">
         <NavigationHeader />
-        <div className="mt-24 sm:mt-28 lg:mt-32 flex items-center justify-center p-4">
+        <div className="mt-20 sm:mt-24 lg:mt-28 flex items-center justify-center p-4">
           <div className="text-center max-w-md">
             <div className="flex justify-center mb-4">
               <AlertCircle className="h-12 w-12 text-rose-500" />
@@ -123,19 +121,12 @@ const ProductDetailPage = () => {
     <>
       <NavigationHeader />
       <div className="min-h-screen bg-white pb-16 lg:pb-0">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-32 sm:mt-36 lg:mt-40">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 mt-28 sm:mt-32 lg:mt-32">
           {/* Breadcrumb */}
-          <nav className="mb-8">
+          <nav className="mb-4 sm:mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <a href="/" className="hover:text-purple-600">Home</a>
-              <ChevronRight className="h-4 w-4" />
-              <a
-                href={`/category/${encodeURIComponent(product.category)}`}
-                className="hover:text-purple-600"
-              >
-                Categories
-              </a>
               <ChevronRight className="h-4 w-4" />
               <span className="hidden sm:inline text-gray-900">{product.name}</span>
             </div>

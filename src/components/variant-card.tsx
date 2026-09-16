@@ -144,7 +144,7 @@ export default function  VariantCard({
               <CardContent className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Thumbnail Image
+                    Thumbnail Image*
                   </label>
                   <ThumbnailUpload
                     control={control}
@@ -153,7 +153,7 @@ export default function  VariantCard({
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Image Gallery
+                    Image Gallery*
                   </label>
                   <GalleryUpload
                     control={control}

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, Quote, RefreshCw } from "lucide-react";
 import { toast } from "react-toastify";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TestimonialGridSkeleton } from "@/components/skeletons/site-skeletons";
 
 interface Testimonial {
   id: number;
@@ -57,7 +59,7 @@ export default function TestimonialsSection() {
   }, []);
   return (
     <section className="py-20 bg-gradient-to-br from-purple-50 to-rose-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -104,12 +106,7 @@ export default function TestimonialsSection() {
           } */}
 
           {/* Loading State */}
-          {isLoading && (
-            <div className="flex justify-center items-center gap-2 text-gray-500">
-              <RefreshCw className="h-5 w-5 animate-spin" />
-              <span>Loading reviews...</span>
-            </div>
-          )}
+          {isLoading && <Skeleton className="h-5 w-48 mx-auto" />}
 
           {/* Error Notice */}
           {error && !isLoading && testimonials.length === 0 && (
@@ -122,10 +119,7 @@ export default function TestimonialsSection() {
         {/* Desktop Testimonials Grid */}
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {isLoading ? (
-            <div className="col-span-full text-center py-12">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-500" />
-              <p className="text-gray-600">Loading Google Reviews...</p>
-            </div>
+            <TestimonialGridSkeleton count={3} />
           ) : (
           testimonials.map((testimonial, index) => (
             <motion.div
@@ -173,9 +167,8 @@ export default function TestimonialsSection() {
         {/* Mobile Reviews Grid (no slider) */}
         <div className="md:hidden">
           {isLoading ? (
-            <div className="text-center py-12">
-              <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-4 text-purple-500" />
-              <p className="text-gray-600">Loading Google Reviews...</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <TestimonialGridSkeleton count={2} />
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

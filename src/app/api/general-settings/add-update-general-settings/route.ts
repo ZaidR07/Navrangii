@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDB } from "../../../../lib/mongodb";
+import { uploadBase64Image } from "../../../../lib/awsUploadImages";
 import { getAuthenticatedAdmin } from "../../../../lib/adminAuth";
 
 export async function POST(req: NextRequest) {
@@ -15,6 +16,8 @@ export async function POST(req: NextRequest) {
 
     const defaultGeneralSettings = {
       newsAndOffers: [],
+      heroCarousel: [],
+      heroCarouselMobile: [],
       returnPeriod: null,
       freeShippingThreshold: null,
       phoneNumber: "",
@@ -33,7 +36,21 @@ export async function POST(req: NextRequest) {
         : [],
     };
 
-    const toSave = { ...defaultGeneralSettings, ...normalized };
+    const uploadCarousel = async (images: unknown, prefix: string) =>
+      Promise.all(
+        (Array.isArray(images) ? images : []).map(async (img: string, i: number) => {
+          if (typeof img === "string" && img.startsWith("data:image")) {
+            const ext = img.match(/^data:image\/(\w+)/)?.[1] || "jpg";
+            return uploadBase64Image(img, `hero-carousel/${prefix}-slide-${Date.now()}-${i}.${ext}`);
+          }
+          return img;
+        })
+      );
+
+    const heroCarousel = await uploadCarousel(normalized.heroCarousel, "desktop");
+    const heroCarouselMobile = await uploadCarousel(normalized.heroCarouselMobile, "mobile");
+
+    const toSave = { ...defaultGeneralSettings, ...normalized, heroCarousel, heroCarouselMobile };
 
     await db.collection("general_information").updateOne(
       { _id: "general_settings" as any },

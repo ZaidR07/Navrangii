@@ -9,7 +9,7 @@ export default function AboutUs() {
     <div className="min-h-screen bg-gradient-to-br from-rose-50 to-purple-50">
       {/* Header */}
       <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center text-purple-600 hover:text-purple-700 transition-colors">
               <ArrowLeft className="h-5 w-5 mr-2" />
@@ -19,7 +19,7 @@ export default function AboutUs() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

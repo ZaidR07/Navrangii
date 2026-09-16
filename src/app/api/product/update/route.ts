@@ -51,6 +51,17 @@ export async function PUT(req: NextRequest) {
         if (
           !variant.gallery ||
           !Array.isArray(variant.gallery) ||
+          variant.gallery.length === 0
+        ) {
+          return NextResponse.json(
+            { message: "At least 1 gallery image is required per variant" },
+            { status: 400 }
+          );
+        }
+
+        if (
+          !variant.gallery ||
+          !Array.isArray(variant.gallery) ||
           variant.gallery.some((img: any) => typeof img !== "string")
         ) {
           return NextResponse.json(

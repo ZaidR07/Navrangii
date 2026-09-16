@@ -11,6 +11,8 @@ function getMongoUri(): string {
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
+let lastPingTime = 0;
+const PING_INTERVAL_MS = 30_000; // Only ping every 30s instead of every request
 
 export async function connectToDB() {
   // Always read env fresh (Next.js hot-reload doesn't re-evaluate module-level consts)
@@ -26,10 +28,17 @@ export async function connectToDB() {
     );
   }
 
-  // If we have a cached connection, verify it's still alive
+  // If we have a cached connection, only verify it's alive periodically (not every request)
   if (cachedClient && cachedDb) {
+    const now = Date.now();
+    if (now - lastPingTime < PING_INTERVAL_MS) {
+      // Skip ping — trust the cached connection (saves a round-trip per request)
+      return { client: cachedClient, db: cachedDb };
+    }
+
     try {
       await cachedDb.admin().ping();
+      lastPingTime = now;
       return { client: cachedClient, db: cachedDb };
     } catch {
       // Connection is dead — clear cache and reconnect below
@@ -44,7 +53,12 @@ export async function connectToDB() {
   }
 
   // Create new connection
-  const client = new MongoClient(MONGODB_URI);
+  const client = new MongoClient(MONGODB_URI, {
+    maxPoolSize: 10,
+    minPoolSize: 1,
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+  });
 
   try {
     await client.connect();
@@ -52,6 +66,7 @@ export async function connectToDB() {
 
     // Verify connection with a ping
     await db.admin().ping();
+    lastPingTime = Date.now();
 
     cachedClient = client;
     cachedDb = db;
@@ -62,7 +77,7 @@ export async function connectToDB() {
     try {
       await client.close();
     } catch {
-      // ignore close errors
+      // ignore
     }
     cachedClient = null;
     cachedDb = null;

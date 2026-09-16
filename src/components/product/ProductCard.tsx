@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import WishlistToggle from '@/components/wishlist/WishlistToggle';
 
 interface ProductCardProps {
@@ -13,14 +13,6 @@ interface ProductCardProps {
   onRemoveFromWishlist?: (productId: string) => void;
   linkHref?: string;
 }
-
-const getStableReviewsCount = (seed: string) => {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  }
-  return 50 + (hash % 100);
-};
 
 export default function ProductCard({ 
   product, 
@@ -37,11 +29,7 @@ export default function ProductCard({
   
   // Calculate discount percentage
   const discount = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
-  
-  // For rating, we'll use a default value since it's not in our product data
-  const rating = 4.5;
-  const reviews = getStableReviewsCount(product._id || product.name);
-  
+
   // State for undo functionality
   const [showUndo, setShowUndo] = useState(false);
   const [removedProductId, setRemovedProductId] = useState<string | null>(null);
@@ -77,19 +65,20 @@ export default function ProductCard({
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
       whileHover={{ scale: 1.05 }}
-      className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 h-full flex flex-col"
+      className="group cursor-pointer h-full flex flex-col"
     >
-      <div className="relative h-80 overflow-hidden">
-        <img
+      <div className="relative aspect-[4/5] overflow-hidden bg-gray-100 border-4 border-gray-100 shadow-xl group-hover:shadow-2xl transition-shadow duration-300">
+        <Image
           src={product?.image || firstVariant?.thumbnail || 'https://placehold.co/600x600/eee/aaa?text=No+Image'}
           alt={product?.name || 'Product'}
+          fill
+          sizes="(max-width: 1024px) 50vw, 25vw"
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-          style={{ aspectRatio: '3/4', objectFit: 'cover' }}
-          onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x600/eee/aaa?text=No+Image'; }}
+          style={{ aspectRatio: '4/5', objectFit: 'cover' }}
         />
         
         {discount > 0 && (
-          <div className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+          <div className="absolute top-1 right-1 bg-red-500 text-white px-2 py-0.5 rounded-full text-xs font-semibold">
             {discount}% OFF
           </div>
         )}
@@ -124,26 +113,14 @@ export default function ProductCard({
         )}
       </div>
       
-      <div className="p-4 flex-grow flex flex-col">
-        <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{product?.name || 'Product'}</h3>
-        
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star 
-                key={`star-${i}`} 
-                className={`h-4 w-4 ${i < Math.floor(rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
-              />
-            ))}
-            <span className="text-sm text-gray-600 ml-2">({reviews} reviews)</span>
-          </div>
-          <div className="flex items-baseline">
-            <span className="text-xl font-bold text-purple-600 mr-2">₹{price.toLocaleString()}</span>
-            {originalPrice > price && (
-              <span className="text-sm text-gray-500 line-through">₹{originalPrice.toLocaleString()}</span>
-            )}
-          </div>
-        </div>
+      <div className="p-4 flex-grow flex flex-col text-center">
+        <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2">{product?.name || 'Product'}</h3>
+        <p className="text-base text-purple-600">
+          ₹{price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {originalPrice > price && (
+            <span className="ml-2 text-sm text-gray-400 line-through">₹{originalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          )}
+        </p>
       </div>
     </motion.div>
   );

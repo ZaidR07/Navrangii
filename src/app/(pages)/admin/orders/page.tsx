@@ -14,6 +14,7 @@ import KPICard from "@/components/kpl-card"
 
 import { useGetOrders } from "@/hooks/order/useGetOrders"
 import OrdersListTab from "@/components/orders-list"
+import { SkeletonTable } from "@/components/skeletons/admin-skeletons"
 
 
 
@@ -148,9 +149,7 @@ export default function OrdersPage() {
 
         {/* Orders Tab */}
         {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-          </div>
+          <SkeletonTable columns={7} rows={6} />
         ) : (
           <OrdersListTab orders={orders} getStatusColor={getStatusColor} setOrders={setOrders} />
         )}

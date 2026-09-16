@@ -11,6 +11,8 @@ interface NewsOfferItem {
 
 interface GeneralSettings {
   newsAndOffers: NewsOfferItem[];
+  heroCarousel: string[];
+  heroCarouselMobile: string[];
   returnPeriod: number | null;
   freeShippingThreshold: number | null;
   phoneNumber: string;

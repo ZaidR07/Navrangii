@@ -5,7 +5,7 @@ import { useDebounce } from "use-debounce";
 import { useGetAllUsers } from "@/hooks/users/useGetAllUser";
 import type { ExtendedUser } from "@/lib/types/userType";
 import { toast } from "react-toastify";
-import LoaderSpinner from "@/components/loader-spinner";
+import { AdminPageSkeleton } from "@/components/skeletons/admin-skeletons";
 import { Filters } from "@/components/customer-filter";
 import { CustomersTable } from "@/components/customers-table";
 import {
@@ -39,7 +39,7 @@ export default function CustomersPage() {
     return matchesSearch && isNotAdmin;
   });
 
-  if (isLoading) return <LoaderSpinner message="Loading customers..." />;
+  if (isLoading) return <AdminPageSkeleton statCards={3} tableColumns={6} tableRows={5} />;
 
   return (
     <div className="min-h-screen bg-muted/40 p-4 sm:p-6 lg:p-8">
